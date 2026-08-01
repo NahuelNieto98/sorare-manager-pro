@@ -9,9 +9,114 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  accounts      Account[]
+  sessions      Session[]
+  cards         Card[]
+  transactions  Transaction[]
+
+  sorareAccount SorareAccount?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([sessionToken])
+}
+
+model VerificationToken {
+  identifier String
+  token      String @unique
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Card {
+  id            String @id @default(cuid())
+
+  sorareId      String @unique
+  slug          String @unique
+
+  playerName    String
+  season        Int
+  scarcity      String
+
+  club          String?
+  position      String?
+
+  averageScore  Float?
+  marketValue   Float?
+
+  pictureUrl    String?
+
+  ownerId       String
+  owner         User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SorareAccount {
+  id        String @id @default(cuid())
+
+  userId    String @unique
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  slug      String @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+
+  type        String
+
+  playerName  String
+
+  rarity      String
+
+  price       Float
+
+  date        DateTime
+
+  notes       String?
+
+  userId      String
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
 }

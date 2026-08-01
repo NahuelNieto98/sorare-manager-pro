@@ -1,55 +1,100 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  Boxes,
+  Wallet,
   Trophy,
   BarChart3,
-  Wallet,
   Settings,
-  Boxes,
+  ShieldCheck,
 } from "lucide-react";
 
-export default function Sidebar() {
-  return (
-    <aside className="w-72 min-h-screen bg-[#1A1333] border-r border-purple-900 flex flex-col">
-      <div className="p-8 border-b border-purple-900">
-        <h1 className="text-2xl font-bold text-purple-400">
-          Sorare Manager Pro
-        </h1>
+const links = [
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "Gallery",
+    href: "/gallery",
+    icon: Boxes,
+  },
+  {
+    name: "Market",
+    href: "/market",
+    icon: Wallet,
+  },
+  {
+    name: "Rewards",
+    href: "/rewards",
+    icon: Trophy,
+  },
+  {
+    name: "Analytics",
+    href: "/analytics",
+    icon: BarChart3,
+  },
+];
 
-        <p className="text-sm text-zinc-400 mt-1">Season 2026/27</p>
+export default function Sidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside className="flex min-h-screen w-72 flex-col border-r border-purple-900 bg-[#17112F]">
+      <div className="border-b border-purple-900 p-8">
+        <h1 className="text-3xl font-extrabold text-purple-400">Sorare</h1>
+
+        <p className="mt-1 text-sm text-zinc-400">Manager Pro</p>
       </div>
 
-      <nav className="flex-1 p-5 space-y-2">
-        <button className="flex items-center gap-3 w-full rounded-xl bg-purple-600 px-4 py-3 font-medium">
-          <LayoutDashboard size={20} />
-          Dashboard
-        </button>
+      <nav className="flex-1 space-y-2 p-5">
+        {links.map((item) => {
+          const Icon = item.icon;
 
-        <button className="flex items-center gap-3 w-full rounded-xl px-4 py-3 hover:bg-[#241845] transition">
-          <Boxes size={20} />
-          Gallery
-        </button>
+          const active = pathname === item.href;
 
-        <button className="flex items-center gap-3 w-full rounded-xl px-4 py-3 hover:bg-[#241845] transition">
-          <Wallet size={20} />
-          Market
-        </button>
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-4 rounded-xl px-4 py-3 transition ${
+                active
+                  ? "bg-purple-600 font-semibold text-white"
+                  : "text-zinc-400 hover:bg-[#221A40] hover:text-white"
+              }`}
+            >
+              <Icon size={20} />
 
-        <button className="flex items-center gap-3 w-full rounded-xl px-4 py-3 hover:bg-[#241845] transition">
-          <Trophy size={20} />
-          Rewards
-        </button>
-
-        <button className="flex items-center gap-3 w-full rounded-xl px-4 py-3 hover:bg-[#241845] transition">
-          <BarChart3 size={20} />
-          Analytics
-        </button>
+              {item.name}
+            </Link>
+          );
+        })}
       </nav>
 
-      <div className="p-5 border-t border-purple-900">
-        <button className="flex items-center gap-3 w-full rounded-xl px-4 py-3 hover:bg-[#241845] transition">
+      <div className="border-t border-purple-900 p-5">
+        <Link
+          href="/settings"
+          className="mb-3 flex items-center gap-4 rounded-xl px-4 py-3 text-zinc-400 transition hover:bg-[#221A40] hover:text-white"
+        >
           <Settings size={20} />
           Settings
-        </button>
+        </Link>
+
+        <div className="rounded-2xl border border-purple-800 bg-[#221A40] p-5">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="text-green-400" size={22} />
+
+            <div>
+              <p className="font-semibold text-white">Pro Trial</p>
+
+              <p className="text-xs text-zinc-400">14 días restantes</p>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
   );
