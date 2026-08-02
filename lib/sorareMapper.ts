@@ -3,6 +3,8 @@ import { SorareCard } from "./types";
 export function mapSorareCard(card: any): SorareCard {
   return {
     id: card.assetId ?? "",
+    assetId: card.assetId ?? "",
+
     slug: card.slug ?? "",
 
     playerName: card.player?.displayName ?? "Jugador",
