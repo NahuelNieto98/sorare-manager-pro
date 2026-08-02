@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
+
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-import { saveCards } from "@/lib/syncCards";
-import { fetchUserCards } from "@/lib/fetchUserCards";
+import { getCurrentUser } from "@/lib/sorare/getCurrentUser";
+import { getUserCards } from "@/lib/sorare/getUserCards";
+import { importGallery } from "@/lib/sorare/importGallery";
 
 import { calculateGalleryValue } from "@/lib/gallery";
-import { saveSnapshot } from "@/lib/saveSnapshot";
+import { savePortfolioSnapshot } from "@/lib/portfolio";
 
 export async function POST() {
   const session = await auth();
@@ -20,7 +22,6 @@ export async function POST() {
       email: session.user.email,
     },
     include: {
-      sorareAccount: true,
       transactions: true,
     },
   });
@@ -32,46 +33,49 @@ export async function POST() {
     );
   }
 
-  if (!user.sorareAccount) {
-    return NextResponse.json(
-      { error: "Cuenta Sorare no conectada" },
-      { status: 400 },
-    );
-  }
+  const currentUser = await getCurrentUser();
 
-  const cards = await fetchUserCards(user.sorareAccount.slug);
+  await prisma.sorareAccount.upsert({
+    where: {
+      userId: user.id,
+    },
+    update: {
+      slug: currentUser.slug,
+    },
+    create: {
+      userId: user.id,
+      slug: currentUser.slug,
+    },
+  });
 
-  await saveCards(user.id, cards);
+  const cards = await getUserCards(currentUser.slug);
 
-  const gallery = await prisma.card.findMany({
+  await importGallery(user.id, cards);
+
+  const dbCards = await prisma.card.findMany({
     where: {
       ownerId: user.id,
     },
   });
 
-  const galleryValue = calculateGalleryValue(gallery);
+  const galleryValue = calculateGalleryValue(dbCards);
 
-  const bought = user.transactions
+  const totalBought = user.transactions
     .filter((t) => t.type === "BUY")
     .reduce((sum, t) => sum + t.price, 0);
 
-  const sold = user.transactions
+  const totalSold = user.transactions
     .filter((t) => t.type === "SELL")
     .reduce((sum, t) => sum + t.price, 0);
 
-  const profit = galleryValue + sold - bought;
+  const profit = totalSold - totalBought;
 
-  const roi = bought === 0 ? 0 : (profit / bought) * 100;
+  const roi = totalBought === 0 ? 0 : (profit / totalBought) * 100;
 
-  await saveSnapshot({
-    userId: user.id,
-    galleryValue,
-    roi,
-    profit,
-  });
+  await savePortfolioSnapshot(user.id, galleryValue, roi, profit);
 
   return NextResponse.json({
     success: true,
-    imported: cards.length,
+    cards: dbCards.length,
   });
 }

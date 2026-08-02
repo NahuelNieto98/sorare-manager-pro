@@ -10,6 +10,7 @@ import TopCards from "@/components/dashboard/TopCards";
 import MarketSummary from "@/components/dashboard/MarketSummary";
 import RecentTransactions from "@/components/dashboard/RecentTransactions";
 import ScoutCard from "@/components/dashboard/ScoutCard";
+import SyncGalleryButton from "@/components/dashboard/SyncGalleryButton";
 
 type DashboardData = {
   galleryValue: number;
@@ -61,12 +62,16 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-5xl font-extrabold text-white">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-5xl font-extrabold text-white">Dashboard</h1>
 
-        <p className="mt-3 text-lg text-zinc-400">
-          Bienvenido a Sorare Manager Pro.
-        </p>
+          <p className="mt-3 text-lg text-zinc-400">
+            Bienvenido a Sorare Manager Pro.
+          </p>
+        </div>
+
+        <SyncGalleryButton />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-4">

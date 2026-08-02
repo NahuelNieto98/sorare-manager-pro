@@ -1,19 +1,25 @@
 export default function ScoutCard() {
   return (
-    <div className="rounded-3xl border border-violet-700/30 bg-gradient-to-br from-violet-700 to-purple-900 p-8">
-      <h2 className="text-3xl font-bold text-white">🤖 Scout IA</h2>
+    <div className="rounded-3xl border border-purple-900 bg-[#17112F] p-8">
+      <h2 className="text-2xl font-bold text-white">Scout IA</h2>
 
-      <p className="mt-4 text-purple-100 leading-8">
-        Tu asistente analizará automáticamente tu galería y te recomendará:
-        {"\n\n"}• Qué vender
-        {"\n"}• Qué comprar
-        {"\n"}• Mejor alineación
-        {"\n"}• ROI esperado
-        {"\n"}• Riesgos de mercado
+      <p className="mt-4 text-zinc-400">
+        Próximamente podrás analizar automáticamente tu galería utilizando
+        inteligencia artificial.
       </p>
 
-      <button className="mt-8 rounded-xl bg-white px-6 py-3 font-bold text-purple-900 transition hover:scale-105">
-        Abrir Scout IA
+      <div className="mt-8 rounded-2xl bg-[#221A40] p-6">
+        <p className="text-white">✓ Recomendaciones de compra</p>
+
+        <p className="mt-3 text-white">✓ Recomendaciones de venta</p>
+
+        <p className="mt-3 text-white">✓ Mejor alineación</p>
+
+        <p className="mt-3 text-white">✓ Riesgo de jugadores</p>
+      </div>
+
+      <button className="mt-8 w-full rounded-xl bg-purple-600 py-3 font-bold text-white hover:bg-purple-500">
+        Disponible próximamente
       </button>
     </div>
   );
