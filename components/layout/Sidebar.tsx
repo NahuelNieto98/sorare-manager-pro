@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Boxes,
-  Wallet,
-  Trophy,
+  ArrowLeftRight,
+  Bot,
   BarChart3,
   Settings,
   ShieldCheck,
@@ -24,14 +24,14 @@ const links = [
     icon: Boxes,
   },
   {
-    name: "Market",
-    href: "/market",
-    icon: Wallet,
+    name: "Transactions",
+    href: "/transactions",
+    icon: ArrowLeftRight,
   },
   {
-    name: "Rewards",
-    href: "/rewards",
-    icon: Trophy,
+    name: "Scout IA",
+    href: "/assistant",
+    icon: Bot,
   },
   {
     name: "Analytics",
@@ -44,9 +44,9 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex min-h-screen w-72 flex-col border-r border-purple-900 bg-[#17112F]">
-      <div className="border-b border-purple-900 p-8">
-        <h1 className="text-3xl font-extrabold text-purple-400">Sorare</h1>
+    <aside className="flex min-h-screen w-72 flex-col border-r border-violet-700/30 bg-[#17112F]">
+      <div className="border-b border-violet-700/30 p-8">
+        <h1 className="text-3xl font-extrabold text-violet-400">Sorare</h1>
 
         <p className="mt-1 text-sm text-zinc-400">Manager Pro</p>
       </div>
@@ -61,9 +61,9 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-4 rounded-xl px-4 py-3 transition ${
+              className={`flex items-center gap-4 rounded-xl px-4 py-3 transition-all ${
                 active
-                  ? "bg-purple-600 font-semibold text-white"
+                  ? "bg-violet-600 text-white font-semibold shadow-lg"
                   : "text-zinc-400 hover:bg-[#221A40] hover:text-white"
               }`}
             >
@@ -75,7 +75,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t border-purple-900 p-5">
+      <div className="border-t border-violet-700/30 p-5">
         <Link
           href="/settings"
           className="mb-3 flex items-center gap-4 rounded-xl px-4 py-3 text-zinc-400 transition hover:bg-[#221A40] hover:text-white"
@@ -84,7 +84,7 @@ export default function Sidebar() {
           Settings
         </Link>
 
-        <div className="rounded-2xl border border-purple-800 bg-[#221A40] p-5">
+        <div className="rounded-2xl border border-violet-700/30 bg-[#221A40] p-5">
           <div className="flex items-center gap-3">
             <ShieldCheck className="text-green-400" size={22} />
 

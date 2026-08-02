@@ -19,11 +19,13 @@ model User {
   sessions      Session[]
   cards         Card[]
   transactions  Transaction[]
+  snapshots     PortfolioSnapshot[]
+  galleryHistory GalleryHistory[]
 
   sorareAccount SorareAccount?
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Account {
@@ -63,60 +65,85 @@ model VerificationToken {
 }
 
 model Card {
-  id            String @id @default(cuid())
+  id String @id @default(cuid())
 
-  sorareId      String @unique
-  slug          String @unique
+  sorareId String @unique
+  slug String @unique
 
-  playerName    String
-  season        Int
-  scarcity      String
+  playerName String
+  season Int
+  scarcity String
 
-  club          String?
-  position      String?
+  club String?
+  position String?
 
-  averageScore  Float?
-  marketValue   Float?
+  averageScore Float?
+  marketValue Float?
 
-  pictureUrl    String?
+  pictureUrl String?
 
-  ownerId       String
-  owner         User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model SorareAccount {
-  id        String @id @default(cuid())
-
-  userId    String @unique
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  slug      String @unique
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Transaction {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  type        String
+  type String
 
-  playerName  String
+  playerName String
 
-  rarity      String
+  rarity String
 
-  price       Float
+  price Float
 
-  date        DateTime
+  date DateTime @default(now())
 
-  notes       String?
+  userId String
 
-  userId      String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+model SorareAccount {
+  id String @id @default(cuid())
 
-  createdAt   DateTime @default(now())
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  slug String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PortfolioSnapshot {
+  id String @id @default(cuid())
+
+  galleryValue Float
+
+  roi Float
+
+  profit Float
+
+  createdAt DateTime @default(now())
+
+  userId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GalleryHistory {
+  id String @id @default(cuid())
+
+  value Float
+
+  createdAt DateTime @default(now())
+
+  userId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

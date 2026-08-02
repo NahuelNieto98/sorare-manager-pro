@@ -20,7 +20,11 @@ export async function GET() {
     },
     include: {
       cards: true,
-      transactions: true,
+      transactions: {
+        orderBy: {
+          date: "desc",
+        },
+      },
     },
   });
 
@@ -45,19 +49,42 @@ export async function GET() {
     .filter((t) => t.type === "SELL")
     .reduce((sum, t) => sum + t.price, 0);
 
-  const profit = totalSold - totalBought;
+  const profit = galleryValue + totalSold - totalBought;
 
   const roi = totalBought === 0 ? 0 : (profit / totalBought) * 100;
+
+  const topCards = [...user.cards]
+    .sort((a, b) => (b.marketValue ?? 0) - (a.marketValue ?? 0))
+    .slice(0, 5)
+    .map((card) => ({
+      playerName: card.playerName,
+      marketValue: card.marketValue,
+    }));
+
+  const recentTransactions = user.transactions
+    .slice(0, 5)
+    .map((transaction) => ({
+      id: transaction.id,
+      type: transaction.type,
+      playerName: transaction.playerName,
+      rarity: transaction.rarity,
+      price: transaction.price,
+    }));
 
   return NextResponse.json({
     galleryValue,
     average,
     totalCards: user.cards.length,
+
     scarcity,
 
     totalBought,
     totalSold,
     profit,
     roi,
+
+    topCards,
+
+    recentTransactions,
   });
 }

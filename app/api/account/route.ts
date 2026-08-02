@@ -1,44 +1,29 @@
 import { NextResponse } from "next/server";
-
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(req: Request) {
+export async function GET() {
   const session = await auth();
 
   if (!session?.user?.email) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const { slug } = await req.json();
-
   const user = await prisma.user.findUnique({
     where: {
       email: session.user.email,
     },
+    include: {
+      sorareAccount: true,
+    },
   });
 
-  if (!user) {
-    return NextResponse.json(
-      { error: "Usuario no encontrado" },
-      { status: 404 },
-    );
+  if (!user?.sorareAccount) {
+    return NextResponse.json({ connected: false }, { status: 404 });
   }
 
-  await prisma.sorareAccount.upsert({
-    where: {
-      userId: user.id,
-    },
-    update: {
-      slug,
-    },
-    create: {
-      slug,
-      userId: user.id,
-    },
-  });
-
   return NextResponse.json({
-    success: true,
+    connected: true,
+    slug: user.sorareAccount.slug,
   });
 }

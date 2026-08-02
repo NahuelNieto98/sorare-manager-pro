@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+
 import { saveCards } from "@/lib/syncCards";
+import { fetchUserCards } from "@/lib/fetchUserCards";
+
+import { calculateGalleryValue } from "@/lib/gallery";
+import { saveSnapshot } from "@/lib/saveSnapshot";
 
 export async function POST() {
   const session = await auth();
@@ -14,6 +19,10 @@ export async function POST() {
     where: {
       email: session.user.email,
     },
+    include: {
+      sorareAccount: true,
+      transactions: true,
+    },
   });
 
   if (!user) {
@@ -23,25 +32,46 @@ export async function POST() {
     );
   }
 
-  // De momento guardamos una carta de prueba.
-  // Después sustituiremos esto por la API oficial de Sorare.
-  await saveCards(user.id, [
-    {
-      id: "1",
-      slug: "test-card",
-      assetId: "1",
-      playerName: "Kylian Mbappé",
-      club: "Real Madrid",
-      position: "Forward",
-      pictureUrl: null,
-      season: 2026,
-      scarcity: "limited",
-      averageScore: 73,
-      marketValue: 185,
+  if (!user.sorareAccount) {
+    return NextResponse.json(
+      { error: "Cuenta Sorare no conectada" },
+      { status: 400 },
+    );
+  }
+
+  const cards = await fetchUserCards(user.sorareAccount.slug);
+
+  await saveCards(user.id, cards);
+
+  const gallery = await prisma.card.findMany({
+    where: {
+      ownerId: user.id,
     },
-  ]);
+  });
+
+  const galleryValue = calculateGalleryValue(gallery);
+
+  const bought = user.transactions
+    .filter((t) => t.type === "BUY")
+    .reduce((sum, t) => sum + t.price, 0);
+
+  const sold = user.transactions
+    .filter((t) => t.type === "SELL")
+    .reduce((sum, t) => sum + t.price, 0);
+
+  const profit = galleryValue + sold - bought;
+
+  const roi = bought === 0 ? 0 : (profit / bought) * 100;
+
+  await saveSnapshot({
+    userId: user.id,
+    galleryValue,
+    roi,
+    profit,
+  });
 
   return NextResponse.json({
     success: true,
+    imported: cards.length,
   });
 }

@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import StatCard from "@/components/dashboard/StatCard";
+import PortfolioCard from "@/components/dashboard/PortfolioCard";
 import GalleryChart from "@/components/charts/GalleryChart";
+import QuickStats from "@/components/dashboard/QuickStats";
+import TopCards from "@/components/dashboard/TopCards";
+import MarketSummary from "@/components/dashboard/MarketSummary";
+import RecentTransactions from "@/components/dashboard/RecentTransactions";
+import ScoutCard from "@/components/dashboard/ScoutCard";
 
 type DashboardData = {
   galleryValue: number;
@@ -22,96 +27,53 @@ type DashboardData = {
     superRare: number;
     unique: number;
   };
+
+  topCards: {
+    playerName: string;
+    marketValue: number | null;
+  }[];
+
+  recentTransactions: {
+    id: string;
+    type: string;
+    playerName: string;
+    rarity: string;
+    price: number;
+  }[];
 };
 
 export default function DashboardPage() {
-  const router = useRouter();
-
   const [data, setData] = useState<DashboardData | null>(null);
-  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
-    loadDashboard();
+    fetch("/api/dashboard")
+      .then((res) => res.json())
+      .then((json) => setData(json));
   }, []);
-
-  async function loadDashboard() {
-    const res = await fetch("/api/dashboard");
-    const json = await res.json();
-    setData(json);
-  }
-
-  async function syncGallery() {
-    setSyncing(true);
-
-    try {
-      const res = await fetch("/api/sync-gallery", {
-        method: "POST",
-      });
-
-      if (!res.ok) {
-        alert("Error al sincronizar");
-        return;
-      }
-
-      await loadDashboard();
-
-      router.refresh();
-
-      alert("Galería sincronizada");
-    } finally {
-      setSyncing(false);
-    }
-  }
 
   if (!data) {
     return (
       <div className="flex h-full items-center justify-center text-2xl text-white">
-        Cargando Dashboard...
+        Cargando dashboard...
       </div>
     );
   }
 
   return (
-    <>
-      <div className="mb-10 flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-white">Dashboard</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-5xl font-extrabold text-white">Dashboard</h1>
 
-          <p className="mt-2 text-zinc-400">Resumen de tu cuenta Sorare.</p>
-        </div>
-
-        <button
-          onClick={syncGallery}
-          disabled={syncing}
-          className="rounded-xl bg-purple-600 px-6 py-3 font-bold text-white hover:bg-purple-500 disabled:opacity-50"
-        >
-          {syncing ? "Sincronizando..." : "Sincronizar galería"}
-        </button>
+        <p className="mt-3 text-lg text-zinc-400">
+          Bienvenido a Sorare Manager Pro.
+        </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-6 xl:grid-cols-4">
         <StatCard
           title="Valor galería"
           value={`€${data.galleryValue.toFixed(2)}`}
           subtitle={`${data.totalCards} cartas`}
-        />
-
-        <StatCard
-          title="Comprado"
-          value={`€${data.totalBought.toFixed(2)}`}
-          subtitle="Invertido"
-        />
-
-        <StatCard
-          title="Vendido"
-          value={`€${data.totalSold.toFixed(2)}`}
-          subtitle="Recuperado"
-        />
-
-        <StatCard
-          title="Beneficio"
-          value={`€${data.profit.toFixed(2)}`}
-          subtitle={data.profit >= 0 ? "En positivo" : "En negativo"}
         />
 
         <StatCard
@@ -121,50 +83,43 @@ export default function DashboardPage() {
         />
 
         <StatCard
-          title="Media AA"
-          value={String(data.average)}
-          subtitle="Últimos partidos"
+          title="Premios"
+          value={`€${data.totalSold.toFixed(2)}`}
+          subtitle="Ventas"
+        />
+
+        <StatCard
+          title="Essence"
+          value={data.average.toFixed(1)}
+          subtitle="AA Medio"
         />
       </div>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-3">
+      <PortfolioCard
+        galleryValue={data.galleryValue}
+        profit={data.profit}
+        roi={data.roi}
+      />
+
+      <div className="grid gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <GalleryChart />
         </div>
 
-        <div className="rounded-2xl border border-purple-900 bg-[#17112F] p-6">
-          <h2 className="mb-6 text-xl font-bold text-white">
-            Distribución de la galería
-          </h2>
-
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <span>Total cartas</span>
-              <span>{data.totalCards}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Limited</span>
-              <span>{data.scarcity.limited}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Rare</span>
-              <span>{data.scarcity.rare}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Super Rare</span>
-              <span>{data.scarcity.superRare}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Unique</span>
-              <span>{data.scarcity.unique}</span>
-            </div>
-          </div>
-        </div>
+        <QuickStats totalCards={data.totalCards} average={data.average} />
       </div>
-    </>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <TopCards cards={data.topCards} />
+
+        <MarketSummary bought={data.totalBought} sold={data.totalSold} />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <RecentTransactions transactions={data.recentTransactions} />
+
+        <ScoutCard />
+      </div>
+    </div>
   );
 }

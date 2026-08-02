@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import CardItem from "@/components/gallery/CardItem";
+import GalleryHeader from "@/components/gallery/GalleryHeader";
 
 type Card = {
   id: string;
@@ -19,6 +21,7 @@ export default function GalleryPage() {
 
   const [search, setSearch] = useState("");
   const [rarity, setRarity] = useState("all");
+  const [sort, setSort] = useState("value");
 
   useEffect(() => {
     fetch("/api/cards")
@@ -30,7 +33,7 @@ export default function GalleryPage() {
   }, []);
 
   const filteredCards = useMemo(() => {
-    return cards.filter((card) => {
+    const filtered = cards.filter((card) => {
       const matchesSearch =
         card.playerName.toLowerCase().includes(search.toLowerCase()) ||
         (card.club ?? "").toLowerCase().includes(search.toLowerCase());
@@ -39,30 +42,57 @@ export default function GalleryPage() {
 
       return matchesSearch && matchesRarity;
     });
-  }, [cards, search, rarity]);
+
+    filtered.sort((a, b) => {
+      switch (sort) {
+        case "value":
+          return (b.marketValue ?? 0) - (a.marketValue ?? 0);
+
+        case "aa":
+          return (b.averageScore ?? 0) - (a.averageScore ?? 0);
+
+        case "name":
+          return a.playerName.localeCompare(b.playerName);
+
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [cards, search, rarity, sort]);
+
+  const galleryValue = cards.reduce(
+    (sum, card) => sum + (card.marketValue ?? 0),
+    0,
+  );
+
+  const average =
+    cards.length === 0
+      ? 0
+      : cards.reduce((sum, card) => sum + (card.averageScore ?? 0), 0) /
+        cards.length;
 
   return (
     <>
-      <div className="mb-10">
-        <h1 className="text-4xl font-bold text-white">Gallery</h1>
-
-        <p className="mt-2 text-zinc-400">
-          Gestiona toda tu colección de Sorare.
-        </p>
-      </div>
+      <GalleryHeader
+        totalCards={cards.length}
+        galleryValue={galleryValue}
+        average={average}
+      />
 
       <div className="mb-8 flex flex-col gap-4 lg:flex-row">
         <input
           placeholder="Buscar jugador o club..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 rounded-xl border border-purple-900 bg-[#17112F] px-5 py-3 text-white outline-none"
+          className="flex-1 rounded-xl border border-violet-700/30 bg-[#181530] px-5 py-3 text-white outline-none"
         />
 
         <select
           value={rarity}
           onChange={(e) => setRarity(e.target.value)}
-          className="rounded-xl border border-purple-900 bg-[#17112F] px-5 py-3 text-white"
+          className="rounded-xl border border-violet-700/30 bg-[#181530] px-5 py-3 text-white"
         >
           <option value="all">Todas</option>
           <option value="limited">Limited</option>
@@ -70,16 +100,26 @@ export default function GalleryPage() {
           <option value="super_rare">Super Rare</option>
           <option value="unique">Unique</option>
         </select>
+
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="rounded-xl border border-violet-700/30 bg-[#181530] px-5 py-3 text-white"
+        >
+          <option value="value">Mayor valor</option>
+          <option value="aa">Mayor AA</option>
+          <option value="name">Nombre</option>
+        </select>
       </div>
 
       {loading ? (
-        <div className="text-white text-xl">Cargando cartas...</div>
+        <div className="text-center text-xl text-white">Cargando cartas...</div>
       ) : filteredCards.length === 0 ? (
-        <div className="rounded-2xl border border-purple-900 bg-[#17112F] p-12 text-center">
+        <div className="rounded-3xl border border-violet-700/30 bg-[#181530] p-12 text-center">
           <h2 className="text-2xl font-bold text-white">No hay cartas</h2>
 
           <p className="mt-3 text-zinc-400">
-            Conecta tu cuenta de Sorare para importar tu galería.
+            Sincroniza tu cuenta de Sorare para empezar.
           </p>
         </div>
       ) : (
