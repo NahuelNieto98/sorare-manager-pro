@@ -16,6 +16,10 @@ query GetUserCards($slug: String!, $after: String) {
         displayRarity
         seasonYear
 
+        publicMinPrices {
+          eurCents
+        }
+
         anyPlayer {
           displayName
           slug
@@ -68,7 +72,6 @@ async function requestWithRetry(
 
 
     } catch(error:any) {
-
 
       attempts++;
 
@@ -156,6 +159,7 @@ export async function getUserCards(
 
 
 
+
     const cards =
       data.data.user.cards.nodes;
 
@@ -209,14 +213,21 @@ export async function getUserCards(
 
 
 
+
   return allCards.map(
     (card:any)=>({
 
-      assetId: card.assetId,
+      assetId:
+        card.assetId,
 
-      slug: card.slug,
 
-      season: card.seasonYear,
+      slug:
+        card.slug,
+
+
+      season:
+        card.seasonYear,
+
 
       rarity:
         card.displayRarity?.toLowerCase()
@@ -224,48 +235,74 @@ export async function getUserCards(
         "limited",
 
 
-      marketValue: null,
+
+      marketValue:
+        card.publicMinPrices?.eurCents != null
+          ? card.publicMinPrices.eurCents / 100
+          : null,
 
 
-      player: {
+
+      player:{
+
 
         displayName:
           card.anyPlayer?.displayName
           ??
           "Desconocido",
 
+
+
         slug:
           card.anyPlayer?.slug
           ??
           null,
+
+
 
         position:
           card.anyPlayer?.cardPositions?.[0]
           ??
           null,
 
-        l5Score: null,
-        l10Score: null,
-        l15Score: null,
-        l40Score: null,
+
+
+        l5Score:
+          null,
+
+        l10Score:
+          null,
+
+        l15Score:
+          null,
+
+        l40Score:
+          null,
+
+
 
         club:
           card.anyTeam?.name
           ??
           null,
 
+
+
         pictureUrl:
           card.pictureUrl
           ??
           null,
 
+
       },
+
 
 
       pictureUrl:
         card.pictureUrl
         ??
         null,
+
 
     })
   );
