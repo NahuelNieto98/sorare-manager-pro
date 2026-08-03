@@ -24,11 +24,6 @@ query GetUserCards($slug: String!, $after: String) {
           displayName
           slug
           cardPositions
-
-          l10Score: averageScore(
-            teamMode: ALL,
-            type: LAST_TEN_PLAYED_SO5_AVERAGE_SCORE
-          )
         }
 
         anyTeam {
@@ -56,7 +51,6 @@ function sleep(ms:number) {
 
 
 
-
 async function requestWithRetry(
   slug:string,
   after:string | null
@@ -67,9 +61,7 @@ async function requestWithRetry(
 
   while(attempts < 3) {
 
-
     try {
-
 
       return await sorareRequest(
         GET_USER_CARDS,
@@ -103,7 +95,6 @@ async function requestWithRetry(
 
 
     }
-
 
   }
 
@@ -182,17 +173,13 @@ export async function getUserCards(
 
 
 
-
     if(!data.data?.user) {
-
 
       throw new Error(
         `Usuario Sorare no encontrado: ${slug}`
       );
 
-
     }
-
 
 
 
@@ -272,10 +259,9 @@ export async function getUserCards(
 
 
   console.log(
-    "🔥 TOTAL GALERÍA PRO:",
+    "🔥 TOTAL CARTAS GALERÍA:",
     allCards.length
   );
-
 
 
 
@@ -354,8 +340,6 @@ export async function getUserCards(
 
 
           l10Score:
-            card.anyPlayer?.l10Score
-            ??
             null,
 
 
@@ -391,7 +375,6 @@ export async function getUserCards(
           card.pictureUrl
           ??
           null,
-
 
 
       };
