@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { getLastTokenPrice } from "@/lib/sorare/getTokenPrice";
 
 
 export async function importGallery(
@@ -45,8 +44,7 @@ export async function importGallery(
 
 
 
-
-  const chunkSize = 25;
+  const chunkSize = 100;
 
 
 
@@ -71,48 +69,13 @@ export async function importGallery(
 
 
 
-
-
     await Promise.all(
 
       chunk.map(async (card:any) => {
 
 
-
-        let marketValue =
+        const marketValue =
           card.marketValue ?? null;
-
-
-
-        if (
-          marketValue === null &&
-          card.player?.slug
-        ) {
-
-
-          marketValue =
-            await getLastTokenPrice(
-              card.player.slug,
-              card.rarity
-            );
-
-
-        }
-
-
-
-
-
-        console.log(
-          "🔥 SINCRONIZANDO CARTA:",
-          card.player.displayName,
-          card.player.position,
-          "💰",
-          marketValue
-        );
-
-
-
 
 
 
@@ -127,10 +90,8 @@ export async function importGallery(
 
           update: {
 
-
             slug:
               card.slug,
-
 
             season:
               card.season,
@@ -152,10 +113,8 @@ export async function importGallery(
               card.player.position,
 
 
-
             averageScore:
               card.player.l10Score,
-
 
 
             l5Score:
@@ -174,19 +133,15 @@ export async function importGallery(
               card.player.l40Score,
 
 
-
             pictureUrl:
               card.pictureUrl,
-
 
 
             marketValue,
 
 
-
             ownerId:
               userId,
-
 
           },
 
@@ -223,10 +178,8 @@ export async function importGallery(
               card.player.position,
 
 
-
             averageScore:
               card.player.l10Score,
-
 
 
             l5Score:
@@ -245,19 +198,15 @@ export async function importGallery(
               card.player.l40Score,
 
 
-
             pictureUrl:
               card.pictureUrl,
-
 
 
             marketValue,
 
 
-
             ownerId:
               userId,
-
 
           },
 
