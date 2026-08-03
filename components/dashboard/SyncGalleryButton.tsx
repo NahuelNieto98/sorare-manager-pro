@@ -4,133 +4,35 @@ import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 
 export default function SyncGalleryButton() {
-
   const [loading, setLoading] = useState(false);
 
-  const [status, setStatus] = useState(
-    "Sincronizar galería"
-  );
-
-
   async function syncGallery() {
-
     setLoading(true);
 
-
     try {
+      const res = await fetch("/api/sync-gallery", {
+        method: "POST",
+      });
 
-
-      setStatus(
-        "Sincronizando galería..."
-      );
-
-
-      const syncRes = await fetch(
-        "/api/sync-gallery",
-        {
-          method: "POST",
-        }
-      );
-
-
-
-      if (!syncRes.ok) {
-
-        throw new Error(
-          "Error sincronizando galería"
-        );
-
+      if (!res.ok) {
+        throw new Error();
       }
 
+      window.location.reload();
 
+    } catch {
 
-
-
-      setStatus(
-        "Actualizando precios..."
-      );
-
-
-
-
-
-      const priceRes = await fetch(
-        "/api/update-prices",
-        {
-          method: "POST",
-        }
-      );
-
-
-
-
-
-      if (!priceRes.ok) {
-
-        throw new Error(
-          "Error actualizando precios"
-        );
-
-      }
-
-
-
-
-
-
-      setStatus(
-        "Galería actualizada ✅"
-      );
-
-
-
-
-      setTimeout(() => {
-
-        window.location.reload();
-
-      }, 1000);
-
-
-
-
-
-
-    } catch(error) {
-
-
-      console.error(
-        error
-      );
-
-
-      alert(
-        "Error sincronizando la galería."
-      );
-
-
-      setStatus(
-        "Sincronizar galería"
-      );
-
-
+      alert("Error sincronizando la galería.");
 
     } finally {
 
-
       setLoading(false);
 
-
     }
-
   }
 
 
-
-
-
   return (
-
     <button
       onClick={syncGallery}
       disabled={loading}
@@ -139,22 +41,14 @@ export default function SyncGalleryButton() {
 
       <RefreshCw
         size={20}
-        className={
-          loading
-            ? "animate-spin"
-            : ""
-        }
+        className={loading ? "animate-spin" : ""}
       />
 
-
       {loading
-        ? status
+        ? "Sincronizando..."
         : "Sincronizar galería"
       }
 
-
     </button>
-
   );
-
 }
