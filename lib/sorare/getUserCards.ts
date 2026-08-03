@@ -25,24 +25,9 @@ query GetUserCards($slug: String!, $after: String) {
           slug
           cardPositions
 
-          l5Score: averageScore(
-            teamMode: ALL,
-            type: LAST_FIVE_SO5_AVERAGE_SCORE
-          )
-
           l10Score: averageScore(
             teamMode: ALL,
             type: LAST_TEN_PLAYED_SO5_AVERAGE_SCORE
-          )
-
-          l15Score: averageScore(
-            teamMode: ALL,
-            type: LAST_FIFTEEN_SO5_AVERAGE_SCORE
-          )
-
-          l40Score: averageScore(
-            teamMode: ALL,
-            type: LAST_FORTY_SO5_AVERAGE_SCORE
           )
         }
 
@@ -71,6 +56,7 @@ function sleep(ms:number) {
 
 
 
+
 async function requestWithRetry(
   slug:string,
   after:string | null
@@ -81,18 +67,17 @@ async function requestWithRetry(
 
   while(attempts < 3) {
 
+
     try {
 
-      const response = await sorareRequest(
+
+      return await sorareRequest(
         GET_USER_CARDS,
         {
           slug,
           after,
         }
       );
-
-
-      return response;
 
 
     } catch(error:any) {
@@ -107,18 +92,18 @@ async function requestWithRetry(
       );
 
 
-
       if(attempts >= 3) {
         throw error;
       }
-
 
 
       await sleep(
         attempts * 3000
       );
 
+
     }
+
 
   }
 
@@ -128,6 +113,8 @@ async function requestWithRetry(
   );
 
 }
+
+
 
 
 
@@ -157,6 +144,9 @@ export async function getUserCards(
 
 
 
+
+
+
   while(hasNextPage) {
 
 
@@ -176,6 +166,7 @@ export async function getUserCards(
 
     if(data.errors) {
 
+
       console.error(
         data.errors
       );
@@ -185,17 +176,25 @@ export async function getUserCards(
         data.errors[0].message
       );
 
+
     }
+
+
 
 
 
     if(!data.data?.user) {
 
+
       throw new Error(
         `Usuario Sorare no encontrado: ${slug}`
       );
 
+
     }
+
+
+
 
 
 
@@ -217,6 +216,8 @@ export async function getUserCards(
 
 
 
+
+
     hasNextPage =
       data.data.user.cards.pageInfo.hasNextPage;
 
@@ -227,17 +228,21 @@ export async function getUserCards(
 
 
 
+
+
     if(after === previousCursor) {
 
 
       console.log(
-        "⚠️ Cursor repetido. Parando."
+        "⚠️ Cursor repetido, deteniendo sincronización"
       );
 
 
       break;
 
+
     }
+
 
 
 
@@ -249,11 +254,13 @@ export async function getUserCards(
 
 
 
+
     if(hasNextPage) {
 
       await sleep(500);
 
     }
+
 
 
   }
@@ -262,10 +269,14 @@ export async function getUserCards(
 
 
 
+
+
   console.log(
-    "🔥 TOTAL CARTAS IMPORTADAS:",
+    "🔥 TOTAL GALERÍA PRO:",
     allCards.length
   );
+
+
 
 
 
@@ -277,6 +288,7 @@ export async function getUserCards(
 
 
       return {
+
 
 
         assetId:
@@ -301,6 +313,7 @@ export async function getUserCards(
 
 
 
+
         marketValue:
           card.publicMinPrices?.eurCents != null
             ? card.publicMinPrices.eurCents / 100
@@ -308,7 +321,10 @@ export async function getUserCards(
 
 
 
+
+
         player:{
+
 
 
           displayName:
@@ -333,8 +349,6 @@ export async function getUserCards(
 
 
           l5Score:
-            card.anyPlayer?.l5Score
-            ??
             null,
 
 
@@ -347,15 +361,11 @@ export async function getUserCards(
 
 
           l15Score:
-            card.anyPlayer?.l15Score
-            ??
             null,
 
 
 
           l40Score:
-            card.anyPlayer?.l40Score
-            ??
             null,
 
 
@@ -381,6 +391,7 @@ export async function getUserCards(
           card.pictureUrl
           ??
           null,
+
 
 
       };
