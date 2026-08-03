@@ -89,7 +89,7 @@ export default function SyncGalleryButton() {
 
         window.location.reload();
 
-      }, 800);
+      }, 1000);
 
 
 
