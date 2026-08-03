@@ -44,6 +44,7 @@ export async function importGallery(
 
 
 
+
   const chunkSize = 100;
 
 
@@ -69,6 +70,8 @@ export async function importGallery(
 
 
 
+
+
     await Promise.all(
 
       chunk.map(async (card:any) => {
@@ -79,7 +82,9 @@ export async function importGallery(
 
 
 
+
         await prisma.card.upsert({
+
 
 
           where: {
@@ -90,123 +95,206 @@ export async function importGallery(
 
           update: {
 
+
             slug:
               card.slug,
 
+
             season:
               card.season,
+
 
 
             scarcity:
               card.rarity,
 
 
+
             playerName:
-              card.player.displayName,
+              card.player?.displayName
+              ??
+              "Desconocido",
+
+
+
+            playerSlug:
+              card.player?.slug
+              ??
+              null,
+
 
 
             club:
-              card.player.club,
+              card.player?.club
+              ??
+              null,
+
 
 
             position:
-              card.player.position,
+              card.player?.position
+              ??
+              null,
+
 
 
             averageScore:
-              card.player.l10Score,
+              card.player?.l10Score
+              ??
+              null,
+
 
 
             l5Score:
-              card.player.l5Score,
+              card.player?.l5Score
+              ??
+              null,
+
 
 
             l10Score:
-              card.player.l10Score,
+              card.player?.l10Score
+              ??
+              null,
+
 
 
             l15Score:
-              card.player.l15Score,
+              card.player?.l15Score
+              ??
+              null,
+
 
 
             l40Score:
-              card.player.l40Score,
+              card.player?.l40Score
+              ??
+              null,
+
 
 
             pictureUrl:
-              card.pictureUrl,
+              card.pictureUrl
+              ??
+              null,
+
 
 
             marketValue,
 
 
+
             ownerId:
               userId,
 
+
           },
+
+
 
 
 
           create: {
 
 
+
             sorareId:
               card.assetId,
+
 
 
             slug:
               card.slug,
 
 
+
             season:
               card.season,
+
 
 
             scarcity:
               card.rarity,
 
 
+
             playerName:
-              card.player.displayName,
+              card.player?.displayName
+              ??
+              "Desconocido",
+
+
+
+            playerSlug:
+              card.player?.slug
+              ??
+              null,
+
 
 
             club:
-              card.player.club,
+              card.player?.club
+              ??
+              null,
+
 
 
             position:
-              card.player.position,
+              card.player?.position
+              ??
+              null,
+
 
 
             averageScore:
-              card.player.l10Score,
+              card.player?.l10Score
+              ??
+              null,
+
 
 
             l5Score:
-              card.player.l5Score,
+              card.player?.l5Score
+              ??
+              null,
+
 
 
             l10Score:
-              card.player.l10Score,
+              card.player?.l10Score
+              ??
+              null,
+
 
 
             l15Score:
-              card.player.l15Score,
+              card.player?.l15Score
+              ??
+              null,
+
 
 
             l40Score:
-              card.player.l40Score,
+              card.player?.l40Score
+              ??
+              null,
+
 
 
             pictureUrl:
-              card.pictureUrl,
+              card.pictureUrl
+              ??
+              null,
+
 
 
             marketValue,
 
 
+
             ownerId:
               userId,
+
 
           },
 

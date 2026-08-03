@@ -8,6 +8,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -28,6 +29,7 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+
 model Account {
   userId            String
   type              String
@@ -46,8 +48,9 @@ model Account {
   @@id([provider, providerAccountId])
 }
 
+
 model Session {
-  sessionToken String   @unique
+  sessionToken String @unique
   userId       String
   expires      DateTime
 
@@ -56,13 +59,15 @@ model Session {
   @@id([sessionToken])
 }
 
+
 model VerificationToken {
   identifier String
-  token      String   @unique
+  token      String @unique
   expires    DateTime
 
   @@id([identifier, token])
 }
+
 
 model Card {
   id String @id @default(cuid())
@@ -71,8 +76,10 @@ model Card {
   slug     String @unique
 
   playerName String
-  season     Int
-  scarcity   String
+  playerSlug String?
+
+  season   Int
+  scarcity String
 
   club     String?
   position String?
@@ -89,11 +96,12 @@ model Card {
   pictureUrl String?
 
   ownerId String
-  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner   User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 
 model Transaction {
   id String @id @default(cuid())
@@ -113,6 +121,7 @@ model Transaction {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+
 model SorareAccount {
   id String @id @default(cuid())
 
@@ -125,6 +134,7 @@ model SorareAccount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 
 model PortfolioSnapshot {
   id String @id @default(cuid())
@@ -141,6 +151,7 @@ model PortfolioSnapshot {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 
 model GalleryHistory {
   id String @id @default(cuid())
