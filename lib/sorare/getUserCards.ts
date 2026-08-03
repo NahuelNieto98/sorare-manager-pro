@@ -5,7 +5,7 @@ const GET_USER_CARDS = `
 query GetUserCards($slug: String!, $after: String) {
   user(slug: $slug) {
     cards(
-      first: 20,
+      first: 25,
       after: $after,
       rarities: [limited, rare, super_rare, unique]
     ) {
@@ -15,10 +15,6 @@ query GetUserCards($slug: String!, $after: String) {
         pictureUrl
         displayRarity
         seasonYear
-
-        publicMinPrices {
-          eurCents
-        }
 
         anyPlayer {
           displayName
@@ -50,6 +46,8 @@ function sleep(ms:number) {
 
 
 
+
+
 async function requestWithRetry(
   slug:string,
   after:string | null
@@ -72,6 +70,7 @@ async function requestWithRetry(
 
 
     } catch(error:any) {
+
 
       attempts++;
 
@@ -106,6 +105,7 @@ async function requestWithRetry(
 
 
 
+
 export async function getUserCards(
   slug:string
 ) {
@@ -130,8 +130,9 @@ export async function getUserCards(
 
 
 
-  while(hasNextPage) {
 
+
+  while(hasNextPage) {
 
 
     console.log(
@@ -149,14 +150,16 @@ export async function getUserCards(
 
     if(data.errors) {
 
-      console.error(data.errors);
+      console.error(
+        data.errors
+      );
+
 
       throw new Error(
         data.errors[0].message
       );
 
     }
-
 
 
 
@@ -181,8 +184,15 @@ export async function getUserCards(
 
 
 
+
     if(after === previousCursor) {
+
+      console.log(
+        "⚠️ Cursor repetido"
+      );
+
       break;
+
     }
 
 
@@ -196,7 +206,9 @@ export async function getUserCards(
 
 
     if(hasNextPage) {
+
       await sleep(300);
+
     }
 
 
@@ -205,8 +217,9 @@ export async function getUserCards(
 
 
 
+
   console.log(
-    "🔥 TOTAL:",
+    "🔥 TOTAL CARTAS:",
     allCards.length
   );
 
@@ -217,16 +230,20 @@ export async function getUserCards(
   return allCards.map(
     (card:any)=>({
 
+
       assetId:
         card.assetId,
+
 
 
       slug:
         card.slug,
 
 
+
       season:
         card.seasonYear,
+
 
 
       rarity:
@@ -237,9 +254,7 @@ export async function getUserCards(
 
 
       marketValue:
-        card.publicMinPrices?.eurCents != null
-          ? card.publicMinPrices.eurCents / 100
-          : null,
+        null,
 
 
 
@@ -270,11 +285,14 @@ export async function getUserCards(
         l5Score:
           null,
 
+
         l10Score:
           null,
 
+
         l15Score:
           null,
+
 
         l40Score:
           null,
