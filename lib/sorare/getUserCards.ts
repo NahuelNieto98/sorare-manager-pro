@@ -5,7 +5,7 @@ const GET_USER_CARDS = `
 query GetUserCards($slug: String!, $after: String) {
   user(slug: $slug) {
     cards(
-      first: 50,
+      first: 20,
       after: $after,
       rarities: [limited, rare, super_rare, unique]
     ) {
@@ -15,10 +15,6 @@ query GetUserCards($slug: String!, $after: String) {
         pictureUrl
         displayRarity
         seasonYear
-
-        publicMinPrices {
-          eurCents
-        }
 
         anyPlayer {
           displayName
@@ -47,7 +43,6 @@ function sleep(ms:number) {
     resolve => setTimeout(resolve, ms)
   );
 }
-
 
 
 
@@ -93,19 +88,16 @@ async function requestWithRetry(
         attempts * 3000
       );
 
-
     }
 
   }
 
 
   throw new Error(
-    "No se pudo obtener la galería de Sorare"
+    "Error obteniendo cartas Sorare"
   );
 
 }
-
-
 
 
 
@@ -117,7 +109,7 @@ export async function getUserCards(
 
 
   console.log(
-    "🔥 OBTENIENDO GALERÍA PRO:",
+    "🔥 OBTENIENDO GALERÍA:",
     slug
   );
 
@@ -135,15 +127,12 @@ export async function getUserCards(
 
 
 
-
-
-
   while(hasNextPage) {
 
 
 
     console.log(
-      `🔥 OBTENIENDO PÁGINA ${page}`
+      `🔥 Página ${page}`
     );
 
 
@@ -157,31 +146,13 @@ export async function getUserCards(
 
     if(data.errors) {
 
-
-      console.error(
-        data.errors
-      );
-
+      console.error(data.errors);
 
       throw new Error(
         data.errors[0].message
       );
 
-
     }
-
-
-
-
-    if(!data.data?.user) {
-
-      throw new Error(
-        `Usuario Sorare no encontrado: ${slug}`
-      );
-
-    }
-
-
 
 
 
@@ -190,18 +161,9 @@ export async function getUserCards(
 
 
 
-    console.log(
-      `🔥 CARTAS PÁGINA ${page}:`,
-      cards.length
-    );
-
-
-
     allCards.push(
       ...cards
     );
-
-
 
 
 
@@ -215,21 +177,9 @@ export async function getUserCards(
 
 
 
-
-
     if(after === previousCursor) {
-
-
-      console.log(
-        "⚠️ Cursor repetido, deteniendo sincronización"
-      );
-
-
       break;
-
-
     }
-
 
 
 
@@ -241,13 +191,9 @@ export async function getUserCards(
 
 
 
-
     if(hasNextPage) {
-
-      await sleep(500);
-
+      await sleep(300);
     }
-
 
 
   }
@@ -255,132 +201,73 @@ export async function getUserCards(
 
 
 
-
-
-
   console.log(
-    "🔥 TOTAL CARTAS GALERÍA:",
+    "🔥 TOTAL:",
     allCards.length
   );
 
 
 
 
-
-
-
   return allCards.map(
-    (card:any)=>{
+    (card:any)=>({
+
+      assetId: card.assetId,
+
+      slug: card.slug,
+
+      season: card.seasonYear,
+
+      rarity:
+        card.displayRarity?.toLowerCase()
+        ??
+        "limited",
 
 
-      return {
+      marketValue: null,
 
 
+      player: {
 
-        assetId:
-          card.assetId,
-
-
+        displayName:
+          card.anyPlayer?.displayName
+          ??
+          "Desconocido",
 
         slug:
-          card.slug,
-
-
-
-        season:
-          card.seasonYear,
-
-
-
-        rarity:
-          card.displayRarity?.toLowerCase()
+          card.anyPlayer?.slug
           ??
-          "limited",
+          null,
 
+        position:
+          card.anyPlayer?.cardPositions?.[0]
+          ??
+          null,
 
+        l5Score: null,
+        l10Score: null,
+        l15Score: null,
+        l40Score: null,
 
-
-        marketValue:
-          card.publicMinPrices?.eurCents != null
-            ? card.publicMinPrices.eurCents / 100
-            : null,
-
-
-
-
-
-        player:{
-
-
-
-          displayName:
-            card.anyPlayer?.displayName
-            ??
-            "Desconocido",
-
-
-
-          slug:
-            card.anyPlayer?.slug
-            ??
-            null,
-
-
-
-          position:
-            card.anyPlayer?.cardPositions?.[0]
-            ??
-            null,
-
-
-
-          l5Score:
-            null,
-
-
-
-          l10Score:
-            null,
-
-
-
-          l15Score:
-            null,
-
-
-
-          l40Score:
-            null,
-
-
-
-          club:
-            card.anyTeam?.name
-            ??
-            null,
-
-
-
-          pictureUrl:
-            card.pictureUrl
-            ??
-            null,
-
-
-        },
-
-
+        club:
+          card.anyTeam?.name
+          ??
+          null,
 
         pictureUrl:
           card.pictureUrl
           ??
           null,
 
+      },
 
-      };
 
+      pictureUrl:
+        card.pictureUrl
+        ??
+        null,
 
-    }
+    })
   );
 
 
