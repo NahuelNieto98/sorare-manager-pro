@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-import { getCurrentUser } from "@/lib/sorare/getCurrentUser";
 import { getUserCards } from "@/lib/sorare/getUserCards";
 import { importGallery } from "@/lib/sorare/importGallery";
 
@@ -14,7 +13,10 @@ export async function POST() {
   const session = await auth();
 
   if (!session?.user?.email) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    return NextResponse.json(
+      { error: "No autorizado" },
+      { status: 401 }
+    );
   }
 
   const user = await prisma.user.findUnique({
@@ -23,32 +25,29 @@ export async function POST() {
     },
     include: {
       transactions: true,
+      sorareAccount: true,
     },
   });
 
   if (!user) {
     return NextResponse.json(
       { error: "Usuario no encontrado" },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
-  const currentUser = await getCurrentUser();
+  if (!user.sorareAccount) {
+    return NextResponse.json(
+      { error: "No hay una cuenta de Sorare conectada." },
+      { status: 400 }
+    );
+  }
 
-  await prisma.sorareAccount.upsert({
-    where: {
-      userId: user.id,
-    },
-    update: {
-      slug: currentUser.slug,
-    },
-    create: {
-      userId: user.id,
-      slug: currentUser.slug,
-    },
-  });
+  const slug = user.sorareAccount.slug;
 
-  const cards = await getUserCards(currentUser.slug);
+  console.log("Sincronizando usuario:", slug);
+
+  const cards = await getUserCards(slug);
 
   await importGallery(user.id, cards);
 
@@ -68,14 +67,24 @@ export async function POST() {
     .filter((t) => t.type === "SELL")
     .reduce((sum, t) => sum + t.price, 0);
 
-  const profit = totalSold - totalBought;
+  const profit = galleryValue + totalSold - totalBought;
 
-  const roi = totalBought === 0 ? 0 : (profit / totalBought) * 100;
+  const roi =
+    totalBought === 0 ? 0 : (profit / totalBought) * 100;
 
-  await savePortfolioSnapshot(user.id, galleryValue, roi, profit);
+  await savePortfolioSnapshot(
+    user.id,
+    galleryValue,
+    roi,
+    profit
+  );
 
   return NextResponse.json({
     success: true,
-    cards: dbCards.length,
+    importedCards: dbCards.length,
+    slug,
+    galleryValue,
+    roi,
+    profit,
   });
 }

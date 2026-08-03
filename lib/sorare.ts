@@ -16,12 +16,12 @@ export async function sorareRequest(query: string, variables = {}) {
 
   const text = await response.text();
 
-  console.log("STATUS:", response.status);
-  console.log("BODY:", text);
+console.log("STATUS:", response.status);
+console.log("BODY:", text);
 
-  if (!response.ok) {
-    throw new Error(`Sorare API ${response.status}`);
-  }
+if (!response.ok) {
+  throw new Error(`Sorare API ${response.status}: ${text}`);
+}
 
-  return JSON.parse(text);
+return JSON.parse(text);
 }
