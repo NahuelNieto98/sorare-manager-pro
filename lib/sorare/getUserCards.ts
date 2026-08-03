@@ -5,7 +5,7 @@ const GET_USER_CARDS = `
 query GetUserCards($slug: String!, $after: String) {
   user(slug: $slug) {
     cards(
-      first: 25,
+      first: 50,
       after: $after,
       rarities: [limited, rare, super_rare, unique]
     ) {
@@ -76,33 +76,14 @@ async function requestWithRetry(
   after:string | null
 ) {
 
-  try {
-
-    return await sorareRequest(
-      GET_USER_CARDS,
-      {
-        slug,
-        after,
-      }
-    );
+  let attempts = 0;
 
 
-  } catch(error:any) {
+  while(attempts < 3) {
 
+    try {
 
-    if(
-      error.message.includes("429")
-    ) {
-
-      console.log(
-        "⏳ Sorare rate limit. Esperando 5 segundos..."
-      );
-
-
-      await sleep(5000);
-
-
-      return await sorareRequest(
+      const response = await sorareRequest(
         GET_USER_CARDS,
         {
           slug,
@@ -110,12 +91,41 @@ async function requestWithRetry(
         }
       );
 
+
+      return response;
+
+
+    } catch(error:any) {
+
+
+      attempts++;
+
+
+      console.log(
+        `⚠️ Error Sorare intento ${attempts}/3`,
+        error.message
+      );
+
+
+
+      if(attempts >= 3) {
+        throw error;
+      }
+
+
+
+      await sleep(
+        attempts * 3000
+      );
+
     }
 
-
-    throw error;
-
   }
+
+
+  throw new Error(
+    "No se pudo obtener la galería de Sorare"
+  );
 
 }
 
@@ -129,7 +139,8 @@ export async function getUserCards(
 
 
   console.log(
-    "🔥 OBTENIENDO GALERÍA PRO"
+    "🔥 OBTENIENDO GALERÍA PRO:",
+    slug
   );
 
 
@@ -147,6 +158,7 @@ export async function getUserCards(
 
 
   while(hasNextPage) {
+
 
 
     console.log(
@@ -177,22 +189,24 @@ export async function getUserCards(
 
 
 
+    if(!data.data?.user) {
+
+      throw new Error(
+        `Usuario Sorare no encontrado: ${slug}`
+      );
+
+    }
+
+
+
     const cards =
       data.data.user.cards.nodes;
 
 
 
     console.log(
-      `🔥 CARTAS PRO PÁGINA ${page}:`,
+      `🔥 CARTAS PÁGINA ${page}:`,
       cards.length
-    );
-
-
-
-    console.log(
-      "💰 EJEMPLO PRECIO SORARE:",
-      cards[0]?.anyPlayer?.displayName,
-      cards[0]?.publicMinPrices
     );
 
 
@@ -213,13 +227,13 @@ export async function getUserCards(
 
 
 
-    if(
-      after === previousCursor
-    ) {
+    if(after === previousCursor) {
+
 
       console.log(
-        "⚠️ Cursor repetido, deteniendo sincronización"
+        "⚠️ Cursor repetido. Parando."
       );
+
 
       break;
 
@@ -230,13 +244,14 @@ export async function getUserCards(
     previousCursor = after;
 
 
+
     page++;
 
 
 
     if(hasNextPage) {
 
-      await sleep(700);
+      await sleep(500);
 
     }
 
@@ -248,9 +263,10 @@ export async function getUserCards(
 
 
   console.log(
-    "🔥 TOTAL GALERÍA PRO:",
+    "🔥 TOTAL CARTAS IMPORTADAS:",
     allCards.length
   );
+
 
 
 
@@ -267,8 +283,10 @@ export async function getUserCards(
           card.assetId,
 
 
+
         slug:
           card.slug,
+
 
 
         season:
@@ -284,7 +302,7 @@ export async function getUserCards(
 
 
         marketValue:
-          card.publicMinPrices?.eurCents
+          card.publicMinPrices?.eurCents != null
             ? card.publicMinPrices.eurCents / 100
             : null,
 
@@ -297,6 +315,7 @@ export async function getUserCards(
             card.anyPlayer?.displayName
             ??
             "Desconocido",
+
 
 
           slug:
@@ -347,6 +366,7 @@ export async function getUserCards(
             null,
 
 
+
           pictureUrl:
             card.pictureUrl
             ??
@@ -354,6 +374,7 @@ export async function getUserCards(
 
 
         },
+
 
 
         pictureUrl:
