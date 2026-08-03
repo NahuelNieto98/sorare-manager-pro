@@ -6,12 +6,10 @@ export async function importGallery(
   cards: any[]
 ) {
 
-
   console.log(
     "🔥 IMPORTANDO CARTAS:",
     cards.length
   );
-
 
 
   const sorareIds = cards.map(
@@ -43,71 +41,52 @@ export async function importGallery(
 
 
 
-
-
-  const chunkSize = 100;
+  const limit = 10;
 
 
 
   for (
     let i = 0;
     i < cards.length;
-    i += chunkSize
+    i += limit
   ) {
 
 
-
-    const chunk = cards.slice(
+    const batch = cards.slice(
       i,
-      i + chunkSize
+      i + limit
     );
 
 
 
     console.log(
-      `🔥 BLOQUE ${i + 1}-${i + chunk.length}`
+      `🔥 GUARDANDO ${i + 1}-${i + batch.length}`
     );
-
-
 
 
 
     await Promise.all(
 
-      chunk.map(async (card:any) => {
-
-
-        const marketValue =
-          card.marketValue ?? null;
-
-
+      batch.map(async(card:any)=>{
 
 
         await prisma.card.upsert({
-
-
 
           where: {
             sorareId: card.assetId,
           },
 
 
-
           update: {
-
 
             slug:
               card.slug,
 
-
             season:
               card.season,
 
-
-
             scarcity:
               card.rarity,
-
 
 
             playerName:
@@ -116,12 +95,10 @@ export async function importGallery(
               "Desconocido",
 
 
-
             playerSlug:
               card.player?.slug
               ??
               null,
-
 
 
             club:
@@ -130,12 +107,10 @@ export async function importGallery(
               null,
 
 
-
             position:
               card.player?.position
               ??
               null,
-
 
 
             averageScore:
@@ -144,12 +119,10 @@ export async function importGallery(
               null,
 
 
-
             l5Score:
               card.player?.l5Score
               ??
               null,
-
 
 
             l10Score:
@@ -158,12 +131,10 @@ export async function importGallery(
               null,
 
 
-
             l15Score:
               card.player?.l15Score
               ??
               null,
-
 
 
             l40Score:
@@ -172,50 +143,37 @@ export async function importGallery(
               null,
 
 
-
             pictureUrl:
               card.pictureUrl
               ??
               null,
 
 
-
-            marketValue,
-
-
-
-            ownerId:
-              userId,
+            marketValue:
+              card.marketValue
+              ??
+              null,
 
 
           },
 
 
-
-
-
           create: {
-
-
 
             sorareId:
               card.assetId,
 
 
-
             slug:
               card.slug,
-
 
 
             season:
               card.season,
 
 
-
             scarcity:
               card.rarity,
-
 
 
             playerName:
@@ -224,12 +182,10 @@ export async function importGallery(
               "Desconocido",
 
 
-
             playerSlug:
               card.player?.slug
               ??
               null,
-
 
 
             club:
@@ -238,12 +194,10 @@ export async function importGallery(
               null,
 
 
-
             position:
               card.player?.position
               ??
               null,
-
 
 
             averageScore:
@@ -252,12 +206,10 @@ export async function importGallery(
               null,
 
 
-
             l5Score:
               card.player?.l5Score
               ??
               null,
-
 
 
             l10Score:
@@ -266,12 +218,10 @@ export async function importGallery(
               null,
 
 
-
             l15Score:
               card.player?.l15Score
               ??
               null,
-
 
 
             l40Score:
@@ -280,24 +230,22 @@ export async function importGallery(
               null,
 
 
-
             pictureUrl:
               card.pictureUrl
               ??
               null,
 
 
-
-            marketValue,
-
+            marketValue:
+              card.marketValue
+              ??
+              null,
 
 
             ownerId:
               userId,
 
-
           },
-
 
         });
 
@@ -311,11 +259,8 @@ export async function importGallery(
 
 
 
-
-
   console.log(
     "🔥 IMPORTACIÓN TERMINADA"
   );
-
 
 }
