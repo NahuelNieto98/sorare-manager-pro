@@ -14,13 +14,21 @@ rarities:[limited,rare,super_rare,unique]
 
 nodes {
 
+slug
+
 anyPlayer {
 
 displayName
 
-slug
+}
 
-cardPositions
+latestScores {
+
+nodes {
+
+score
+
+}
 
 }
 
