@@ -6,15 +6,18 @@ export async function importGallery(
   cards: any[]
 ) {
 
+
   console.log(
     "🔥 IMPORTANDO CARTAS:",
     cards.length
   );
 
 
-  const sorareIds = cards.map(
-    (card:any)=>card.assetId
-  );
+
+  const sorareIds =
+    cards.map(
+      (card:any) => card.assetId
+    );
 
 
 
@@ -42,259 +45,252 @@ export async function importGallery(
 
 
 
-  const limit = 10;
+  const limit = 50;
 
 
 
   for(
-    let i=0;
-    i<cards.length;
-    i+=limit
+    let i = 0;
+    i < cards.length;
+    i += limit
   ){
 
 
     const batch =
       cards.slice(
         i,
-        i+limit
+        i + limit
       );
 
 
 
     console.log(
-      `🔥 GUARDANDO ${i+1}-${i+batch.length}`
+      `🔥 GUARDANDO ${i + 1}-${i + batch.length}`
     );
 
 
 
     await Promise.all(
 
-      batch.map(async(card:any)=>{
+      batch.map(
+        async(card:any)=>{
 
 
+          await prisma.card.upsert({
 
-        const existingCard =
-          await prisma.card.findUnique({
 
             where:{
               sorareId:
                 card.assetId
+            },
+
+
+
+            update:{
+
+
+              slug:
+                card.slug,
+
+
+              season:
+                card.season,
+
+
+              scarcity:
+                card.rarity,
+
+
+
+              playerName:
+                card.player?.displayName
+                ??
+                "Desconocido",
+
+
+
+              playerSlug:
+                card.player?.slug
+                ??
+                null,
+
+
+
+              club:
+                card.player?.club
+                ??
+                null,
+
+
+
+              position:
+                card.player?.position
+                ??
+                null,
+
+
+
+              averageScore:
+                card.player?.l10Score
+                ??
+                null,
+
+
+
+              l5Score:
+                card.player?.l5Score
+                ??
+                null,
+
+
+
+              l10Score:
+                card.player?.l10Score
+                ??
+                null,
+
+
+
+              l15Score:
+                card.player?.l15Score
+                ??
+                null,
+
+
+
+              l40Score:
+                card.player?.l40Score
+                ??
+                null,
+
+
+
+              pictureUrl:
+                card.pictureUrl
+                ??
+                null,
+
+
+              // No tocamos marketValue
+              // para conservar precios calculados
+
+            },
+
+
+
+
+            create:{
+
+
+              sorareId:
+                card.assetId,
+
+
+
+              slug:
+                card.slug,
+
+
+
+              season:
+                card.season,
+
+
+
+              scarcity:
+                card.rarity,
+
+
+
+              playerName:
+                card.player?.displayName
+                ??
+                "Desconocido",
+
+
+
+              playerSlug:
+                card.player?.slug
+                ??
+                null,
+
+
+
+              club:
+                card.player?.club
+                ??
+                null,
+
+
+
+              position:
+                card.player?.position
+                ??
+                null,
+
+
+
+              averageScore:
+                card.player?.l10Score
+                ??
+                null,
+
+
+
+              l5Score:
+                card.player?.l5Score
+                ??
+                null,
+
+
+
+              l10Score:
+                card.player?.l10Score
+                ??
+                null,
+
+
+
+              l15Score:
+                card.player?.l15Score
+                ??
+                null,
+
+
+
+              l40Score:
+                card.player?.l40Score
+                ??
+                null,
+
+
+
+              pictureUrl:
+                card.pictureUrl
+                ??
+                null,
+
+
+
+              marketValue:
+                null,
+
+
+
+              ownerId:userId
+
             }
+
 
           });
 
 
+        }
 
-
-        await prisma.card.upsert({
-
-          where:{
-            sorareId:
-              card.assetId
-          },
-
-
-          update:{
-
-
-            slug:
-              card.slug,
-
-
-            season:
-              card.season,
-
-
-            scarcity:
-              card.rarity,
-
-
-
-            playerName:
-              card.player?.displayName
-              ??
-              "Desconocido",
-
-
-
-            playerSlug:
-              card.player?.slug
-              ??
-              null,
-
-
-
-            club:
-              card.player?.club
-              ??
-              null,
-
-
-
-            position:
-              card.player?.position
-              ??
-              null,
-
-
-
-            averageScore:
-              card.player?.l10Score
-              ??
-              null,
-
-
-
-            l5Score:
-              card.player?.l5Score
-              ??
-              null,
-
-
-
-            l10Score:
-              card.player?.l10Score
-              ??
-              null,
-
-
-
-            l15Score:
-              card.player?.l15Score
-              ??
-              null,
-
-
-
-            l40Score:
-              card.player?.l40Score
-              ??
-              null,
-
-
-
-            pictureUrl:
-              card.pictureUrl
-              ??
-              null,
-
-
-
-            // IMPORTANTE:
-            // no tocamos marketValue
-            // para no borrar precios calculados
-
-          },
-
-
-
-          create:{
-
-
-            sorareId:
-              card.assetId,
-
-
-            slug:
-              card.slug,
-
-
-
-            season:
-              card.season,
-
-
-
-            scarcity:
-              card.rarity,
-
-
-
-            playerName:
-              card.player?.displayName
-              ??
-              "Desconocido",
-
-
-
-            playerSlug:
-              card.player?.slug
-              ??
-              null,
-
-
-
-            club:
-              card.player?.club
-              ??
-              null,
-
-
-
-            position:
-              card.player?.position
-              ??
-              null,
-
-
-
-            averageScore:
-              card.player?.l10Score
-              ??
-              null,
-
-
-
-            l5Score:
-              card.player?.l5Score
-              ??
-              null,
-
-
-
-            l10Score:
-              card.player?.l10Score
-              ??
-              null,
-
-
-
-            l15Score:
-              card.player?.l15Score
-              ??
-              null,
-
-
-
-            l40Score:
-              card.player?.l40Score
-              ??
-              null,
-
-
-
-            pictureUrl:
-              card.pictureUrl
-              ??
-              null,
-
-
-
-            marketValue:
-              null,
-
-
-
-            ownerId:userId
-
-          }
-
-        });
-
-
-      })
+      )
 
     );
+
 
   }
 
@@ -303,5 +299,6 @@ export async function importGallery(
   console.log(
     "🔥 IMPORTACIÓN TERMINADA"
   );
+
 
 }
