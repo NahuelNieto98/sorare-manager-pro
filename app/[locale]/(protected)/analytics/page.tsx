@@ -8,6 +8,7 @@ import AnalyticsStats from "@/components/analytics/AnalyticsStats";
 import AnalyticsDistribution from "@/components/analytics/AnalyticsDistribution";
 import AnalyticsCharts from "@/components/analytics/AnalyticsCharts";
 import AnalyticsInsights from "@/components/analytics/AnalyticsInsights";
+import AnalyticsEmpty from "@/components/analytics/AnalyticsEmpty";
 
 
 export default function AnalyticsPage(){
@@ -17,12 +18,15 @@ const t =
 useTranslations("analytics");
 
 
+
 const {
 data,
 loading,
 error,
 
 } = useAnalytics();
+
+
 
 
 
@@ -42,13 +46,16 @@ return (
 
 
 
-if(error || !data){
+
+
+
+if(error){
 
 return (
 
 <div className="text-white">
 
-{error ?? "No hay datos de analytics"}
+{error}
 
 </div>
 
@@ -58,12 +65,39 @@ return (
 
 
 
+
+
+if(!data || (
+
+data.totalBought === 0 &&
+
+data.totalSold === 0 &&
+
+data.galleryValue === 0
+
+)){
+
+return (
+
+<AnalyticsEmpty />
+
+);
+
+}
+
+
+
+
+
+
 return (
 
 <div className="space-y-8">
 
 
+
 <section
+
 className="
 rounded-3xl
 border
@@ -71,24 +105,45 @@ border-white/10
 bg-[#17112F]
 p-8
 "
+
 >
 
 
-<h1 className="text-5xl font-black text-white">
+<h1
+
+className="
+text-5xl
+font-black
+text-white
+"
+
+>
 
 {t("title")}
 
 </h1>
 
 
-<p className="mt-3 text-lg text-zinc-400">
+
+<p
+
+className="
+mt-3
+text-lg
+text-zinc-400
+"
+
+>
 
 {t("subtitle")}
 
 </p>
 
 
+
 </section>
+
+
 
 
 
@@ -112,11 +167,16 @@ recoveredCapital={data.recoveredCapital}
 
 
 
+
+
 <AnalyticsDistribution
 
 scarcity={data.scarcity}
 
 />
+
+
+
 
 
 
@@ -129,6 +189,8 @@ transactionsHistory={data.transactionsHistory}
 buySellData={data.buySellData}
 
 />
+
+
 
 
 
@@ -147,6 +209,10 @@ totalSold={data.totalSold}
 galleryValue={data.galleryValue}
 
 />
+
+
+
+
 
 
 
