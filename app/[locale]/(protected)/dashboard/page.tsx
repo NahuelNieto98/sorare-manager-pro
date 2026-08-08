@@ -13,6 +13,11 @@ import DashboardActivity from "@/components/dashboard/DashboardActivity";
 import TopCards from "@/components/dashboard/TopCards";
 import QuickStats from "@/components/dashboard/QuickStats";
 
+import MarketSummary from "@/components/dashboard/MarketSummary";
+import ScoutCard from "@/components/dashboard/ScoutCard";
+import SystemStatus from "@/components/dashboard/SystemStatus";
+
+
 
 export default function DashboardPage(){
 
@@ -35,6 +40,8 @@ error
 
 
 
+
+
 if(error){
 
 return (
@@ -48,6 +55,7 @@ return (
 );
 
 }
+
 
 
 
@@ -83,6 +91,8 @@ text-white
 
 
 
+
+
 if(data.needsConnection){
 
 router.push("/connect");
@@ -90,6 +100,8 @@ router.push("/connect");
 return null;
 
 }
+
+
 
 
 
@@ -104,6 +116,7 @@ space-y-8
 "
 
 >
+
 
 
 
@@ -198,6 +211,36 @@ cards={data.topCards}
 cards={data.topCards}
 
 />
+
+
+
+
+
+
+
+<MarketSummary
+
+bought={data.totalBought}
+
+sold={data.totalSold}
+
+/>
+
+
+
+
+
+
+
+<ScoutCard />
+
+
+
+
+
+
+
+<SystemStatus />
 
 
 

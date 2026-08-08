@@ -8,9 +8,9 @@ query GetUserCards($after: String) {
 currentUser {
 
 cards(
-first: 50,
-after: $after,
-rarities: [limited, rare, super_rare, unique]
+  first: 50,
+  after: $after,
+  rarities: [limited, rare, super_rare, unique]
 ) {
 
 nodes {
@@ -33,14 +33,6 @@ displayName
 slug
 
 cardPositions
-
-l5Score
-
-l10Score
-
-l15Score
-
-l40Score
 
 }
 
@@ -77,7 +69,7 @@ endCursor
 function sleep(ms:number){
 
 return new Promise(
-resolve => setTimeout(resolve,ms)
+resolve => setTimeout(resolve, ms)
 );
 
 }
@@ -85,16 +77,22 @@ resolve => setTimeout(resolve,ms)
 
 
 async function requestWithRetry(
+
 accessToken:string,
-after:string|null
+
+after:string | null
+
 ){
 
 let attempts = 0;
 
 
+
 while(attempts < 3){
 
+
 try{
+
 
 return await sorareRequest(
 
@@ -109,14 +107,16 @@ accessToken
 );
 
 
+
 }catch(error:any){
+
 
 attempts++;
 
 
 console.log(
 
-`⚠️ Sorare bloqueado intento ${attempts}/3`,
+`⚠️ Sorare error intento ${attempts}/3`,
 
 error.message
 
@@ -133,7 +133,7 @@ throw error;
 
 
 await sleep(
-attempts * 10000
+2000 * attempts
 );
 
 
@@ -146,16 +146,15 @@ throw new Error(
 "Error obteniendo cartas Sorare"
 );
 
-
 }
 
 
 
 
-
-
 export async function getUserCards(
+
 accessToken:string
+
 ){
 
 
@@ -167,9 +166,9 @@ console.log(
 
 let allCards:any[] = [];
 
-let after:string|null = null;
+let after:string | null = null;
 
-let previousCursor:string|null = null;
+let previousCursor:string | null = null;
 
 let page = 1;
 
@@ -177,9 +176,8 @@ let hasNextPage = true;
 
 
 
-
-
 while(hasNextPage){
+
 
 
 console.log(
@@ -198,9 +196,8 @@ after
 
 
 
-
-
 if(data.errors){
+
 
 console.error(
 data.errors
@@ -216,12 +213,8 @@ data.errors[0].message
 
 
 
-
-
 const cards =
 data.data.currentUser.cards.nodes;
-
-
 
 
 
@@ -245,45 +238,7 @@ null,
 );
 
 
-
-console.log(
-
-"📊 SCORES DEBUG:",
-
-JSON.stringify(
-
-{
-
-player:
-cards[0]?.anyPlayer?.displayName,
-
-l5:
-cards[0]?.anyPlayer?.l5Score,
-
-l10:
-cards[0]?.anyPlayer?.l10Score,
-
-l15:
-cards[0]?.anyPlayer?.l15Score,
-
-l40:
-cards[0]?.anyPlayer?.l40Score,
-
-},
-
-null,
-
-2
-
-)
-
-);
-
-
-
 }
-
-
 
 
 
@@ -293,21 +248,13 @@ allCards.push(
 
 
 
-
-
 hasNextPage =
-
 data.data.currentUser.cards.pageInfo.hasNextPage;
 
 
 
-
-
 after =
-
 data.data.currentUser.cards.pageInfo.endCursor;
-
-
 
 
 
@@ -330,20 +277,7 @@ previousCursor = after;
 page++;
 
 
-
-
-
-if(hasNextPage){
-
-await sleep(1500);
-
 }
-
-
-
-}
-
-
 
 
 
@@ -357,148 +291,91 @@ allCards.length
 
 
 
-
-
-
-
 return allCards.map(
 
 (card:any)=>({
 
 
 assetId:
-
 card.assetId,
 
 
-
 slug:
-
 card.slug,
 
 
-
 season:
-
 card.seasonYear,
 
 
-
 rarity:
-
 card.displayRarity?.toLowerCase()
 ??
 "limited",
 
 
-
 marketValue:
-
 null,
-
-
-
 
 
 player:{
 
 
-
 displayName:
-
 card.anyPlayer?.displayName
 ??
 "Desconocido",
 
 
 
-
 slug:
-
 card.anyPlayer?.slug
 ??
 null,
 
 
 
-
 position:
-
 card.anyPlayer?.cardPositions?.[0]
 ??
 null,
 
 
 
+l5Score:null,
 
-l5Score:
+l10Score:null,
 
-card.anyPlayer?.l5Score
-??
-null,
+l15Score:null,
 
-
-
-
-l10Score:
-
-card.anyPlayer?.l10Score
-??
-null,
-
-
-
-
-l15Score:
-
-card.anyPlayer?.l15Score
-??
-null,
-
-
-
-
-l40Score:
-
-card.anyPlayer?.l40Score
-??
-null,
-
+l40Score:null,
 
 
 
 club:
-
 card.anyTeam?.name
 ??
 null,
 
 
 
-
 pictureUrl:
-
 card.pictureUrl
 ??
 null,
-
 
 
 },
 
 
 
-
-
 pictureUrl:
-
 card.pictureUrl
 ??
 null,
 
 
 })
-
 
 );
 
