@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 import SettingsHero from "@/components/settings/SettingsHero";
 import SorareAccountForm from "@/components/settings/SorareAccountForm";
@@ -10,7 +10,8 @@ export default async function SettingsPage(){
 
 
 const t =
-useTranslations("settings");
+await getTranslations("settings");
+
 
 
 const session =
