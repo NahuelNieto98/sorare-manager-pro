@@ -13,6 +13,12 @@ import {
 } from "recharts";
 
 
+type Card = {
+  marketValue: number | null;
+};
+
+
+
 type Snapshot = {
   id: string;
   galleryValue: number;
@@ -22,182 +28,270 @@ type Snapshot = {
 };
 
 
-export default function GalleryChart(){
 
-  const t = useTranslations("galleryChart");
+type Props = {
+  cards: Card[];
+};
 
 
-  const [history,setHistory] =
-    useState<Snapshot[]>([]);
 
+export default function GalleryChart({
+  cards,
+}: Props){
 
 
-  useEffect(()=>{
+const t =
+useTranslations("galleryChart");
 
-    loadHistory();
 
-  },[]);
+const [history,setHistory] =
+useState<Snapshot[]>([]);
 
 
 
-  async function loadHistory(){
 
-    try {
+useEffect(()=>{
 
-      const res =
-        await fetch("/api/portfolio-history");
+loadHistory();
 
+},[]);
 
-      if(!res.ok){
-        setHistory([]);
-        return;
-      }
 
 
-      const data =
-        await res.json();
 
+async function loadHistory(){
 
 
-      if(!Array.isArray(data)){
-        setHistory([]);
-        return;
-      }
+try {
 
 
+const res =
+await fetch("/api/portfolio-history");
 
-      const formatted =
-        data.map((item:Snapshot)=>({
 
-          ...item,
 
-          day:
-            new Date(item.createdAt)
-            .toLocaleDateString(
-              "es-ES",
-              {
-                day:"2-digit",
-                month:"2-digit",
-              }
-            ),
+if(!res.ok){
 
-        }));
+setHistory([]);
 
+return;
 
+}
 
-      setHistory(formatted);
 
 
 
-    } catch(error){
+const data =
+await res.json();
 
-      console.error(
-        "GalleryChart error:",
-        error
-      );
 
-      setHistory([]);
 
-    }
+if(!Array.isArray(data)){
 
-  }
+setHistory([]);
 
+return;
 
+}
 
-  return (
 
-    <div>
 
-      <h2 className="text-2xl font-bold text-white">
 
-        {t("title")}
+const formatted =
+data.map((item:Snapshot)=>({
 
-      </h2>
 
+...item,
 
-      <p className="mt-2 text-zinc-400">
 
-        {t("subtitle")}
+day:
 
-      </p>
+new Date(item.createdAt)
 
+.toLocaleDateString(
 
+"es-ES",
 
-      <div className="mt-8 h-80">
+{
 
+day:"2-digit",
 
-        {
-          history.length === 0 ? (
+month:"2-digit",
 
-            <div
-              className="
-              flex
-              h-full
-              items-center
-              justify-center
-              rounded-2xl
-              border
-              border-white/10
-              bg-white/5
-              text-zinc-400
-              "
-            >
+}
 
-              Sin datos históricos todavía.
+),
 
-            </div>
 
+}));
 
-          ) : (
 
 
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
+setHistory(formatted);
 
-              <AreaChart data={history}>
 
 
-                <XAxis
-                  dataKey="day"
-                  stroke="#888"
-                />
+}catch(error){
 
 
-                <YAxis
-                  stroke="#888"
-                />
+console.error(
+"GalleryChart error:",
+error
+);
 
 
-                <Tooltip />
+setHistory([]);
 
 
-                <Area
-                  type="monotone"
-                  dataKey="galleryValue"
-                  stroke="#8b5cf6"
-                  fill="#8b5cf6"
-                  fillOpacity={0.25}
-                />
+}
 
 
-              </AreaChart>
 
+}
 
-            </ResponsiveContainer>
 
 
-          )
-        }
 
 
+const currentValue =
+cards.reduce(
 
-      </div>
+(sum,card)=>
 
+sum + (card.marketValue ?? 0),
 
-    </div>
+0
 
-  );
+);
+
+
+
+
+return (
+
+<div>
+
+
+<h2 className="text-2xl font-bold text-white">
+
+{t("title")}
+
+</h2>
+
+
+
+<p className="mt-2 text-zinc-400">
+
+{t("subtitle")}
+
+</p>
+
+
+
+
+<div className="mt-8 h-80">
+
+
+{
+
+history.length === 0 ? (
+
+
+<div
+
+className="
+flex
+h-full
+items-center
+justify-center
+rounded-2xl
+border
+border-white/10
+bg-white/5
+text-zinc-400
+"
+
+>
+
+Sin datos históricos todavía.
+
+<br />
+
+Valor actual: {currentValue.toFixed(2)}€
+
+</div>
+
+
+) : (
+
+
+
+<ResponsiveContainer
+
+width="100%"
+
+height="100%"
+
+>
+
+
+<AreaChart data={history}>
+
+
+<XAxis
+
+dataKey="day"
+
+stroke="#888"
+
+/>
+
+
+<YAxis
+
+stroke="#888"
+
+/>
+
+
+<Tooltip />
+
+
+
+<Area
+
+type="monotone"
+
+dataKey="galleryValue"
+
+stroke="#8b5cf6"
+
+fill="#8b5cf6"
+
+fillOpacity={0.25}
+
+/>
+
+
+
+</AreaChart>
+
+
+</ResponsiveContainer>
+
+
+
+)
+
+}
+
+
+
+</div>
+
+
+</div>
+
+);
 
 }

@@ -19,8 +19,10 @@ export default function DashboardPage(){
 
 const router = useRouter();
 
+
 const t =
 useTranslations("dashboard");
+
 
 
 const {
@@ -28,6 +30,7 @@ data,
 loading,
 error
 } = useDashboard();
+
 
 
 
@@ -47,11 +50,14 @@ return (
 
 
 
+
+
 if(loading || !data){
 
 return (
 
 <div
+
 className="
 flex
 h-full
@@ -60,6 +66,7 @@ justify-center
 text-2xl
 text-white
 "
+
 >
 
 {t("loading")}
@@ -69,6 +76,8 @@ text-white
 );
 
 }
+
+
 
 
 
@@ -82,13 +91,18 @@ return null;
 
 
 
+
+
 return (
 
 <div
+
 className="
 space-y-8
 "
+
 >
+
 
 
 <DashboardHero
@@ -98,6 +112,8 @@ galleryValue={data.galleryValue}
 totalCards={data.totalCards}
 
 />
+
+
 
 
 
@@ -117,6 +133,8 @@ average={data.average}
 
 
 
+
+
 <DashboardPortfolio
 
 galleryValue={data.galleryValue}
@@ -133,7 +151,15 @@ average={data.average}
 
 
 
-<DashboardCharts />
+
+
+<DashboardCharts
+
+cards={data.topCards}
+
+/>
+
+
 
 
 
@@ -142,6 +168,8 @@ average={data.average}
 cards={data.topCards}
 
 />
+
+
 
 
 
@@ -154,6 +182,8 @@ totalSold={data.totalSold}
 transactions={data.recentTransactions}
 
 />
+
+
 
 
 
