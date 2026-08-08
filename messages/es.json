@@ -140,22 +140,20 @@
     "title": "Top cartas"
   },
   "dashboardQuickStats": {
-  "bought": "Comprado",
-  "sold": "Vendido",
-  "profit": "Beneficio"
-},
-
-"notifications": {
-  "title": "Notificaciones",
-  "syncTitle": "Colección sincronizada",
-  "syncDescription": "Tus cartas están actualizadas correctamente.",
-  "scoutTitle": "Scout IA disponible",
-  "scoutDescription": "Analiza jugadores y descubre nuevas oportunidades.",
-  "portfolioTitle": "Portfolio actualizado",
-  "portfolioDescription": "El valor de tu colección ha sido actualizado."
-},
-
-"galleryHeader": {
+    "bought": "Comprado",
+    "sold": "Vendido",
+    "profit": "Beneficio"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "syncTitle": "Colección sincronizada",
+    "syncDescription": "Tus cartas están actualizadas correctamente.",
+    "scoutTitle": "Scout IA disponible",
+    "scoutDescription": "Analiza jugadores y descubre nuevas oportunidades.",
+    "portfolioTitle": "Portfolio actualizado",
+    "portfolioDescription": "El valor de tu colección ha sido actualizado."
+  },
+  "galleryHeader": {
     "subtitle": "Gestiona y analiza toda tu colección de Sorare.",
     "cards": "Cartas",
     "value": "Valor",
@@ -215,5 +213,12 @@
     "title": "Ha ocurrido un error",
     "description": "Inténtalo de nuevo.",
     "button": "Reintentar"
+  },
+  "sort": {
+    "highest": "Mayor valor",
+    "lowest": "Menor valor",
+    "bestAA": "Mejor AA",
+    "worstAA": "Peor AA",
+    "recent": "Más recientes"
   }
 }
