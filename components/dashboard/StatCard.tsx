@@ -1,6 +1,5 @@
 "use client";
 
-import CountUp from "react-countup";
 import {
   Wallet,
   ShoppingCart,
@@ -10,85 +9,75 @@ import {
   Layers,
 } from "lucide-react";
 
+
 type Props = {
   title: string;
   value: string;
   subtitle: string;
 };
 
-function getIcon(title: string) {
-  switch (title) {
+
+
+function getIcon(title:string) {
+
+  switch(title) {
+
     case "Valor galería":
-      return <Wallet className="text-violet-300" size={30} />;
+      return <Wallet size={32}/>;
+
 
     case "Comprado":
-      return <ShoppingCart className="text-red-300" size={30} />;
+      return <ShoppingCart size={32}/>;
+
 
     case "Vendido":
-      return <CircleDollarSign className="text-emerald-300" size={30} />;
+      return <CircleDollarSign size={32}/>;
+
 
     case "Beneficio":
-      return <TrendingUp className="text-green-300" size={30} />;
+      return <TrendingUp size={32}/>;
+
 
     case "ROI":
-      return <TrendingUp className="text-cyan-300" size={30} />;
+      return <TrendingUp size={32}/>;
+
 
     case "Cartas":
-      return <Layers className="text-blue-300" size={30} />;
+      return <Layers size={32}/>;
+
 
     default:
-      return <Sparkles className="text-yellow-300" size={30} />;
+      return <Sparkles size={32}/>;
+
   }
+
 }
 
-function formatValue(value: string) {
-  const numeric = Number(value.replace(/[^\d.-]/g, ""));
 
-  if (isNaN(numeric)) {
-    return value;
-  }
 
-  if (value.includes("%")) {
-    return (
-      <>
-        <CountUp
-          end={numeric}
-          decimals={2}
-          duration={1.5}
-        />
-        %
-      </>
-    );
-  }
+function formatValue(value:string) {
 
-  if (value.includes("€")) {
-    return (
-      <>
-        €
-        <CountUp
-          end={numeric}
-          decimals={2}
-          duration={1.5}
-        />
-      </>
-    );
-  }
+  return value;
 
-  return (
-    <CountUp
-      end={numeric}
-      duration={1.5}
-    />
-  );
 }
+
+
+
+
 
 export default function StatCard({
+
   title,
   value,
   subtitle,
-}: Props) {
+
+}:Props) {
+
+
   return (
+
     <div
+
       className="
       group
       relative
@@ -97,79 +86,117 @@ export default function StatCard({
       border
       border-white/10
       bg-gradient-to-br
-      from-[#1b1535]
-      via-[#221a45]
-      to-[#120e25]
-      p-6
+      from-[#211943]
+      via-[#18142f]
+      to-[#0f0b1f]
+      p-7
       shadow-xl
       transition-all
       duration-300
       hover:-translate-y-1
       hover:border-violet-400/40
-      hover:shadow-violet-900/40
       "
+
     >
 
+
       <div
+
         className="
         absolute
-        -right-16
-        -top-16
-        h-44
-        w-44
+        -right-20
+        -top-20
+        h-52
+        w-52
         rounded-full
         bg-violet-500/20
         blur-3xl
         transition
         group-hover:bg-violet-400/30
         "
+
       />
 
-      <div className="relative flex items-start justify-between">
+
+
+      <div
+
+        className="
+        relative
+        flex
+        items-start
+        justify-between
+        "
+
+      >
+
 
         <div>
 
+
           <p
+
             className="
             text-xs
-            font-semibold
+            font-bold
             uppercase
-            tracking-[0.25em]
+            tracking-widest
             text-zinc-400
             "
+
           >
+
             {title}
+
           </p>
 
 
+
+
           <h2
+
             className="
             mt-5
-            text-4xl
+            text-5xl
             font-black
             tracking-tight
             text-white
             "
+
           >
+
             {formatValue(value)}
+
           </h2>
 
 
+
+
           <p
+
             className="
             mt-3
             text-sm
             text-zinc-400
             "
+
           >
+
             {subtitle}
+
           </p>
+
 
         </div>
 
 
+
+
+
         <div
+
           className="
+          relative
           flex
           h-16
           w-16
@@ -179,46 +206,71 @@ export default function StatCard({
           border
           border-white/10
           bg-white/5
-          backdrop-blur
-          transition-all
+          text-violet-300
+          transition
           duration-300
           group-hover:scale-110
           "
+
         >
-          {getIcon(title)}
+
+
+          <div
+
+            className="
+            absolute
+            inset-0
+            rounded-2xl
+            bg-violet-500/20
+            blur-xl
+            "
+
+          />
+
+
+          <div className="relative">
+
+            {getIcon(title)}
+
+          </div>
+
+
         </div>
 
+
+
       </div>
+
+
+
 
 
       <div
+
         className="
-        relative
         mt-8
-        h-1.5
-        overflow-hidden
-        rounded-full
-        bg-white/10
+        flex
+        items-center
+        gap-2
+        text-xs
+        font-semibold
+        text-emerald-400
         "
+
       >
 
-        <div
-          className="
-          h-full
-          w-2/3
-          rounded-full
-          bg-gradient-to-r
-          from-violet-500
-          via-fuchsia-500
-          to-cyan-400
-          transition-all
-          duration-700
-          group-hover:w-full
-          "
-        />
+        <TrendingUp size={14}/>
+
+        Datos actualizados
+
 
       </div>
 
+
+
+
     </div>
+
   );
+
 }

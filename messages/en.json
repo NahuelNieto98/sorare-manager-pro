@@ -1,0 +1,174 @@
+{
+  "market": {
+    "title": "Sorare Market Scanner",
+    "subtitle": "Analyze market opportunities automatically",
+    "top": "TOP OPPORTUNITIES TODAY",
+    "complete": "Complete Market",
+    "buy": "BUY",
+    "watch": "WATCH",
+    "expensive": "OVERPRICED",
+    "price": "Price",
+    "value": "Estimated value",
+    "score": "Score",
+    "opportunity": "Opportunity"
+  },
+
+  "sidebar": {
+    "menu": "Menu",
+    "dashboard": "Dashboard",
+    "gallery": "Gallery",
+    "transactions": "Transactions",
+    "assistant": "AI Scout",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "system": "System active",
+    "api": "API connected",
+    "account": "Account synced",
+    "trial": "Pro Trial",
+    "days": "14 days remaining"
+  },
+
+  "dashboard": {
+    "loading": "Loading dashboard...",
+    "heroTitle": "Your Sorare portfolio,\nunder control 🚀",
+    "heroDescription": "Analyze your collection, track your card value and make better decisions.",
+    "collectionValue": "Collection value",
+    "cards": "Cards",
+    "galleryValue": "Gallery value",
+    "roi": "ROI",
+    "profit": "Profit",
+    "essence": "Essence",
+    "average": "Average AA",
+    "profitability": "Profitability",
+    "currentResult": "Current result"
+  },
+
+  "gallery": {
+    "filters": "Collection filters",
+    "search": "Search player or club...",
+    "all": "All",
+    "limited": "Limited",
+    "rare": "Rare",
+    "superRare": "Super Rare",
+    "unique": "Unique",
+    "showing": "Showing",
+    "cards": "cards",
+    "loading": "Loading collection...",
+    "noCards": "No cards",
+    "sync": "Sync your Sorare account to get started."
+  },
+
+  "transactions": {
+    "title": "Transactions",
+    "subtitle": "Manage all your purchases and sales.",
+    "buy": "Buy",
+    "sell": "Sell",
+    "player": "Player",
+    "price": "Price (€)",
+    "save": "Save transaction",
+    "error": "Error",
+    "type": "Type",
+    "rarity": "Rarity",
+    "purchase": "🟢 Purchase",
+    "sale": "🔴 Sale"
+  },
+
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Analyze the performance of your gallery and investments.",
+    "roi": "ROI",
+    "profit": "Profit",
+    "bought": "Bought",
+    "sold": "Sold",
+    "profitability": "Profitability",
+    "sinceStart": "Since the beginning",
+    "invested": "Invested",
+    "recovered": "Recovered",
+    "distribution": "Distribution",
+    "upcoming": "Coming soon",
+    "roiEvolution": "📈 ROI evolution",
+    "profitPlayer": "💰 Profit per player",
+    "cardRanking": "🏆 Card ranking",
+    "buySell": "📊 Buys vs Sales"
+  },
+
+  "assistant": {
+    "title": "AI Scout",
+    "subtitle": "Your intelligent assistant for Sorare.",
+    "analyzeTitle": "Analyze your gallery",
+    "description": "AI Scout will automatically analyze your cards, ROI, purchases and sales and provide recommendations.",
+    "analyzing": "Analyzing...",
+    "analyzeButton": "Analyze my gallery",
+    "result": "Result",
+    "empty": "Press the button to generate an analysis."
+  },
+
+  "rewards": {
+    "title": "Rewards",
+    "subtitle": "All your rewards will appear here."
+  },
+
+  "connect": {
+    "title": "Connect Sorare",
+    "subtitle": "Connect your Sorare account directly to automatically sync your collection.",
+    "connecting": "Connecting with Sorare...",
+    "button": "🔗 Connect with Sorare"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Connect your Sorare account.",
+    "account": "Sorare Account",
+    "placeholder": "Example: lightenn1",
+    "button": "Connect account",
+    "error": "Error connecting account",
+    "success": "Account connected successfully"
+  },
+
+  "galleryChart": {
+    "title": "Portfolio Evolution",
+    "subtitle": "Historical value of your collection."
+  },
+
+  "portfolioChart": {
+    "title": "Portfolio Evolution",
+    "subtitle": "Historical value of your account."
+  },
+
+  "quickStats": {
+    "title": "Quick statistics",
+    "subtitle": "General information about your collection.",
+    "cards": "Cards",
+    "average": "Average AA",
+    "performance": "Performance based on your current collection."
+  },
+
+  "galleryValue": {
+    "title": "Gallery value",
+    "subtitle": "Updated automatically",
+    "connect": "Connect your Sorare account to start syncing your cards.",
+    "chartPlaceholder": "Your gallery value chart will appear here."
+  },
+
+  "topPlayers": {
+    "title": "Top cards"
+  },
+
+  "dashboardQuickStats": {
+    "bought": "Bought",
+    "sold": "Sold",
+    "profit": "Profit"
+  },
+
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are trying to visit does not exist.",
+    "button": "Back to home"
+  },
+
+  "error": {
+    "title": "An error occurred",
+    "description": "Please try again.",
+    "button": "Retry"
+  }
+}

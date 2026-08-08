@@ -9,6 +9,8 @@ type Props = {
   scarcity: string;
   marketValue: number | null;
 
+  season: number;
+
   averageScore: number | null;
 
   l5Score: number | null;
@@ -58,6 +60,7 @@ function rarityStyle(scarcity: string) {
 
 
 
+
 export default function CardItem({
 
   id,
@@ -66,6 +69,8 @@ export default function CardItem({
   pictureUrl,
   scarcity,
   marketValue,
+
+  season,
 
   averageScore,
 
@@ -78,6 +83,11 @@ export default function CardItem({
 
 
   const style = rarityStyle(scarcity);
+
+
+
+  const isInSeason =
+    season === 2026;
 
 
 
@@ -163,6 +173,33 @@ export default function CardItem({
 
 
 
+        <span
+          className={`
+          absolute
+          left-4
+          top-14
+          rounded-full
+          px-4
+          py-1.5
+          text-xs
+          font-black
+          ${
+            isInSeason
+              ? "bg-green-500 text-black"
+              : "bg-yellow-300 text-black"
+          }
+          `}
+        >
+          {
+            isInSeason
+              ? "🟢 IN SEASON 26/27"
+              : "🟡 CLASSIC"
+          }
+        </span>
+
+
+
+
 
         <div
           className="
@@ -207,6 +244,7 @@ export default function CardItem({
         <p className="mt-1 text-zinc-400">
           {club ?? "Sin club"}
         </p>
+
 
 
 

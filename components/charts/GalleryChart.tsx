@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   ResponsiveContainer,
@@ -11,6 +12,7 @@ import {
   Tooltip,
 } from "recharts";
 
+
 type Snapshot = {
   id: string;
   galleryValue: number;
@@ -19,54 +21,183 @@ type Snapshot = {
   createdAt: string;
 };
 
-export default function GalleryChart() {
-  const [history, setHistory] = useState<Snapshot[]>([]);
 
-  useEffect(() => {
+export default function GalleryChart(){
+
+  const t = useTranslations("galleryChart");
+
+
+  const [history,setHistory] =
+    useState<Snapshot[]>([]);
+
+
+
+  useEffect(()=>{
+
     loadHistory();
-  }, []);
 
-  async function loadHistory() {
-    const res = await fetch("/api/portfolio-history");
+  },[]);
 
-    const data = await res.json();
 
-    const formatted = data.map((item: Snapshot) => ({
-      ...item,
-      day: new Date(item.createdAt).toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "2-digit",
-      }),
-    }));
 
-    setHistory(formatted);
+  async function loadHistory(){
+
+    try {
+
+      const res =
+        await fetch("/api/portfolio-history");
+
+
+      if(!res.ok){
+        setHistory([]);
+        return;
+      }
+
+
+      const data =
+        await res.json();
+
+
+
+      if(!Array.isArray(data)){
+        setHistory([]);
+        return;
+      }
+
+
+
+      const formatted =
+        data.map((item:Snapshot)=>({
+
+          ...item,
+
+          day:
+            new Date(item.createdAt)
+            .toLocaleDateString(
+              "es-ES",
+              {
+                day:"2-digit",
+                month:"2-digit",
+              }
+            ),
+
+        }));
+
+
+
+      setHistory(formatted);
+
+
+
+    } catch(error){
+
+      console.error(
+        "GalleryChart error:",
+        error
+      );
+
+      setHistory([]);
+
+    }
+
   }
 
-  return (
-    <div className="rounded-3xl border border-violet-700/30 bg-gradient-to-br from-[#181530] via-[#221B45] to-[#141127] p-6">
-      <h2 className="text-2xl font-bold text-white">Evolución del Portfolio</h2>
 
-      <p className="mt-2 text-zinc-400">Valor histórico de tu colección.</p>
+
+  return (
+
+    <div>
+
+      <h2 className="text-2xl font-bold text-white">
+
+        {t("title")}
+
+      </h2>
+
+
+      <p className="mt-2 text-zinc-400">
+
+        {t("subtitle")}
+
+      </p>
+
+
 
       <div className="mt-8 h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={history}>
-            <XAxis dataKey="day" stroke="#888" />
 
-            <YAxis stroke="#888" />
 
-            <Tooltip />
+        {
+          history.length === 0 ? (
 
-            <Area
-              type="monotone"
-              dataKey="galleryValue"
-              stroke="#8b5cf6"
-              fill="#8b5cf6"
-              fillOpacity={0.25}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+            <div
+              className="
+              flex
+              h-full
+              items-center
+              justify-center
+              rounded-2xl
+              border
+              border-white/10
+              bg-white/5
+              text-zinc-400
+              "
+            >
+
+              Sin datos históricos todavía.
+
+            </div>
+
+
+          ) : (
+
+
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+
+              <AreaChart data={history}>
+
+
+                <XAxis
+                  dataKey="day"
+                  stroke="#888"
+                />
+
+
+                <YAxis
+                  stroke="#888"
+                />
+
+
+                <Tooltip />
+
+
+                <Area
+                  type="monotone"
+                  dataKey="galleryValue"
+                  stroke="#8b5cf6"
+                  fill="#8b5cf6"
+                  fillOpacity={0.25}
+                />
+
+
+              </AreaChart>
+
+
+            </ResponsiveContainer>
+
+
+          )
+        }
+
+
+
       </div>
+
+
     </div>
+
   );
+
 }

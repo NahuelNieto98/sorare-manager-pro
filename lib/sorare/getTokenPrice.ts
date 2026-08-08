@@ -1,18 +1,19 @@
 import { sorareRequest } from "../sorare";
 
-
 const GET_TOKEN_PRICES = `
 query GetTokenPrices(
   $playerSlug: String!,
-  $rarity: Rarity!
+  $rarity: Rarity!,
+  $season: Int!
 ) {
 
   tokens {
 
     tokenPrices(
-      first: 5,
+      first: 10,
       playerSlug: $playerSlug,
-      rarity: $rarity
+      rarity: $rarity,
+      season: $season
     ) {
 
       amounts {
@@ -30,30 +31,67 @@ query GetTokenPrices(
 
 
 
+
+
+
 export async function getLastTokenPrice(
   playerSlug:string,
-  rarity:string
+  rarity:string,
+  season:number,
 ) {
 
 
   try {
 
 
-    const data = await sorareRequest(
-      GET_TOKEN_PRICES,
-      {
-        playerSlug,
-        rarity,
-      }
+    console.log(
+      "🔥 BUSCANDO PRECIO:",
+      playerSlug,
+      rarity,
+      "TEMPORADA:",
+      season
     );
 
 
 
-    if(data.errors) {
+
+
+    const data =
+      await sorareRequest(
+        GET_TOKEN_PRICES,
+        {
+          playerSlug,
+          rarity,
+          season,
+        }
+      );
+
+
+
+
+
+
+    console.log(
+      "💰 RESPUESTA TOKEN PRICE:",
+      JSON.stringify(
+        data,
+        null,
+        2
+      )
+    );
+
+
+
+
+
+
+    if(data.errors){
+
 
       console.error(
         data.errors
       );
+
 
       return null;
 
@@ -61,15 +99,31 @@ export async function getLastTokenPrice(
 
 
 
+
+
+
+
+
     const prices =
-      data.data.tokens.tokenPrices;
+      data.data?.tokens?.tokenPrices;
+
+
 
 
 
     if(
       !prices ||
       prices.length === 0
-    ) {
+    ){
+
+
+      console.log(
+        "❌ SIN PRECIO:",
+        playerSlug,
+        rarity,
+        season
+      );
+
 
       return null;
 
@@ -77,33 +131,90 @@ export async function getLastTokenPrice(
 
 
 
-    const latest =
-      prices.sort(
-        (a:any,b:any)=>
-          new Date(b.date).getTime()
-          -
-          new Date(a.date).getTime()
-      )[0];
 
 
 
-    return latest.amounts?.eurCents
-      ? latest.amounts.eurCents / 100
-      : null;
 
 
 
-  } catch(error) {
+    const latestPrice =
+      prices
+        .filter(
+          (p:any)=>
+            p.amounts?.eurCents
+        )
+        .sort(
+          (a:any,b:any)=>
+
+            new Date(b.date).getTime()
+            -
+            new Date(a.date).getTime()
+
+        )[0];
+
+
+
+
+
+
+    if(!latestPrice){
+
+      return null;
+
+    }
+
+
+
+
+
+
+
+
+    const value =
+      Number(
+        (
+          latestPrice.amounts.eurCents / 100
+        )
+        .toFixed(2)
+      );
+
+
+
+
+
+
+
+
+    console.log(
+      "✅ ÚLTIMO PRECIO ENCONTRADO:",
+      value,
+      "TEMPORADA:",
+      season
+    );
+
+
+
+
+
+    return value;
+
+
+
+
+
+  } catch(error){
 
 
     console.error(
-      "❌ Error obteniendo precio histórico:",
+      "❌ ERROR TOKEN PRICE:",
       error
     );
 
 
     return null;
 
+
   }
+
 
 }

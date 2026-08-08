@@ -9,53 +9,107 @@ import { calculateGalleryValue } from "@/lib/gallery";
 import { savePortfolioSnapshot } from "@/lib/portfolio";
 
 
+
+function sleep(ms:number) {
+
+  return new Promise(
+    resolve => setTimeout(resolve, ms)
+  );
+
+}
+
+
+
+
+
+async function getPriceSafe(
+  playerSlug:string,
+  rarity:string,
+  season:number
+) {
+
+
+  try {
+
+
+    return await getLastTokenPrice(
+      playerSlug,
+      rarity,
+      season
+    );
+
+
+  } catch(error:any) {
+
+
+    const message =
+      error?.message ?? "";
+
+
+
+    if(message.includes("429")) {
+
+
+      console.log(
+        "⏳ Rate limit Sorare. Esperando 30 segundos..."
+      );
+
+
+      await sleep(30000);
+
+
+
+      try {
+
+
+        return await getLastTokenPrice(
+          playerSlug,
+          rarity,
+          season
+        );
+
+
+      } catch {
+
+
+        return null;
+
+      }
+
+    }
+
+
+
+    return null;
+
+  }
+
+}
+
+
+
+
+
+
+
+
 export async function POST() {
 
 
-  const session = await auth();
+  const session =
+    await auth();
 
 
 
-  if (!session?.user?.email) {
+  if(!session?.user?.email) {
+
 
     return NextResponse.json(
       {
-        error: "No autorizado",
+        error:"No autorizado",
       },
       {
-        status: 401,
-      }
-    );
-
-  }
-
-
-
-
-  const user = await prisma.user.findUnique({
-
-    where: {
-      email: session.user.email,
-    },
-
-    include: {
-      transactions: true,
-    },
-
-  });
-
-
-
-
-
-  if (!user) {
-
-    return NextResponse.json(
-      {
-        error: "Usuario no encontrado",
-      },
-      {
-        status: 404,
+        status:401,
       }
     );
 
@@ -66,15 +120,58 @@ export async function POST() {
 
 
 
-  const cards = await prisma.card.findMany({
 
-    where: {
 
-      ownerId: user.id,
 
-    },
+  const user =
+    await prisma.user.findUnique({
 
-  });
+      where:{
+        email:session.user.email,
+      },
+
+      include:{
+        transactions:true,
+      },
+
+    });
+
+
+
+
+
+  if(!user) {
+
+
+    return NextResponse.json(
+      {
+        error:"Usuario no encontrado",
+      },
+      {
+        status:404,
+      }
+    );
+
+  }
+
+
+
+
+
+
+
+
+
+  const cards =
+    await prisma.card.findMany({
+
+      where:{
+        ownerId:user.id,
+      },
+
+    });
+
+
 
 
 
@@ -82,7 +179,7 @@ export async function POST() {
 
 
   console.log(
-    "💰 Actualizando precios:",
+    "💰 Cartas totales:",
     cards.length
   );
 
@@ -90,58 +187,107 @@ export async function POST() {
 
 
 
-  const priceCache = new Map<string, number | null>();
+
+
+
+  const cardsToUpdate =
+    cards.filter(card =>
+      card.playerSlug !== null
+    );
+
+
+
+
+
+
+
+
+  console.log(
+    "🔄 Cartas a actualizar:",
+    cardsToUpdate.length
+  );
+
+
+
+
+
 
 
 
   let updated = 0;
 
+  let failed = 0;
 
 
 
 
 
-  for (const card of cards) {
 
 
 
-    if (!card.playerSlug) {
+
+  for(const card of cardsToUpdate) {
+
+
+
+    console.log(
+      "🔥 Actualizando:",
+      card.playerName,
+      card.scarcity,
+      "temporada:",
+      card.season
+    );
+
+
+
+
+    const price =
+      await getPriceSafe(
+        card.playerSlug!,
+        card.scarcity,
+        card.season
+      );
+
+
+
+
+
+    if(price === null) {
+
+
+      console.log(
+        "❌ SIN PRECIO:",
+        card.playerName,
+        card.scarcity,
+        "temporada:",
+        card.season
+      );
+
+
+      failed++;
+
+      await sleep(3000);
+
       continue;
+
     }
 
 
 
 
-    const key =
-      `${card.playerSlug}-${card.scarcity}`;
 
 
 
 
+    if(
+      card.playerSlug?.includes("mbappe")
+    ){
 
-    let price = priceCache.get(key);
-
-
-
-
-
-    if (price === undefined) {
-
-
-
-      price = await getLastTokenPrice(
-
-        card.playerSlug,
-
-        card.scarcity
-
-      );
-
-
-
-      priceCache.set(
-        key,
-        price
+      console.log(
+        "🔥🔥🔥 MBAPPE PRECIO REAL:",
+        price,
+        "temporada:",
+        card.season
       );
 
     }
@@ -151,30 +297,35 @@ export async function POST() {
 
 
 
-    if (price !== null) {
-
-
-      await prisma.card.update({
-
-        where: {
-          id: card.id,
-        },
-
-
-        data: {
-
-          marketValue: price,
-
-        },
-
-      });
 
 
 
-      updated++;
+    await prisma.card.update({
 
-    }
+      where:{
+        id:card.id,
+      },
 
+      data:{
+
+        marketValue:
+          price,
+
+        priceUpdatedAt:
+          new Date(),
+
+      },
+
+    });
+
+
+
+    updated++;
+
+
+
+
+    await sleep(3000);
 
 
   }
@@ -183,13 +334,39 @@ export async function POST() {
 
 
 
-  const updatedCards = await prisma.card.findMany({
 
-    where: {
-      ownerId: user.id,
-    },
 
-  });
+
+
+  console.log(
+    "✅ Precios actualizados:",
+    updated
+  );
+
+
+  console.log(
+    "❌ Fallos:",
+    failed
+  );
+
+
+
+
+
+
+
+
+
+  const updatedCards =
+    await prisma.card.findMany({
+
+      where:{
+        ownerId:user.id,
+      },
+
+    });
+
+
 
 
 
@@ -197,7 +374,12 @@ export async function POST() {
 
 
   const galleryValue =
-    calculateGalleryValue(updatedCards);
+    calculateGalleryValue(
+      updatedCards
+    );
+
+
+
 
 
 
@@ -205,11 +387,16 @@ export async function POST() {
 
   const totalBought =
     user.transactions
-      .filter((t) => t.type === "BUY")
+      .filter(
+        t=>t.type==="BUY"
+      )
       .reduce(
-        (sum, t) => sum + t.price,
+        (sum,t)=>sum+t.price,
         0
       );
+
+
+
 
 
 
@@ -217,9 +404,11 @@ export async function POST() {
 
   const totalSold =
     user.transactions
-      .filter((t) => t.type === "SELL")
+      .filter(
+        t=>t.type==="SELL"
+      )
       .reduce(
-        (sum, t) => sum + t.price,
+        (sum,t)=>sum+t.price,
         0
       );
 
@@ -227,8 +416,16 @@ export async function POST() {
 
 
 
+
+
+
   const profit =
-    galleryValue + totalSold - totalBought;
+    galleryValue +
+    totalSold -
+    totalBought;
+
+
+
 
 
 
@@ -239,6 +436,8 @@ export async function POST() {
       ? 0
       :
       (profit / totalBought) * 100;
+
+
 
 
 
@@ -258,11 +457,14 @@ export async function POST() {
 
 
 
+
   return NextResponse.json({
 
-    success: true,
+    success:true,
 
     updated,
+
+    failed,
 
     galleryValue,
 

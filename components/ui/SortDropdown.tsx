@@ -1,242 +1,307 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+
 import {
-  TrendingUp,
-  TrendingDown,
-  Star,
-  Clock,
-  ChevronDown,
-  Check,
+TrendingUp,
+TrendingDown,
+Star,
+Clock,
+ChevronDown,
+Check,
 } from "lucide-react";
 
 
 type Props = {
-  value: string;
-  onChange: (value:string)=>void;
+value: string;
+onChange: (value:string)=>void;
 };
 
 
 
+
+
 const options = [
-  {
-    value:"value",
-    label:"Mayor valor",
-    icon:TrendingUp,
-  },
-  {
-    value:"lowValue",
-    label:"Menor valor",
-    icon:TrendingDown,
-  },
-  {
-    value:"aa",
-    label:"Mejor AA",
-    icon:Star,
-  },
-  {
-    value:"lowAA",
-    label:"Peor AA",
-    icon:Star,
-  },
-  {
-    value:"recent",
-    label:"Más reciente",
-    icon:Clock,
-  },
+{
+value:"value",
+key:"highest",
+icon:TrendingUp,
+},
+{
+value:"lowValue",
+key:"lowest",
+icon:TrendingDown,
+},
+{
+value:"aa",
+key:"bestAA",
+icon:Star,
+},
+{
+value:"lowAA",
+key:"worstAA",
+icon:Star,
+},
+{
+value:"recent",
+key:"recent",
+icon:Clock,
+},
 ];
 
 
 
+
+
 export default function SortDropdown({
-  value,
-  onChange,
+value,
+onChange,
 }:Props){
 
 
-  const [open,setOpen] = useState(false);
+const t = useTranslations("sort");
 
 
-  const selected =
-    options.find(
-      (item)=>item.value===value
-    )
-    ??
-    options[0];
+const [open,setOpen] =
+useState(false);
 
 
 
-  return (
 
-    <div className="relative w-64">
 
+const selected =
+options.find(
+(item)=>item.value===value
+)
+??
+options[0];
 
-      <button
 
-        onClick={()=>setOpen(!open)}
 
-        className="
-        flex
-        w-full
-        items-center
-        justify-between
-        rounded-2xl
-        border
-        border-violet-500/50
-        bg-[#17112F]
-        px-5
-        py-3
-        text-white
-        transition
-        hover:bg-white/5
-        "
 
-      >
 
+return (
 
-        <div className="
-        flex
-        items-center
-        gap-3
-        ">
 
+<div className="relative w-64">
 
-          <selected.icon
-            size={20}
-            className="text-violet-400"
-          />
 
 
-          <span className="font-bold">
-            {selected.label}
-          </span>
 
 
-        </div>
+<button
 
+onClick={()=>setOpen(!open)}
 
-        <ChevronDown
-          size={20}
-          className={`
-          transition
-          ${open ? "rotate-180" : ""}
-          `}
-        />
+className="
+flex
+w-full
+items-center
+justify-between
+rounded-2xl
+border
+border-violet-500/50
+bg-[#17112F]
+px-5
+py-3
+text-white
+transition
+hover:bg-white/5
+"
 
+>
 
-      </button>
 
+<div
+className="
+flex
+items-center
+gap-3
+"
+>
 
 
+<selected.icon
+size={20}
+className="text-violet-400"
+/>
 
-      {open && (
 
-        <div
-          className="
-          absolute
-          z-50
-          mt-3
-          w-full
-          overflow-hidden
-          rounded-3xl
-          border
-          border-white/10
-          bg-[#17112F]
-          shadow-2xl
-          "
-        >
 
+<span className="font-bold">
 
-          {options.map((item)=>{
+{t(selected.key)}
 
+</span>
 
-            const Icon = item.icon;
 
+</div>
 
-            const active =
-              item.value === value;
 
 
 
-            return (
+<ChevronDown
+size={20}
+className={`
+transition
+${open ? "rotate-180" : ""}
+`}
+/>
 
-              <button
 
-                key={item.value}
+</button>
 
-                onClick={()=>{
-                  onChange(item.value);
-                  setOpen(false);
-                }}
 
-                className={`
-                flex
-                w-full
-                items-center
-                justify-between
-                px-5
-                py-4
-                transition
 
-                ${
-                  active
-                  ?
-                  "bg-violet-600/40 text-white"
-                  :
-                  "text-zinc-300 hover:bg-white/5"
-                }
 
-                `}
-              >
 
 
-                <div className="
-                flex
-                items-center
-                gap-3
-                ">
 
-                  <Icon
-                    size={20}
-                    className="text-violet-400"
-                  />
+{open && (
 
 
-                  <span>
-                    {item.label}
-                  </span>
+<div
 
+className="
+absolute
+z-50
+mt-3
+w-full
+overflow-hidden
+rounded-3xl
+border
+border-white/10
+bg-[#17112F]
+shadow-2xl
+"
 
-                </div>
+>
 
 
+{
 
-                {active && (
+options.map((item)=>{
 
-                  <Check
-                    size={20}
-                    className="text-violet-300"
-                  />
 
-                )}
+const Icon =
+item.icon;
 
 
+const active =
+item.value===value;
 
-              </button>
 
-            );
 
 
-          })}
+return (
 
 
-        </div>
+<button
 
-      )}
+key={item.value}
 
+onClick={()=>{
 
-    </div>
+onChange(item.value);
 
-  );
+setOpen(false);
+
+}}
+
+className={`
+
+flex
+w-full
+items-center
+justify-between
+px-5
+py-4
+transition
+
+${
+active
+?
+"bg-violet-600/40 text-white"
+:
+"text-zinc-300 hover:bg-white/5"
+}
+
+`}
+
+>
+
+
+<div
+
+className="
+flex
+items-center
+gap-3
+"
+
+>
+
+
+<Icon
+size={20}
+className="text-violet-400"
+/>
+
+
+
+<span>
+
+{t(item.key)}
+
+</span>
+
+
+
+</div>
+
+
+
+
+
+{
+
+active && (
+
+<Check
+size={20}
+className="text-violet-300"
+/>
+
+)
+
+}
+
+
+
+</button>
+
+
+);
+
+
+})
+
+}
+
+
+
+</div>
+
+
+)}
+
+
+
+</div>
+
+
+);
+
 
 }

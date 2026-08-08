@@ -7,100 +7,241 @@ import { getUserCards } from "@/lib/sorare/getUserCards";
 import { importGallery } from "@/lib/sorare/importGallery";
 
 
+
 export async function POST() {
-
-  const session = await auth();
-
-
-  if (!session?.user?.email) {
-
-    return NextResponse.json(
-      { error: "No autorizado" },
-      { status: 401 }
-    );
-
-  }
-
-
-
-  const user = await prisma.user.findUnique({
-
-    where: {
-      email: session.user.email,
-    },
-
-    include: {
-      sorareAccount: true,
-    },
-
-  });
-
-
-
-
-  if (!user) {
-
-    return NextResponse.json(
-      { error: "Usuario no encontrado" },
-      { status: 404 }
-    );
-
-  }
-
-
-
-
-
-  if (!user.sorareAccount) {
-
-    return NextResponse.json(
-      {
-        error: "No hay una cuenta de Sorare conectada.",
-      },
-      {
-        status: 400,
-      }
-    );
-
-  }
-
-
-
-
-
-  const slug = user.sorareAccount.slug;
-
 
 
   console.log(
-    "🔥 Sincronizando usuario:",
-    slug
+    "🚀 API SYNC LLAMADA"
   );
 
 
 
+  try {
 
 
-  const cards = await getUserCards(slug);
-
-
-
-
-  await importGallery(
-    user.id,
-    cards
-  );
+    const session =
+      await auth();
 
 
 
 
+    console.log(
+      "SESSION:",
+      session?.user?.email
+    );
 
-  const importedCards =
-    await prisma.card.count({
 
-      where: {
-        ownerId: user.id,
-      },
+
+
+    if(!session?.user?.email) {
+
+
+      return NextResponse.json(
+
+        {
+          error:"No autorizado"
+        },
+
+        {
+          status:401
+        }
+
+      );
+
+    }
+
+
+
+
+
+
+    const user =
+      await prisma.user.findUnique({
+
+        where:{
+          email:
+            session.user.email
+        },
+
+        include:{
+          sorareAccount:true
+        }
+
+      });
+
+
+
+
+
+
+
+    if(!user) {
+
+
+      return NextResponse.json(
+
+        {
+          error:"Usuario no encontrado"
+        },
+
+        {
+          status:404
+        }
+
+      );
+
+    }
+
+
+
+
+
+
+
+    console.log(
+
+      "SORARE ACCOUNT:",
+
+      user.sorareAccount?.slug
+
+    );
+
+
+
+
+
+
+
+    if(!user.sorareAccount) {
+
+
+      return NextResponse.json(
+
+        {
+          error:"Sin cuenta Sorare"
+        },
+
+        {
+          status:400
+        }
+
+      );
+
+    }
+
+
+
+
+
+
+
+
+    const accessToken =
+      user.sorareAccount.accessToken;
+
+
+
+
+
+
+
+    if(!accessToken) {
+
+
+      return NextResponse.json(
+
+        {
+          error:
+            "La cuenta Sorare no tiene token OAuth"
+        },
+
+        {
+          status:400
+        }
+
+      );
+
+    }
+
+
+
+
+
+
+
+    console.log(
+      "🔐 Usando OAuth Sorare"
+    );
+
+
+
+
+
+
+
+    const cards =
+
+      await getUserCards(
+
+        accessToken
+
+      );
+
+
+
+
+
+
+
+    console.log(
+
+      "🃏 CARTAS RECIBIDAS:",
+
+      cards.length
+
+    );
+
+
+
+
+
+
+
+
+    await importGallery(
+
+      user.id,
+
+      cards
+
+    );
+
+
+
+
+
+
+
+    console.log(
+
+      "✅ SYNC FINALIZADA"
+
+    );
+
+
+
+
+
+
+
+
+    return NextResponse.json({
+
+      success:true,
+
+      cards:
+        cards.length
 
     });
 
@@ -108,18 +249,42 @@ export async function POST() {
 
 
 
-  return NextResponse.json({
+  } catch(error:any) {
 
-    success: true,
 
-    importedCards,
 
-    slug,
+    console.error(
 
-    message:
-      "Galería sincronizada correctamente. Actualizando valores próximamente.",
+      "❌ ERROR SYNC:",
 
-  });
+      error
+
+    );
+
+
+
+
+
+    return NextResponse.json(
+
+      {
+
+        error:
+          error.message
+
+      },
+
+      {
+
+        status:500
+
+      }
+
+    );
+
+
+
+  }
 
 
 }

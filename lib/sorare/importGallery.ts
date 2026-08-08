@@ -13,24 +13,25 @@ export async function importGallery(
 
 
   const sorareIds = cards.map(
-    (card:any) => card.assetId
+    (card:any)=>card.assetId
   );
 
 
 
-  const deleted = await prisma.card.deleteMany({
+  const deleted =
+    await prisma.card.deleteMany({
 
-    where: {
+      where:{
 
-      ownerId: userId,
+        ownerId:userId,
 
-      sorareId: {
-        notIn: sorareIds,
-      },
+        sorareId:{
+          notIn:sorareIds
+        }
 
-    },
+      }
 
-  });
+    });
 
 
 
@@ -45,22 +46,23 @@ export async function importGallery(
 
 
 
-  for (
-    let i = 0;
-    i < cards.length;
-    i += limit
-  ) {
+  for(
+    let i=0;
+    i<cards.length;
+    i+=limit
+  ){
 
 
-    const batch = cards.slice(
-      i,
-      i + limit
-    );
+    const batch =
+      cards.slice(
+        i,
+        i+limit
+      );
 
 
 
     console.log(
-      `🔥 GUARDANDO ${i + 1}-${i + batch.length}`
+      `🔥 GUARDANDO ${i+1}-${i+batch.length}`
     );
 
 
@@ -70,23 +72,42 @@ export async function importGallery(
       batch.map(async(card:any)=>{
 
 
+
+        const existingCard =
+          await prisma.card.findUnique({
+
+            where:{
+              sorareId:
+                card.assetId
+            }
+
+          });
+
+
+
+
         await prisma.card.upsert({
 
-          where: {
-            sorareId: card.assetId,
+          where:{
+            sorareId:
+              card.assetId
           },
 
 
-          update: {
+          update:{
+
 
             slug:
               card.slug,
 
+
             season:
               card.season,
 
+
             scarcity:
               card.rarity,
+
 
 
             playerName:
@@ -95,10 +116,12 @@ export async function importGallery(
               "Desconocido",
 
 
+
             playerSlug:
               card.player?.slug
               ??
               null,
+
 
 
             club:
@@ -107,10 +130,12 @@ export async function importGallery(
               null,
 
 
+
             position:
               card.player?.position
               ??
               null,
+
 
 
             averageScore:
@@ -119,10 +144,12 @@ export async function importGallery(
               null,
 
 
+
             l5Score:
               card.player?.l5Score
               ??
               null,
+
 
 
             l10Score:
@@ -131,10 +158,12 @@ export async function importGallery(
               null,
 
 
+
             l15Score:
               card.player?.l15Score
               ??
               null,
+
 
 
             l40Score:
@@ -143,22 +172,24 @@ export async function importGallery(
               null,
 
 
+
             pictureUrl:
               card.pictureUrl
               ??
               null,
 
 
-            marketValue:
-              card.marketValue
-              ??
-              null,
 
+            // IMPORTANTE:
+            // no tocamos marketValue
+            // para no borrar precios calculados
 
           },
 
 
-          create: {
+
+          create:{
+
 
             sorareId:
               card.assetId,
@@ -168,12 +199,15 @@ export async function importGallery(
               card.slug,
 
 
+
             season:
               card.season,
 
 
+
             scarcity:
               card.rarity,
+
 
 
             playerName:
@@ -182,10 +216,12 @@ export async function importGallery(
               "Desconocido",
 
 
+
             playerSlug:
               card.player?.slug
               ??
               null,
+
 
 
             club:
@@ -194,10 +230,12 @@ export async function importGallery(
               null,
 
 
+
             position:
               card.player?.position
               ??
               null,
+
 
 
             averageScore:
@@ -206,10 +244,12 @@ export async function importGallery(
               null,
 
 
+
             l5Score:
               card.player?.l5Score
               ??
               null,
+
 
 
             l10Score:
@@ -218,10 +258,12 @@ export async function importGallery(
               null,
 
 
+
             l15Score:
               card.player?.l15Score
               ??
               null,
+
 
 
             l40Score:
@@ -230,22 +272,22 @@ export async function importGallery(
               null,
 
 
+
             pictureUrl:
               card.pictureUrl
               ??
               null,
 
 
+
             marketValue:
-              card.marketValue
-              ??
               null,
 
 
-            ownerId:
-              userId,
 
-          },
+            ownerId:userId
+
+          }
 
         });
 
@@ -253,7 +295,6 @@ export async function importGallery(
       })
 
     );
-
 
   }
 

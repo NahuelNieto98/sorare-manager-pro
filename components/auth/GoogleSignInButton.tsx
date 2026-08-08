@@ -16,7 +16,7 @@ export default function GoogleSignInButton() {
 
 
       await signIn("google", {
-        callbackUrl: "/dashboard",
+        callbackUrl: "/es/connect",
       });
 
 

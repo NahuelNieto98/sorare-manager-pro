@@ -1,16 +1,27 @@
 "use client";
 
-import Link from "next/link";
-import { signOut } from "next-auth/react";
 import {
   Bell,
-  Search,
-  LogOut,
-  Sparkles,
+  Settings,
+  UserCircle,
 } from "lucide-react";
 
-export default function Header() {
+
+type HeaderProps = {
+  sorareSlug: string | null;
+  avatarUrl: string | null;
+  totalCards: number;
+  galleryValue: number;
+};
+
+
+export default function Header({
+  sorareSlug,
+}: HeaderProps) {
+
+
   return (
+
     <header
       className="
       flex
@@ -18,61 +29,47 @@ export default function Header() {
       justify-between
       border-b
       border-white/10
-      bg-[#120e25]/80
+      bg-[#09090F]/80
       px-8
       py-5
       backdrop-blur-xl
       "
     >
 
-      {/* BUSCADOR */}
 
-      <div
-        className="
-        relative
-        w-[460px]
-        "
-      >
+      {/* Logo */}
 
-        <Search
-          size={19}
+      <div>
+
+        <p
           className="
-          absolute
-          left-4
-          top-1/2
-          -translate-y-1/2
-          text-zinc-500
-          "
-        />
-
-
-        <input
-          placeholder="Buscar jugador, club o carta..."
-          className="
-          w-full
-          rounded-2xl
-          border
-          border-white/10
-          bg-white/5
-          py-3.5
-          pl-12
-          pr-5
           text-sm
-          text-white
-          outline-none
-          placeholder:text-zinc-500
-          transition
-          focus:border-purple-500/60
-          focus:bg-white/10
+          font-black
+          uppercase
+          tracking-widest
+          text-violet-300
           "
-        />
+        >
+          Sorare Manager Pro
+        </p>
+
+
+        <p
+          className="
+          mt-1
+          text-xs
+          text-zinc-400
+          "
+        >
+          Tu centro de gestión Sorare
+        </p>
 
       </div>
 
 
 
+      {/* User actions */}
 
-      {/* ACCIONES */}
 
       <div
         className="
@@ -83,47 +80,59 @@ export default function Header() {
       >
 
 
-        {/* NOTIFICACIONES */}
-
-        <button
+        <div
           className="
-          group
-          relative
-          flex
-          h-12
-          w-12
-          items-center
-          justify-center
-          rounded-2xl
+          hidden
+          rounded-xl
           border
           border-white/10
           bg-white/5
-          transition
-          hover:bg-white/10
+          px-4
+          py-2
+          md:block
           "
         >
 
-          <Bell
-            size={20}
+          <p
             className="
-            text-zinc-300
-            transition
-            group-hover:text-white
+            text-xs
+            text-zinc-400
             "
-          />
+          >
+            Cuenta conectada
+          </p>
 
 
-          <span
+          <p
             className="
-            absolute
-            right-3
-            top-3
-            h-2
-            w-2
-            rounded-full
-            bg-purple-400
+            font-bold
+            text-white
             "
-          />
+          >
+            {sorareSlug ?? "Usuario"}
+          </p>
+
+
+        </div>
+
+
+
+
+        <button
+          className="
+          rounded-xl
+          border
+          border-white/10
+          bg-white/5
+          p-3
+          text-zinc-300
+          transition
+          hover:bg-white/10
+          hover:text-white
+          "
+        >
+
+          <Bell size={20}/>
 
         </button>
 
@@ -131,70 +140,55 @@ export default function Header() {
 
 
 
-        {/* CONECTAR SORARE */}
+        <button
+          className="
+          rounded-xl
+          border
+          border-white/10
+          bg-white/5
+          p-3
+          text-zinc-300
+          transition
+          hover:bg-white/10
+          hover:text-white
+          "
+        >
 
-        <Link
-          href="/connect-sorare"
+          <Settings size={20}/>
+
+        </button>
+
+
+
+
+
+        <div
           className="
           flex
           items-center
           gap-2
-          rounded-2xl
-          bg-gradient-to-r
-          from-purple-600
-          to-violet-500
-          px-6
-          py-3
-          font-bold
-          text-white
-          shadow-lg
-          shadow-purple-900/30
-          transition
-          hover:scale-105
-          hover:from-purple-500
-          hover:to-violet-400
-          "
-        >
-
-          <Sparkles size={18}/>
-
-          Conectar Sorare
-
-        </Link>
-
-
-
-
-
-        {/* LOGOUT */}
-
-        <button
-          onClick={() => signOut()}
-          className="
-          flex
-          h-12
-          w-12
-          items-center
-          justify-center
-          rounded-2xl
+          rounded-xl
           border
-          border-red-500/20
-          bg-red-500/10
-          text-red-400
-          transition
-          hover:bg-red-500/20
-          hover:text-red-300
+          border-violet-500/20
+          bg-violet-500/10
+          px-3
+          py-2
           "
         >
 
-          <LogOut size={20}/>
+          <UserCircle
+            size={24}
+            className="text-violet-300"
+          />
 
-        </button>
+
+        </div>
 
 
       </div>
 
 
     </header>
+
   );
 }

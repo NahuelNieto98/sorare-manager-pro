@@ -1,25 +1,34 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+
 import { prisma } from "@/lib/prisma";
 
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const {
+  handlers,
+  auth,
+  signIn,
+  signOut,
+} = NextAuth({
 
-  debug: true,
+  debug:true,
 
-  trustHost: true,
+  trustHost:true,
+
 
   adapter: PrismaAdapter(prisma),
 
 
-  providers: [
+  providers:[
 
     Google({
 
-      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientId:
+        process.env.AUTH_GOOGLE_ID!,
 
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      clientSecret:
+        process.env.AUTH_GOOGLE_SECRET!,
 
     }),
 
@@ -27,36 +36,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
 
 
-  session: {
+  session:{
 
-    strategy: "database",
+    strategy:"database",
+
+  },
+
+
+  callbacks: {
+
+    async redirect({ url, baseUrl }) {
+
+      if (url.includes("/api/auth")) {
+
+        return `${baseUrl}/es/connect`;
+
+      }
+
+
+      if (url.startsWith(baseUrl)) {
+
+        return url;
+
+      }
+
+
+      return `${baseUrl}/es/connect`;
+
+    },
 
   },
 
-
-
-  logger: {
-
-    error(error: Error) {
-
-      console.error("[AUTH ERROR]", error);
-
-    },
-
-
-    warn(code: string) {
-
-      console.warn("[AUTH WARN]", code);
-
-    },
-
-
-    debug(code: string, metadata?: unknown) {
-
-      console.log("[AUTH DEBUG]", code, metadata);
-
-    },
-
-  },
 
 });

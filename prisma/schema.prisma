@@ -8,27 +8,23 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-
-  accounts       Account[]
-  sessions       Session[]
-  cards          Card[]
-  transactions   Transaction[]
-  snapshots      PortfolioSnapshot[]
-  galleryHistory GalleryHistory[]
-
-  sorareAccount SorareAccount?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String              @id @default(cuid())
+  email              String?             @unique
+  name               String?
+  image              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  emailVerified      DateTime?
+  accounts           Account[]
+  cards              Card[]
+  galleryHistory     GalleryHistory[]
+  marketTransactions MarketTransaction[]
+  snapshots          PortfolioSnapshot[]
+  sessions           Session[]
+  sorareAccount      SorareAccount?
+  transactions       Transaction[]
 }
-
 
 model Account {
   userId            String
@@ -42,125 +38,105 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
 }
 
-
 model Session {
-  sessionToken String @unique
+  sessionToken String   @id @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([sessionToken])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
 
 model VerificationToken {
   identifier String
-  token      String @unique
+  token      String   @unique
   expires    DateTime
 
   @@id([identifier, token])
 }
 
-
 model Card {
-  id String @id @default(cuid())
-
-  sorareId String @unique
-  slug     String @unique
-
-  playerName String
-  playerSlug String?
-
-  season   Int
-  scarcity String
-
-  club     String?
-  position String?
-
-  averageScore Float?
-
-  l5Score  Float?
-  l10Score Float?
-  l15Score Float?
-  l40Score Float?
-
-  marketValue Float?
-
-  pictureUrl String?
-
-  ownerId String
-  owner   User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String              @id @default(cuid())
+  playerName        String
+  season            Int
+  scarcity          String
+  averageScore      Float?
+  marketValue       Float?
+  club              String?
+  position          String?
+  pictureUrl        String?
+  createdAt         DateTime            @default(now())
+  ownerId           String
+  slug              String              @unique
+  sorareId          String              @unique
+  updatedAt         DateTime            @updatedAt
+  l10Score          Float?
+  l15Score          Float?
+  l40Score          Float?
+  l5Score           Float?
+  playerSlug        String?
+  priceUpdatedAt    DateTime?
+  owner             User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  MarketTransaction MarketTransaction[]
 }
-
 
 model Transaction {
-  id String @id @default(cuid())
-
-  type String
-
+  id         String   @id @default(cuid())
+  type       String
   playerName String
-
-  rarity String
-
-  price Float
-
-  date DateTime @default(now())
-
-  userId String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rarity     String
+  price      Float
+  date       DateTime @default(now())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model MarketTransaction {
+  id         String   @id @default(cuid())
+  playerName String
+  rarity     String?
+  price      Float
+  type       String
+  marketId   String?  @unique
+  buyer      String?
+  seller     String?
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now())
+  cardId     String?
+  userId     String?
+  Card       Card?    @relation(fields: [cardId], references: [id])
+  user       User?    @relation(fields: [userId], references: [id])
+}
 
 model SorareAccount {
-  id String @id @default(cuid())
-
-  userId String @unique
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  slug String @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  slug         String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  accessToken  String?
+  refreshToken String?
+  avatarUrl    String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
 
 model PortfolioSnapshot {
-  id String @id @default(cuid())
-
+  id           String   @id @default(cuid())
   galleryValue Float
-
-  roi Float
-
-  profit Float
-
-  createdAt DateTime @default(now())
-
-  userId String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roi          Float
+  profit       Float
+  createdAt    DateTime @default(now())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-
 model GalleryHistory {
-  id String @id @default(cuid())
-
-  value Float
-
+  id        String   @id @default(cuid())
+  value     Float
   createdAt DateTime @default(now())
-
-  userId String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

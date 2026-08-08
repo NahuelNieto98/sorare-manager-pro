@@ -1,0 +1,174 @@
+{
+  "market": {
+    "title": "Scanner du marché Sorare",
+    "subtitle": "Analysez automatiquement les opportunités du marché",
+    "top": "MEILLEURES OPPORTUNITÉS DU JOUR",
+    "complete": "Marché complet",
+    "buy": "ACHETER",
+    "watch": "SURVEILLER",
+    "expensive": "TROP CHER",
+    "price": "Prix",
+    "value": "Valeur estimée",
+    "score": "Score",
+    "opportunity": "Opportunité"
+  },
+
+  "sidebar": {
+    "menu": "Menu",
+    "dashboard": "Tableau de bord",
+    "gallery": "Galerie",
+    "transactions": "Transactions",
+    "assistant": "Scout IA",
+    "analytics": "Analytique",
+    "settings": "Paramètres",
+    "system": "Système actif",
+    "api": "API connectée",
+    "account": "Compte synchronisé",
+    "trial": "Essai Pro",
+    "days": "14 jours restants"
+  },
+
+  "dashboard": {
+    "loading": "Chargement du tableau de bord...",
+    "heroTitle": "Votre portfolio Sorare,\nsous contrôle 🚀",
+    "heroDescription": "Analysez votre collection, suivez la valeur de vos cartes et prenez de meilleures décisions.",
+    "collectionValue": "Valeur collection",
+    "cards": "Cartes",
+    "galleryValue": "Valeur galerie",
+    "roi": "ROI",
+    "profit": "Bénéfice",
+    "essence": "Essence",
+    "average": "AA moyen",
+    "profitability": "Rentabilité",
+    "currentResult": "Résultat actuel"
+  },
+
+  "gallery": {
+    "filters": "Filtres de collection",
+    "search": "Rechercher un joueur ou un club...",
+    "all": "Toutes",
+    "limited": "Limited",
+    "rare": "Rare",
+    "superRare": "Super Rare",
+    "unique": "Unique",
+    "showing": "Affichage de",
+    "cards": "cartes",
+    "loading": "Chargement de la collection...",
+    "noCards": "Aucune carte",
+    "sync": "Synchronisez votre compte Sorare pour commencer."
+  },
+
+  "transactions": {
+    "title": "Transactions",
+    "subtitle": "Gérez tous vos achats et ventes.",
+    "buy": "Achat",
+    "sell": "Vente",
+    "player": "Joueur",
+    "price": "Prix (€)",
+    "save": "Enregistrer la transaction",
+    "error": "Erreur",
+    "type": "Type",
+    "rarity": "Rareté",
+    "purchase": "🟢 Achat",
+    "sale": "🔴 Vente"
+  },
+
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Analysez les performances de votre galerie et de vos investissements.",
+    "roi": "ROI",
+    "profit": "Bénéfice",
+    "bought": "Acheté",
+    "sold": "Vendu",
+    "profitability": "Rentabilité",
+    "sinceStart": "Depuis le début",
+    "invested": "Investi",
+    "recovered": "Récupéré",
+    "distribution": "Distribution",
+    "upcoming": "Bientôt disponible",
+    "roiEvolution": "📈 Évolution du ROI",
+    "profitPlayer": "💰 Bénéfice par joueur",
+    "cardRanking": "🏆 Classement des cartes",
+    "buySell": "📊 Achats vs Ventes"
+  },
+
+  "assistant": {
+    "title": "Scout IA",
+    "subtitle": "Votre assistant intelligent pour Sorare.",
+    "analyzeTitle": "Analysez votre galerie",
+    "description": "Le Scout IA analysera automatiquement vos cartes, votre ROI, vos achats et ventes et vous donnera des recommandations.",
+    "analyzing": "Analyse en cours...",
+    "analyzeButton": "Analyser ma galerie",
+    "result": "Résultat",
+    "empty": "Appuyez sur le bouton pour générer une analyse."
+  },
+
+  "rewards": {
+    "title": "Récompenses",
+    "subtitle": "Toutes vos récompenses apparaîtront ici."
+  },
+
+  "connect": {
+    "title": "Connecter Sorare",
+    "subtitle": "Connectez votre compte Sorare directement pour synchroniser automatiquement votre collection.",
+    "connecting": "Connexion avec Sorare...",
+    "button": "🔗 Connecter avec Sorare"
+  },
+
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Connectez votre compte Sorare.",
+    "account": "Compte Sorare",
+    "placeholder": "Exemple : lightenn1",
+    "button": "Connecter le compte",
+    "error": "Erreur lors de la connexion du compte",
+    "success": "Compte connecté avec succès"
+  },
+
+  "galleryChart": {
+    "title": "Évolution du Portfolio",
+    "subtitle": "Valeur historique de votre collection."
+  },
+
+  "portfolioChart": {
+    "title": "Évolution du portfolio",
+    "subtitle": "Historique de la valeur de votre compte."
+  },
+
+  "quickStats": {
+    "title": "Statistiques rapides",
+    "subtitle": "Informations générales sur votre collection.",
+    "cards": "Cartes",
+    "average": "AA moyen",
+    "performance": "Performance basée sur votre collection actuelle."
+  },
+
+  "galleryValue": {
+    "title": "Valeur de la galerie",
+    "subtitle": "Mise à jour automatiquement",
+    "connect": "Connectez votre compte Sorare pour commencer à synchroniser vos cartes.",
+    "chartPlaceholder": "Le graphique de valeur de votre galerie apparaîtra ici."
+  },
+
+  "topPlayers": {
+    "title": "Meilleures cartes"
+  },
+
+  "dashboardQuickStats": {
+    "bought": "Acheté",
+    "sold": "Vendu",
+    "profit": "Bénéfice"
+  },
+
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous essayez de visiter n'existe pas.",
+    "button": "Retour à l'accueil"
+  },
+
+  "error": {
+    "title": "Une erreur est survenue",
+    "description": "Veuillez réessayer.",
+    "button": "Réessayer"
+  }
+}
