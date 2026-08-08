@@ -1,11 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import {
   Bell,
   Settings,
   UserCircle,
 } from "lucide-react";
-
 
 type HeaderProps = {
   sorareSlug: string | null;
@@ -14,11 +15,11 @@ type HeaderProps = {
   galleryValue: number;
 };
 
-
 export default function Header({
   sorareSlug,
 }: HeaderProps) {
 
+  const router = useRouter();
 
   return (
 
@@ -35,7 +36,6 @@ export default function Header({
       backdrop-blur-xl
       "
     >
-
 
       {/* Logo */}
 
@@ -141,6 +141,7 @@ export default function Header({
 
 
         <button
+          onClick={() => router.push("/settings")}
           className="
           rounded-xl
           border
@@ -191,4 +192,5 @@ export default function Header({
     </header>
 
   );
+
 }
