@@ -1,126 +1,267 @@
-type Props = {
-  inSeasonValue:number;
-  inSeasonCards:number;
+"use client";
 
-  classicValue:number;
-  classicCards:number;
+
+type Card = {
+
+  playerName:string;
+
+  marketValue:number|null;
+
+  averageScore:number|null;
+
+};
+
+
+
+type Props = {
+
+  cards:Card[];
 
   galleryValue:number;
+
   totalCards:number;
+
+  inSeasonCards:number;
+
+  classicCards:number;
+
+  inSeasonValue:number;
+
+  classicValue:number;
+
 };
+
 
 
 export default function GalleryStats({
 
-  inSeasonValue,
-  inSeasonCards,
-
-  classicValue,
-  classicCards,
+  cards,
 
   galleryValue,
+
   totalCards,
 
+  inSeasonCards,
+
+  classicCards,
+
+  inSeasonValue,
+
+  classicValue,
+
 }:Props){
+
+
+
+const averageAA =
+
+cards.length
+
+?
+
+cards.reduce(
+
+(sum,card)=>
+
+sum + (card.averageScore ?? 0),
+
+0
+
+)
+
+/
+
+cards.length
+
+:
+
+0;
+
+
+
+
+const mostValuableCard =
+
+[...cards].sort(
+
+(a,b)=>
+
+(b.marketValue ?? 0)
+
+-
+
+(a.marketValue ?? 0)
+
+)[0];
+
+
 
 
 return (
 
 <div
+
 className="
-mb-8
 grid
-grid-cols-1
 gap-5
-md:grid-cols-3
+mb-8
+md:grid-cols-2
+xl:grid-cols-4
 "
+
 >
+
 
 
 <div
+
 className="
 rounded-3xl
 border
-border-purple-500/20
-bg-purple-500/10
+border-white/10
+bg-[#17112F]
 p-6
 "
+
 >
-
-<h3 className="text-zinc-400">
-In Season
-</h3>
-
-
-<p className="text-3xl font-black text-white">
-€{inSeasonValue.toFixed(2)}
-</p>
-
 
 <p className="text-zinc-400">
-{inSeasonCards} cartas
+
+💎 Valor colección
+
 </p>
 
 
-</div>
+<h2 className="mt-3 text-3xl font-black text-green-400">
 
-
-
-<div
-className="
-rounded-3xl
-border
-border-blue-500/20
-bg-blue-500/10
-p-6
-"
->
-
-<h3 className="text-zinc-400">
-Classic
-</h3>
-
-
-<p className="text-3xl font-black text-white">
-€{classicValue.toFixed(2)}
-</p>
-
-
-<p className="text-zinc-400">
-{classicCards} cartas
-</p>
-
-
-</div>
-
-
-
-<div
-className="
-rounded-3xl
-border
-border-green-500/20
-bg-green-500/10
-p-6
-"
->
-
-<h3 className="text-zinc-400">
-Total
-</h3>
-
-
-<p className="text-3xl font-black text-white">
 €{galleryValue.toFixed(2)}
+
+</h2>
+
+
+</div>
+
+
+
+
+
+<div
+
+className="
+rounded-3xl
+border
+border-white/10
+bg-[#17112F]
+p-6
+"
+
+>
+
+<p className="text-zinc-400">
+
+🃏 Cartas
+
 </p>
 
 
-<p className="text-zinc-400">
-{totalCards} cartas
+<h2 className="mt-3 text-3xl font-black text-white">
+
+{totalCards}
+
+</h2>
+
+
+<p className="mt-2 text-sm text-zinc-500">
+
+{inSeasonCards} In Season · {classicCards} Classic
+
 </p>
 
 
 </div>
+
+
+
+
+
+<div
+
+className="
+rounded-3xl
+border
+border-white/10
+bg-[#17112F]
+p-6
+"
+
+>
+
+<p className="text-zinc-400">
+
+⭐ Media AA
+
+</p>
+
+
+<h2 className="mt-3 text-3xl font-black text-violet-300">
+
+{averageAA.toFixed(1)}
+
+</h2>
+
+
+<p className="mt-2 text-sm text-zinc-500">
+
+Media de rendimiento
+
+</p>
+
+
+</div>
+
+
+
+
+
+<div
+
+className="
+rounded-3xl
+border
+border-white/10
+bg-[#17112F]
+p-6
+"
+
+>
+
+<p className="text-zinc-400">
+
+🏆 Carta estrella
+
+</p>
+
+
+<h2 className="mt-3 truncate text-xl font-black text-white">
+
+{mostValuableCard?.playerName ?? "Sin datos"}
+
+</h2>
+
+
+<p className="mt-2 font-bold text-green-400">
+
+€
+
+{mostValuableCard?.marketValue?.toFixed(2) ?? "0.00"}
+
+</p>
+
+
+</div>
+
+
+
 
 
 </div>

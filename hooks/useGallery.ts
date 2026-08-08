@@ -5,29 +5,33 @@ import { useEffect, useState } from "react";
 
 export type GalleryCard = {
 
-id:string;
+  id:string;
 
-playerName:string;
+  playerName:string;
 
-club:string|null;
+  playerSlug:string|null;
 
-scarcity:string;
+  club:string|null;
 
-season:number;
+  position:string|null;
 
-averageScore:number|null;
+  scarcity:string;
 
-l5Score:number|null;
+  season:number;
 
-l10Score:number|null;
+  averageScore:number|null;
 
-l15Score:number|null;
+  l5Score:number|null;
 
-l40Score:number|null;
+  l10Score:number|null;
 
-marketValue:number|null;
+  l15Score:number|null;
 
-pictureUrl:string|null;
+  l40Score:number|null;
+
+  marketValue:number|null;
+
+  pictureUrl:string|null;
 
 };
 
@@ -36,101 +40,111 @@ pictureUrl:string|null;
 export function useGallery(){
 
 
-const [cards,setCards] =
-useState<GalleryCard[]>([]);
-
-
-const [loading,setLoading] =
-useState(true);
-
-
-const [error,setError] =
-useState<string|null>(null);
+  const [cards,setCards] =
+    useState<GalleryCard[]>([]);
 
 
 
-async function refresh(){
-
-
-try {
-
-
-setLoading(true);
-
-setError(null);
+  const [loading,setLoading] =
+    useState(true);
 
 
 
-const res =
-await fetch("/api/cards");
+  const [error,setError] =
+    useState<string|null>(null);
 
 
 
-if(!res.ok){
 
-throw new Error(
-"Gallery request failed"
-);
-
-}
+  async function refresh(){
 
 
+    try {
 
-const data =
-await res.json();
+
+      setLoading(true);
+
+      setError(null);
 
 
 
-setCards(data);
+      const res =
+        await fetch("/api/cards");
 
 
 
-}catch(error){
+      if(!res.ok){
 
+        throw new Error(
+          "Gallery request failed"
+        );
 
-console.error(error);
-
-
-setError(
-"Error loading gallery"
-);
-
-
-
-}finally{
-
-
-setLoading(false);
-
-
-}
-
-
-}
+      }
 
 
 
-useEffect(()=>{
-
-
-refresh();
-
-
-},[]);
+      const data =
+        await res.json();
 
 
 
-return {
+      setCards(data);
 
-cards,
 
-loading,
 
-error,
+    }catch(error){
 
-refresh,
 
-};
+
+      console.error(error);
+
+
+
+      setError(
+        "Error loading gallery"
+      );
+
+
+
+    }finally{
+
+
+      setLoading(false);
+
+
+    }
+
+
+  }
+
+
+
+
+
+  useEffect(()=>{
+
+
+    refresh();
+
+
+  },[]);
+
+
+
+
+  return {
+
+
+    cards,
+
+    loading,
+
+    error,
+
+    refresh,
+
+
+  };
 
 
 }

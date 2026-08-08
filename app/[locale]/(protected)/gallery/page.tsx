@@ -29,11 +29,13 @@ error
 
 
 
-
 const [search,setSearch] =
 useState("");
 
 const [rarity,setRarity] =
+useState("all");
+
+const [position,setPosition] =
 useState("all");
 
 const [sort,setSort] =
@@ -53,11 +55,16 @@ Math.max(...cards.map(c=>c.season))
 
 
 
+
 const galleryValue =
 cards.reduce(
+
 (sum,card)=>
+
 sum + (card.marketValue ?? 0),
+
 0
+
 );
 
 
@@ -66,8 +73,11 @@ sum + (card.marketValue ?? 0),
 
 const inSeasonCards =
 cards.filter(
+
 card =>
+
 card.season === currentSeason
+
 );
 
 
@@ -76,8 +86,11 @@ card.season === currentSeason
 
 const classicCards =
 cards.filter(
+
 card =>
+
 card.season !== currentSeason
+
 );
 
 
@@ -86,9 +99,13 @@ card.season !== currentSeason
 
 const inSeasonValue =
 inSeasonCards.reduce(
+
 (sum,card)=>
+
 sum + (card.marketValue ?? 0),
+
 0
+
 );
 
 
@@ -97,9 +114,13 @@ sum + (card.marketValue ?? 0),
 
 const classicValue =
 classicCards.reduce(
+
 (sum,card)=>
+
 sum + (card.marketValue ?? 0),
+
 0
+
 );
 
 
@@ -109,6 +130,7 @@ sum + (card.marketValue ?? 0),
 
 
 const filteredCards =
+
 useMemo(()=>{
 
 
@@ -121,6 +143,7 @@ search.toLowerCase();
 return [...cards]
 
 .filter(card =>
+
 
 (
 card.playerName
@@ -137,6 +160,7 @@ card.playerName
 
 &&
 
+
 (
 rarity === "all"
 
@@ -145,6 +169,19 @@ rarity === "all"
 card.scarcity === rarity
 
 )
+
+&&
+
+
+(
+position === "all"
+
+||
+
+card.position === position
+
+)
+
 
 )
 
@@ -216,7 +253,6 @@ default:
 
 return 0;
 
-
 }
 
 
@@ -224,11 +260,19 @@ return 0;
 
 
 },[
+
 cards,
+
 search,
+
 rarity,
+
+position,
+
 sort
+
 ]);
+
 
 
 
@@ -239,7 +283,7 @@ if(error){
 
 return (
 
-<div className="text-white">
+<div className="text-red-400">
 
 {error}
 
@@ -269,6 +313,7 @@ return (
 
 
 
+
 return (
 
 <>
@@ -276,17 +321,19 @@ return (
 
 <GalleryStats
 
-inSeasonValue={inSeasonValue}
-
-inSeasonCards={inSeasonCards.length}
-
-classicValue={classicValue}
-
-classicCards={classicCards.length}
+cards={cards}
 
 galleryValue={galleryValue}
 
 totalCards={cards.length}
+
+inSeasonCards={inSeasonCards.length}
+
+classicCards={classicCards.length}
+
+inSeasonValue={inSeasonValue}
+
+classicValue={classicValue}
 
 />
 
@@ -304,6 +351,10 @@ rarity={rarity}
 
 setRarity={setRarity}
 
+position={position}
+
+setPosition={setPosition}
+
 sort={sort}
 
 setSort={setSort}
@@ -315,18 +366,24 @@ setSort={setSort}
 
 
 
+
 {!loading && (
 
 <>
 
-<GalleryChart cards={cards}/>
+<CollectionDistribution
+
+cards={cards}
+
+/>
 
 
-<div className="my-8">
 
-<CollectionDistribution cards={cards}/>
+<GalleryChart
 
-</div>
+cards={cards}
+
+/>
 
 
 </>
@@ -339,19 +396,21 @@ setSort={setSort}
 
 
 
-{loading ? (
+{
 
+loading ? (
 
-<div className="text-center text-zinc-400">
+<div className="text-zinc-400">
 
 {t("loading")}
 
 </div>
 
+)
 
+:
 
-) : (
-
+(
 
 
 <div
@@ -365,7 +424,6 @@ xl:grid-cols-3
 "
 
 >
-
 
 
 {filteredCards.map(card=>(
@@ -383,11 +441,14 @@ key={card.id}
 ))}
 
 
-
 </div>
 
 
-)}
+)
+
+}
+
+
 
 
 

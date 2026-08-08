@@ -15,16 +15,36 @@ const rarityKeys = [
 ];
 
 
+const positionKeys = [
+  { label:"Todas", value:"all" },
+  { label:"GK", value:"GK" },
+  { label:"DEF", value:"DEF" },
+  { label:"MID", value:"MID" },
+  { label:"FW", value:"FW" },
+];
+
+
+
 type Props = {
 
-search:string;
-setSearch:(value:string)=>void;
+  search:string;
 
-rarity:string;
-setRarity:(value:string)=>void;
+  setSearch:(value:string)=>void;
 
-sort:string;
-setSort:(value:string)=>void;
+
+  rarity:string;
+
+  setRarity:(value:string)=>void;
+
+
+  position:string;
+
+  setPosition:(value:string)=>void;
+
+
+  sort:string;
+
+  setSort:(value:string)=>void;
 
 };
 
@@ -32,16 +52,25 @@ setSort:(value:string)=>void;
 
 export default function GalleryFilters({
 
-search,
-setSearch,
+  search,
 
-rarity,
-setRarity,
+  setSearch,
 
-sort,
-setSort,
+  rarity,
+
+  setRarity,
+
+  position,
+
+  setPosition,
+
+  sort,
+
+  setSort,
+
 
 }:Props){
+
 
 
 const t =
@@ -52,6 +81,7 @@ useTranslations("gallery");
 return (
 
 <div
+
 className="
 mb-8
 rounded-3xl
@@ -60,16 +90,22 @@ border-white/10
 bg-[#17112F]
 p-6
 "
+
 >
+
 
 
 <div className="flex items-center gap-3">
 
 
 <SlidersHorizontal
+
 className="text-violet-300"
+
 size={22}
+
 />
+
 
 
 <h2 className="text-xl font-black text-white">
@@ -83,7 +119,10 @@ size={22}
 
 
 
+
+
 <div
+
 className="
 mt-6
 flex
@@ -91,14 +130,18 @@ flex-col
 gap-4
 xl:flex-row
 "
+
 >
+
 
 
 <div className="relative flex-1">
 
 
 <Search
+
 size={18}
+
 className="
 absolute
 left-4
@@ -106,6 +149,7 @@ top-1/2
 -translate-y-1/2
 text-zinc-500
 "
+
 />
 
 
@@ -132,12 +176,15 @@ py-3
 pl-11
 pr-4
 text-white
+outline-none
 "
 
 />
 
 
 </div>
+
+
 
 
 
@@ -150,22 +197,105 @@ onChange={setSort}
 />
 
 
+
 </div>
 
 
 
 
+
+
+
 <div
+
+className="
+mt-5
+"
+
+>
+
+<p className="mb-3 text-sm font-bold text-zinc-400">
+
+Posición
+
+</p>
+
+
+
+<div
+
+className="
+flex
+flex-wrap
+gap-3
+"
+
+>
+
+
+{
+positionKeys.map((p)=>(
+
+
+<button
+
+key={p.value}
+
+onClick={
+()=>setPosition(p.value)
+}
+
+className={
+
+position === p.value
+
+?
+
+"rounded-full bg-violet-600 px-5 py-2 text-white"
+
+:
+
+"rounded-full bg-white/5 px-5 py-2 text-zinc-400"
+
+}
+
+>
+
+{p.label}
+
+</button>
+
+
+))
+
+}
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div
+
 className="
 mt-5
 flex
 flex-wrap
 gap-3
 "
+
 >
 
 
-{rarityKeys.map(r=>(
+{
+rarityKeys.map(r=>(
 
 
 <button
@@ -177,11 +307,17 @@ onClick={
 }
 
 className={
+
 rarity===r.value
+
 ?
+
 "rounded-full bg-violet-600 px-5 py-2 text-white"
+
 :
+
 "rounded-full bg-white/5 px-5 py-2 text-zinc-400"
+
 }
 
 >
@@ -191,10 +327,13 @@ rarity===r.value
 </button>
 
 
-))}
+))
+
+}
 
 
 </div>
+
 
 
 </div>
