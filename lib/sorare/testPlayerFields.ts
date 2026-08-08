@@ -18,7 +18,7 @@ anyPlayer {
 
 displayName
 
-averageScore(type: LAST_FIFTEEN)
+averageScore(type: LAST_15)
 
 }
 
