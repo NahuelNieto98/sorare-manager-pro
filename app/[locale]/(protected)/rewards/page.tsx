@@ -2,43 +2,42 @@
 
 import { useTranslations } from "next-intl";
 
+import RewardsHero from "@/components/rewards/RewardsHero";
+import RewardsGrid from "@/components/rewards/RewardsGrid";
+
 
 export default function RewardsPage(){
 
 
-const t = useTranslations("rewards");
+const t =
+useTranslations("rewards");
 
 
 
 return (
 
-<div className="space-y-6">
-
-
-<div>
-
-
-<h1 className="text-3xl font-bold text-white">
-
-{t("title")}
-
-</h1>
+<div className="space-y-8">
 
 
 
-<p className="mt-4 text-zinc-400">
+<RewardsHero
 
-{t("subtitle")}
+title={t("title")}
 
-</p>
+subtitle={t("subtitle")}
+
+/>
 
 
-</div>
+
+
+
+<RewardsGrid />
+
 
 
 </div>
 
 );
-
 
 }
