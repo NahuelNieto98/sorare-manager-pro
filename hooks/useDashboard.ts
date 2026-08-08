@@ -2,96 +2,107 @@
 
 import { useEffect, useState } from "react";
 
-export type DashboardData = {
-  galleryValue: number;
-  average: number;
-  totalCards: number;
+import { DashboardData } from "@/types/dashboard";
 
-  totalBought: number;
-  totalSold: number;
-
-  profit: number;
-  roi: number;
-
-  scarcity: {
-    limited: number;
-    rare: number;
-    superRare: number;
-    unique: number;
-  };
-
-  topCards: {
-    playerName: string;
-    marketValue: number | null;
-  }[];
-
-  recentTransactions: {
-    id: string;
-    type: string;
-    playerName: string;
-    rarity: string;
-    price: number;
-  }[];
-
-  needsConnection?: boolean;
-};
 
 export function useDashboard() {
 
-  const [data, setData] =
-    useState<DashboardData | null>(null);
 
-  const [loading, setLoading] =
-    useState(true);
+const [data,setData] =
+useState<DashboardData | null>(null);
 
-  const [error, setError] =
-    useState<string | null>(null);
 
-  async function refresh() {
+const [loading,setLoading] =
+useState(true);
 
-    try {
 
-      setLoading(true);
+const [error,setError] =
+useState<string | null>(null);
 
-      setError(null);
 
-      const res =
-        await fetch("/api/dashboard");
 
-      if (!res.ok) {
+async function refresh(){
 
-        throw new Error();
 
-      }
+try {
 
-      const json =
-        await res.json();
 
-      setData(json);
+setLoading(true);
 
-    } catch {
+setError(null);
 
-      setError("Error loading dashboard");
 
-    } finally {
 
-      setLoading(false);
+const res =
+await fetch("/api/dashboard");
 
-    }
 
-  }
 
-  useEffect(() => {
+if(!res.ok){
 
-    refresh();
+throw new Error(
+"Dashboard request failed"
+);
 
-  }, []);
+}
 
-  return {
-    data,
-    loading,
-    error,
-    refresh,
-  };
+
+
+const json =
+await res.json();
+
+
+
+setData(json);
+
+
+
+}catch(error){
+
+
+console.error(error);
+
+
+setError(
+"Error loading dashboard"
+);
+
+
+
+}finally{
+
+
+setLoading(false);
+
+
+}
+
+
+}
+
+
+
+useEffect(()=>{
+
+
+refresh();
+
+
+},[]);
+
+
+
+return {
+
+data,
+
+loading,
+
+error,
+
+refresh,
+
+};
+
 
 }

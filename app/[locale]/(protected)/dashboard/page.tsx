@@ -1,60 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { useDashboard } from "@/hooks/useDashboard";
+
 import DashboardHero from "@/components/dashboard/DashboardHero";
 import DashboardStats from "@/components/dashboard/DashboardStats";
+import DashboardPortfolio from "@/components/dashboard/DashboardPortfolio";
 import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import DashboardActivity from "@/components/dashboard/DashboardActivity";
-
-import PortfolioCard from "@/components/dashboard/PortfolioCard";
-import QuickStats from "@/components/dashboard/QuickStats";
 import TopCards from "@/components/dashboard/TopCards";
 import ScoutCard from "@/components/dashboard/ScoutCard";
-
-
-type DashboardData = {
-
-  galleryValue:number;
-
-  average:number;
-
-  totalCards:number;
-
-  totalBought:number;
-
-  totalSold:number;
-
-  profit:number;
-
-  roi:number;
-
-  scarcity:{
-    limited:number;
-    rare:number;
-    superRare:number;
-    unique:number;
-  };
-
-  topCards:{
-    playerName:string;
-    marketValue:number|null;
-  }[];
-
-  recentTransactions:{
-    id:string;
-    type:string;
-    playerName:string;
-    rarity:string;
-    price:number;
-  }[];
-
-  needsConnection?:boolean;
-
-};
-
 
 
 export default function DashboardPage(){
@@ -66,87 +23,11 @@ const t =
 useTranslations("dashboard");
 
 
-const [data,setData] =
-useState<DashboardData|null>(null);
-
-
-const [loading,setLoading] =
-useState(true);
-
-
-const [error,setError] =
-useState<string|null>(null);
-
-
-
-useEffect(()=>{
-
-
-async function loadDashboard(){
-
-
-try {
-
-
-const res =
-await fetch("/api/dashboard");
-
-
-if(!res.ok){
-
-throw new Error(
-`Dashboard API error: ${res.status}`
-);
-
-}
-
-
-const json =
-await res.json();
-
-
-if(json.needsConnection){
-
-router.push("/connect");
-
-return;
-
-}
-
-
-setData(json);
-
-setLoading(false);
-
-
-
-}catch(error){
-
-
-console.error(
-"Dashboard loading error:",
+const {
+data,
+loading,
 error
-);
-
-
-setError(
-"Error cargando el dashboard"
-);
-
-
-setLoading(false);
-
-
-}
-
-
-}
-
-
-loadDashboard();
-
-
-},[router]);
+} = useDashboard();
 
 
 
@@ -191,6 +72,16 @@ text-white
 
 
 
+if(data.needsConnection){
+
+router.push("/connect");
+
+return null;
+
+}
+
+
+
 return (
 
 <div
@@ -226,13 +117,17 @@ average={data.average}
 
 
 
-<PortfolioCard
+<DashboardPortfolio
 
 galleryValue={data.galleryValue}
 
 profit={data.profit}
 
 roi={data.roi}
+
+totalCards={data.totalCards}
+
+average={data.average}
 
 />
 
@@ -242,32 +137,11 @@ roi={data.roi}
 
 
 
-<div
-className="
-grid
-gap-6
-xl:grid-cols-2
-"
->
-
-
-<QuickStats
-
-totalCards={data.totalCards}
-
-average={data.average}
-
-/>
-
-
 <TopCards
 
 cards={data.topCards}
 
 />
-
-
-</div>
 
 
 
