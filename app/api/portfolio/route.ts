@@ -103,23 +103,50 @@ export async function GET() {
       pictureUrl: card.pictureUrl,
     }));
 
-  return NextResponse.json({
-    galleryValue,
-    average,
-    totalCards: user.cards.length,
+  const recentTransactions = user.transactions
+.slice(0, 10)
+.map((transaction) => ({
+  id: transaction.id,
+  type: transaction.type,
+  playerName: transaction.playerName,
+  rarity: transaction.rarity,
+  price: transaction.price,
+}));
 
-    totalBought,
-    totalSold,
 
-    profit,
-    roi,
+return NextResponse.json({
 
-    recoveredCapital,
-    portfolioHealth,
-    investmentStatus,
+galleryValue,
 
-    scarcity,
+average,
 
-    topCards,
-  });
+totalCards: user.cards.length,
+
+
+totalBought,
+
+totalSold,
+
+
+profit,
+
+roi,
+
+
+recoveredCapital,
+
+portfolioHealth,
+
+investmentStatus,
+
+
+scarcity,
+
+
+topCards,
+
+
+recentTransactions,
+
+});
 }
