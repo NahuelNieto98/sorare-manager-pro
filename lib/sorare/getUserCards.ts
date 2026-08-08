@@ -1,71 +1,64 @@
 import { sorareRequest } from "../sorare";
 
 
-
 const GET_USER_CARDS = `
 
 query GetUserCards($after: String) {
 
-  currentUser {
+currentUser {
 
-    cards(
-      first: 25,
-      after: $after,
-      rarities: [limited, rare, super_rare, unique]
-    ) {
+cards(
+  first: 50,
+  after: $after,
+  rarities: [limited, rare, super_rare, unique]
+) {
 
+nodes {
 
-      nodes {
+assetId
 
-        assetId
+slug
 
-        slug
+pictureUrl
 
-        pictureUrl
+displayRarity
 
-        displayRarity
-
-        seasonYear
-
+seasonYear
 
 
-        anyPlayer {
+anyPlayer {
 
-          displayName
+displayName
 
-          slug
+slug
 
-          cardPositions
+cardPositions
 
-        }
-
-
-
-        anyTeam {
-
-          name
-
-        }
+}
 
 
-      }
+anyTeam {
+
+name
+
+}
 
 
-
-      pageInfo {
-
-        hasNextPage
-
-        endCursor
-
-      }
+}
 
 
-    }
+pageInfo {
+
+hasNextPage
+
+endCursor
+
+}
 
 
-  }
+}
 
+}
 
 }
 
@@ -73,445 +66,318 @@ query GetUserCards($after: String) {
 
 
 
+function sleep(ms:number){
 
-
-function sleep(ms:number) {
-
-  return new Promise(
-    resolve => setTimeout(resolve, ms)
-  );
+return new Promise(
+resolve => setTimeout(resolve, ms)
+);
 
 }
-
-
-
 
 
 
 async function requestWithRetry(
 
-  accessToken:string,
+accessToken:string,
 
-  after:string | null
+after:string | null
 
-) {
+){
 
-
-  let attempts = 0;
-
-
-
-  while(attempts < 3) {
-
-
-    try {
-
-
-      return await sorareRequest(
-
-        GET_USER_CARDS,
-
-        {
-          after,
-        },
-
-        accessToken
-
-      );
-
-
-    } catch(error:any) {
-
-
-      attempts++;
-
-
-      console.log(
-
-        `⚠️ Sorare bloqueado intento ${attempts}/3`,
-
-        error.message
-
-      );
+let attempts = 0;
 
 
 
-      if(attempts >= 3) {
-
-        throw error;
-
-      }
+while(attempts < 3){
 
 
-
-      await sleep(
-        attempts * 10000
-      );
+try{
 
 
-    }
+return await sorareRequest(
+
+GET_USER_CARDS,
+
+{
+after,
+},
+
+accessToken
+
+);
 
 
-  }
+
+}catch(error:any){
 
 
-  throw new Error(
-    "Error obteniendo cartas Sorare"
-  );
+attempts++;
 
+
+console.log(
+
+`⚠️ Sorare error intento ${attempts}/3`,
+
+error.message
+
+);
+
+
+
+if(attempts >= 3){
+
+throw error;
 
 }
 
 
 
+await sleep(
+2000 * attempts
+);
 
 
+}
+
+}
+
+
+throw new Error(
+"Error obteniendo cartas Sorare"
+);
+
+}
 
 
 
 
 export async function getUserCards(
 
-  accessToken:string
+accessToken:string
 
-) {
+){
 
 
-  console.log(
-    "🔥 OBTENIENDO GALERÍA CON OAUTH"
-  );
+console.log(
+"🔥 OBTENIENDO GALERÍA CON OAUTH"
+);
 
 
 
-  let allCards:any[] = [];
+let allCards:any[] = [];
 
+let after:string | null = null;
 
+let previousCursor:string | null = null;
 
-  let after:string | null = null;
+let page = 1;
 
+let hasNextPage = true;
 
 
-  let previousCursor:string | null = null;
 
+while(hasNextPage){
 
 
-  let page = 1;
 
+console.log(
+`🔥 Página ${page}`
+);
 
 
-  let hasNextPage = true;
 
+const data = await requestWithRetry(
 
+accessToken,
 
+after
 
+);
 
 
 
-  while(hasNextPage) {
+if(data.errors){
 
 
+console.error(
+data.errors
+);
 
-    console.log(
-      `🔥 Página ${page}`
-    );
 
+throw new Error(
+data.errors[0].message
+);
 
 
+}
 
-    const data =
 
-      await requestWithRetry(
 
-        accessToken,
+const cards =
+data.data.currentUser.cards.nodes;
 
-        after
 
-      );
 
+if(page === 1){
 
 
+console.log(
 
+"🔎 PRIMERA CARTA DEBUG:",
 
-    if(data.errors) {
+JSON.stringify(
 
+cards[0],
 
-      console.error(
-        data.errors
-      );
+null,
 
+2
 
-      throw new Error(
-        data.errors[0].message
-      );
+)
 
+);
 
-    }
 
+}
 
 
 
+allCards.push(
+...cards
+);
 
-    const cards =
 
-      data.data.currentUser.cards.nodes;
 
+hasNextPage =
+data.data.currentUser.cards.pageInfo.hasNextPage;
 
 
 
+after =
+data.data.currentUser.cards.pageInfo.endCursor;
 
 
-    if(page === 1) {
 
+if(after === previousCursor){
 
-      console.log(
+console.log(
+"⚠️ Cursor repetido"
+);
 
-        "🔎 PRIMERA CARTA DEBUG:",
+break;
 
-        JSON.stringify(
+}
 
-          cards[0],
 
-          null,
 
-          2
+previousCursor = after;
 
-        )
 
-      );
 
+page++;
 
-    }
 
+}
 
 
 
+console.log(
 
-    allCards.push(
-      ...cards
-    );
+"🔥 TOTAL CARTAS:",
 
+allCards.length
 
+);
 
 
 
+return allCards.map(
 
-    hasNextPage =
+(card:any)=>({
 
-      data.data.currentUser.cards.pageInfo.hasNextPage;
 
+assetId:
+card.assetId,
 
 
+slug:
+card.slug,
 
 
-    after =
+season:
+card.seasonYear,
 
-      data.data.currentUser.cards.pageInfo.endCursor;
 
+rarity:
+card.displayRarity?.toLowerCase()
+??
+"limited",
 
 
+marketValue:
+null,
 
 
-    if(after === previousCursor) {
+player:{
 
 
-      console.log(
-        "⚠️ Cursor repetido"
-      );
+displayName:
+card.anyPlayer?.displayName
+??
+"Desconocido",
 
 
-      break;
 
+slug:
+card.anyPlayer?.slug
+??
+null,
 
-    }
 
 
+position:
+card.anyPlayer?.cardPositions?.[0]
+??
+null,
 
 
 
-    previousCursor = after;
+l5Score:null,
 
+l10Score:null,
 
+l15Score:null,
 
-    page++;
+l40Score:null,
 
 
 
+club:
+card.anyTeam?.name
+??
+null,
 
 
-    if(hasNextPage) {
 
+pictureUrl:
+card.pictureUrl
+??
+null,
 
-      await sleep(1500);
 
+},
 
-    }
 
 
+pictureUrl:
+card.pictureUrl
+??
+null,
 
-  }
 
+})
 
-
-
-
-
-
-  console.log(
-
-    "🔥 TOTAL CARTAS:",
-
-    allCards.length
-
-  );
-
-
-
-
-
-
-
-
-  return allCards.map(
-
-    (card:any)=>({
-
-
-
-      assetId:
-
-        card.assetId,
-
-
-
-      slug:
-
-        card.slug,
-
-
-
-      season:
-
-        card.seasonYear,
-
-
-
-      rarity:
-
-        card.displayRarity?.toLowerCase()
-
-        ??
-
-        "limited",
-
-
-
-
-
-
-      marketValue:
-
-        null,
-
-
-
-
-
-
-      player:{
-
-
-
-        displayName:
-
-          card.anyPlayer?.displayName
-
-          ??
-
-          "Desconocido",
-
-
-
-
-
-        slug:
-
-          card.anyPlayer?.slug
-
-          ??
-
-          null,
-
-
-
-
-
-        position:
-
-          card.anyPlayer?.cardPositions?.[0]
-
-          ??
-
-          null,
-
-
-
-
-
-        l5Score:null,
-
-        l10Score:null,
-
-        l15Score:null,
-
-        l40Score:null,
-
-
-
-
-
-        club:
-
-          card.anyTeam?.name
-
-          ??
-
-          null,
-
-
-
-
-
-        pictureUrl:
-
-          card.pictureUrl
-
-          ??
-
-          null,
-
-
-
-      },
-
-
-
-
-
-
-      pictureUrl:
-
-        card.pictureUrl
-
-        ??
-
-        null,
-
-
-
-    })
-
-  );
-
+);
 
 
 }
