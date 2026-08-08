@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useRouter, usePathname } from "next/navigation";
 
 import {
   Bell,
@@ -25,7 +24,10 @@ export default function Header({
 
 const router = useRouter();
 
-const locale = useLocale();
+const pathname = usePathname();
+
+const locale =
+pathname.split("/")[1] || "es";
 
 
 
@@ -123,6 +125,7 @@ text-white
 
 
 <button
+
 className="
 rounded-xl
 border
@@ -134,6 +137,7 @@ transition
 hover:bg-white/10
 hover:text-white
 "
+
 >
 
 <Bell size={20}/>
@@ -145,7 +149,9 @@ hover:text-white
 
 
 <button
+
 onClick={() => router.push(`/${locale}/settings`)}
+
 className="
 rounded-xl
 border
@@ -157,6 +163,7 @@ transition
 hover:bg-white/10
 hover:text-white
 "
+
 >
 
 <Settings size={20}/>
@@ -168,6 +175,7 @@ hover:text-white
 
 
 <div
+
 className="
 flex
 items-center
@@ -179,6 +187,7 @@ bg-violet-500/10
 px-3
 py-2
 "
+
 >
 
 <UserCircle
