@@ -11,7 +11,7 @@ import DashboardPortfolio from "@/components/dashboard/DashboardPortfolio";
 import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import DashboardActivity from "@/components/dashboard/DashboardActivity";
 import TopCards from "@/components/dashboard/TopCards";
-import ScoutCard from "@/components/dashboard/ScoutCard";
+import QuickStats from "@/components/dashboard/QuickStats";
 
 
 export default function DashboardPage(){
@@ -34,11 +34,12 @@ error
 
 
 
+
 if(error){
 
 return (
 
-<div className="text-white">
+<div className="text-red-400">
 
 {error}
 
@@ -47,6 +48,7 @@ return (
 );
 
 }
+
 
 
 
@@ -105,13 +107,35 @@ space-y-8
 
 
 
+
+
 <DashboardHero
 
 galleryValue={data.galleryValue}
 
 totalCards={data.totalCards}
 
+average={data.average}
+
+topCard={data.topCards[0]}
+
 />
+
+
+
+
+
+
+
+<QuickStats
+
+totalCards={data.totalCards}
+
+average={data.average}
+
+/>
+
+
 
 
 
@@ -135,6 +159,8 @@ average={data.average}
 
 
 
+
+
 <DashboardPortfolio
 
 galleryValue={data.galleryValue}
@@ -153,6 +179,8 @@ average={data.average}
 
 
 
+
+
 <DashboardCharts
 
 cards={data.topCards}
@@ -163,11 +191,15 @@ cards={data.topCards}
 
 
 
+
+
 <TopCards
 
 cards={data.topCards}
 
 />
+
+
 
 
 
@@ -186,8 +218,6 @@ transactions={data.recentTransactions}
 
 
 
-
-<ScoutCard />
 
 
 </div>
