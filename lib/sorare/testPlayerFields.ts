@@ -22,18 +22,6 @@ slug
 
 cardPositions
 
-averageScore
-
-scores {
-
-nodes {
-
-score
-
-}
-
-}
-
 }
 
 }
