@@ -3,26 +3,29 @@ import { sorareRequest } from "../sorare";
 
 const QUERY = `
 
-query TestPlayer {
+query {
 
-currentUser {
+__type(name:"AveragePlayerScore") {
 
-cards(
-first:1
-rarities:[limited,rare,super_rare,unique]
-){
+name
 
-nodes {
+kind
 
-anyPlayer {
+inputFields {
 
-displayName
+name
 
-averageScore(
-type:{
-last:15
-}
-)
+type {
+
+kind
+
+name
+
+ofType {
+
+kind
+
+name
 
 }
 
@@ -57,7 +60,7 @@ accessToken
 
 console.log(
 
-"PLAYER TEST:",
+"AVERAGE PLAYER SCORE TYPE:",
 
 JSON.stringify(
 
