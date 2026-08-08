@@ -5,6 +5,7 @@ import { useMarket } from "@/hooks/useMarket";
 import MarketStats from "@/components/market/MarketStats";
 import MarketList from "@/components/market/MarketList";
 import MarketTable from "@/components/market/MarketTable";
+import MarketEmpty from "@/components/market/MarketEmpty";
 
 
 export default function MarketPage(){
@@ -26,6 +27,8 @@ getScore,
 
 
 
+
+
 if(loading){
 
 return (
@@ -39,6 +42,8 @@ Cargando mercado...
 );
 
 }
+
+
 
 
 
@@ -58,11 +63,31 @@ return (
 
 
 
+
+
+
+if(cards.length === 0){
+
+return (
+
+<MarketEmpty />
+
+);
+
+}
+
+
+
+
+
+
 const opportunities =
 
 cards.filter(
 (item)=>getOpportunity(item)>0
 );
+
+
 
 
 
@@ -80,6 +105,9 @@ getScore(cards[0])
 
 
 
+
+
+
 const tableCards =
 
 cards.map((item)=>({
@@ -92,9 +120,13 @@ score:getScore(item),
 
 
 
+
+
+
+
 return (
 
-<div className="space-y-10">
+<div className="space-y-8">
 
 
 
@@ -152,18 +184,25 @@ Sorare Market Scanner
 
 
 
-<p className="
+<p
+
+className="
 mt-3
 text-lg
 text-zinc-400
-">
+"
+
+>
 
 Detecta oportunidades de compra antes que el mercado.
 
 </p>
 
 
+
 </section>
+
+
 
 
 
@@ -183,6 +222,8 @@ bestScore={bestScore}
 
 
 
+
+
 <MarketList
 
 cards={cards}
@@ -193,11 +234,16 @@ cards={cards}
 
 
 
+
+
 <MarketTable
 
 cards={tableCards}
 
 />
+
+
+
 
 
 
