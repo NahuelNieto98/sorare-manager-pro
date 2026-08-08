@@ -1,6 +1,11 @@
 "use client";
 
-import { Search, SlidersHorizontal } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
+
 import { useTranslations } from "next-intl";
 
 import SortDropdown from "@/components/ui/SortDropdown";
@@ -46,6 +51,10 @@ type Props = {
 
   setSort:(value:string)=>void;
 
+
+  onReset:()=>void;
+
+
 };
 
 
@@ -68,6 +77,7 @@ export default function GalleryFilters({
 
   setSort,
 
+  onReset,
 
 }:Props){
 
@@ -75,6 +85,17 @@ export default function GalleryFilters({
 
 const t =
 useTranslations("gallery");
+
+
+
+const hasFilters =
+search !== ""
+||
+rarity !== "all"
+||
+position !== "all"
+||
+sort !== "value";
 
 
 
@@ -95,7 +116,26 @@ p-6
 
 
 
-<div className="flex items-center gap-3">
+<div
+
+className="
+flex
+items-center
+justify-between
+"
+
+>
+
+
+<div
+
+className="
+flex
+items-center
+gap-3
+"
+
+>
 
 
 <SlidersHorizontal
@@ -121,6 +161,50 @@ size={22}
 
 
 
+{
+
+hasFilters && (
+
+<button
+
+onClick={onReset}
+
+className="
+flex
+items-center
+gap-2
+rounded-xl
+bg-red-500/10
+px-4
+py-2
+text-sm
+font-bold
+text-red-300
+transition
+hover:bg-red-500/20
+"
+
+>
+
+<X size={16}/>
+
+Limpiar
+
+</button>
+
+)
+
+}
+
+
+</div>
+
+
+
+
+
+
+
 <div
 
 className="
@@ -132,6 +216,7 @@ xl:flex-row
 "
 
 >
+
 
 
 
@@ -206,13 +291,9 @@ onChange={setSort}
 
 
 
-<div
 
-className="
-mt-5
-"
+<div className="mt-6">
 
->
 
 <p className="mb-3 text-sm font-bold text-zinc-400">
 
@@ -282,10 +363,22 @@ position === p.value
 
 
 
+
+
+<div className="mt-6">
+
+
+<p className="mb-3 text-sm font-bold text-zinc-400">
+
+Rareza
+
+</p>
+
+
+
 <div
 
 className="
-mt-5
 flex
 flex-wrap
 gap-3
@@ -295,7 +388,7 @@ gap-3
 
 
 {
-rarityKeys.map(r=>(
+rarityKeys.map((r)=>(
 
 
 <button
@@ -333,6 +426,11 @@ rarity===r.value
 
 
 </div>
+
+
+</div>
+
+
 
 
 

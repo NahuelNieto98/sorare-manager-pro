@@ -29,6 +29,7 @@ error
 
 
 
+
 const [search,setSearch] =
 useState("");
 
@@ -40,6 +41,22 @@ useState("all");
 
 const [sort,setSort] =
 useState("value");
+
+
+
+
+
+function resetFilters(){
+
+setSearch("");
+
+setRarity("all");
+
+setPosition("all");
+
+setSort("value");
+
+}
 
 
 
@@ -249,11 +266,53 @@ return (
 
 
 
+case "l10":
+
+return (
+
+(b.l10Score ?? 0)
+
+-
+
+(a.l10Score ?? 0)
+
+);
+
+
+
+case "l40":
+
+return (
+
+(b.l40Score ?? 0)
+
+-
+
+(a.l40Score ?? 0)
+
+);
+
+
+
+case "name":
+
+return (
+
+a.playerName.localeCompare(
+b.playerName
+)
+
+);
+
+
+
 default:
 
 return 0;
 
+
 }
+
 
 
 });
@@ -359,7 +418,50 @@ sort={sort}
 
 setSort={setSort}
 
+onReset={resetFilters}
+
 />
+
+
+
+
+
+<div
+
+className="
+mb-6
+flex
+items-center
+justify-between
+"
+
+>
+
+
+<p className="text-zinc-400">
+
+Mostrando
+
+<span className="mx-1 font-bold text-white">
+
+{filteredCards.length}
+
+</span>
+
+de
+
+<span className="mx-1 font-bold text-white">
+
+{cards.length}
+
+</span>
+
+cartas
+
+</p>
+
+
+</div>
 
 
 
