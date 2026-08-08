@@ -127,35 +127,14 @@ export async function sorareRequest(
 
 
   if (
+  json?.data?.currentUser?.cards?.nodes?.[0]
+) {
 
-    json?.data?.currentUser?.cards?.nodes?.[0]
+  console.log(
+    "Sorare card test data received"
+  );
 
-  ) {
-
-
-    const fs =
-      await import("fs");
-
-
-    fs.writeFileSync(
-
-      "sorare-test-card.json",
-
-
-      JSON.stringify(
-
-        json.data.currentUser.cards.nodes[0],
-
-        null,
-
-        2
-
-      )
-
-    );
-
-
-  }
+}
 
 
 
