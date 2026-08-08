@@ -7,14 +7,11 @@ import { getUserCards } from "@/lib/sorare/getUserCards";
 import { importGallery } from "@/lib/sorare/importGallery";
 
 
-
 export async function POST() {
-
 
   console.log(
     "🚀 API SYNC LLAMADA"
   );
-
 
 
   try {
@@ -25,12 +22,10 @@ export async function POST() {
 
 
 
-
     console.log(
       "SESSION:",
       session?.user?.email
     );
-
 
 
 
@@ -53,9 +48,6 @@ export async function POST() {
 
 
 
-
-
-
     const user =
       await prisma.user.findUnique({
 
@@ -69,9 +61,6 @@ export async function POST() {
         }
 
       });
-
-
-
 
 
 
@@ -96,19 +85,10 @@ export async function POST() {
 
 
 
-
-
-
     console.log(
-
       "SORARE ACCOUNT:",
-
       user.sorareAccount?.slug
-
     );
-
-
-
 
 
 
@@ -134,13 +114,8 @@ export async function POST() {
 
 
 
-
-
-
     const accessToken =
       user.sorareAccount.accessToken;
-
-
 
 
 
@@ -168,8 +143,6 @@ export async function POST() {
 
 
 
-
-
     console.log(
       "🔐 Usando OAuth Sorare"
     );
@@ -178,10 +151,12 @@ export async function POST() {
 
 
 
+    console.time(
+      "⏱️ GET USER CARDS"
+    );
 
 
     const cards =
-
       await getUserCards(
 
         accessToken
@@ -189,6 +164,9 @@ export async function POST() {
       );
 
 
+    console.timeEnd(
+      "⏱️ GET USER CARDS"
+    );
 
 
 
@@ -206,7 +184,9 @@ export async function POST() {
 
 
 
-
+    console.time(
+      "⏱️ IMPORT GALLERY"
+    );
 
 
     await importGallery(
@@ -218,6 +198,9 @@ export async function POST() {
     );
 
 
+    console.timeEnd(
+      "⏱️ IMPORT GALLERY"
+    );
 
 
 
@@ -233,9 +216,6 @@ export async function POST() {
 
 
 
-
-
-
     return NextResponse.json({
 
       success:true,
@@ -244,8 +224,6 @@ export async function POST() {
         cards.length
 
     });
-
-
 
 
 
@@ -283,8 +261,6 @@ export async function POST() {
     );
 
 
-
   }
-
 
 }
