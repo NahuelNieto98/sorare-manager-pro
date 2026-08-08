@@ -37,6 +37,79 @@ export type GalleryCard = {
 
 
 
+function normalizePosition(
+  position:string|null
+){
+
+  if(!position)
+    return null;
+
+
+  const value =
+    position.toLowerCase();
+
+
+
+  if(
+    value.includes("goal")
+    ||
+    value.includes("keeper")
+    ||
+    value === "gk"
+  ){
+
+    return "GK";
+
+  }
+
+
+
+  if(
+    value.includes("def")
+    ||
+    value === "df"
+  ){
+
+    return "DEF";
+
+  }
+
+
+
+  if(
+    value.includes("mid")
+    ||
+    value === "mf"
+  ){
+
+    return "MID";
+
+  }
+
+
+
+  if(
+    value.includes("for")
+    ||
+    value.includes("att")
+    ||
+    value === "fw"
+  ){
+
+    return "FW";
+
+  }
+
+
+
+  return position.toUpperCase();
+
+}
+
+
+
+
+
 export function useGallery(){
 
 
@@ -88,22 +161,32 @@ export function useGallery(){
 
 
 
-      setCards(data);
+      setCards(
+
+        data.map((card:any)=>({
+
+          ...card,
+
+          position:
+            normalizePosition(
+              card.position
+            )
+
+        }))
+
+      );
 
 
 
     }catch(error){
 
 
-
       console.error(error);
-
 
 
       setError(
         "Error loading gallery"
       );
-
 
 
     }finally{
@@ -134,7 +217,6 @@ export function useGallery(){
 
   return {
 
-
     cards,
 
     loading,
@@ -142,7 +224,6 @@ export function useGallery(){
     error,
 
     refresh,
-
 
   };
 
