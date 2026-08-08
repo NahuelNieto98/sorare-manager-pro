@@ -18,7 +18,11 @@ anyPlayer {
 
 displayName
 
-averageScore(type: LAST_15)
+averageScore(
+type:{
+last:15
+}
+)
 
 }
 
