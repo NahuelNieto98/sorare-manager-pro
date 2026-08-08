@@ -22,7 +22,8 @@ displayName
 
 }
 
-latestScores {
+
+cardScores {
 
 nodes {
 
@@ -31,6 +32,7 @@ score
 }
 
 }
+
 
 }
 
