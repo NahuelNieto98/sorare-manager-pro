@@ -5,29 +5,26 @@ import { useTranslations } from "next-intl";
 import {
   RefreshCw,
   DollarSign,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 
 
 export default function SyncGalleryButton(){
 
 
-const t = useTranslations("sync");
+const t =
+useTranslations("sync");
 
 
 
 const [syncLoading,setSyncLoading] =
 useState(false);
 
-
 const [priceLoading,setPriceLoading] =
 useState(false);
 
-
 const [message,setMessage] =
 useState("");
-
-
 
 
 
@@ -55,17 +52,25 @@ method:"POST",
 
 
 
+const data =
+await res.json();
+
+
+
 if(!res.ok){
 
-throw new Error();
+throw new Error(
+data.error
+);
 
 }
 
 
 
-
 setMessage(
-`✅ ${t("successSync")}`
+
+`✅ ${t("successSync")}: ${data.cards ?? 0} cartas`
+
 );
 
 
@@ -78,14 +83,22 @@ window.location.reload();
 
 
 
+}catch(error:any){
 
 
-}catch{
+console.error(
+"Sync error:",
+error
+);
+
 
 
 setMessage(
-`❌ ${t("errorSync")}`
+
+`❌ ${error.message ?? t("errorSync")}`
+
 );
+
 
 
 }finally{
@@ -97,9 +110,7 @@ setSyncLoading(false);
 }
 
 
-
 }
-
 
 
 
@@ -129,18 +140,16 @@ method:"POST",
 
 
 
+const data =
+await res.json();
+
+
+
 if(!res.ok){
 
 throw new Error();
 
 }
-
-
-
-
-const data =
-await res.json();
-
 
 
 
@@ -152,9 +161,14 @@ setMessage(
 
 
 
+}catch(error){
 
 
-}catch{
+console.error(
+"Prices error:",
+error
+);
+
 
 
 setMessage(
@@ -179,21 +193,12 @@ setPriceLoading(false);
 
 
 
-
-
 return (
 
-
-<div className="flex flex-col gap-3">
-
+<div className="flex flex-col gap-4">
 
 
-
-
-<div className="flex gap-4">
-
-
-
+<div className="flex flex-wrap gap-4">
 
 
 <button
@@ -220,7 +225,6 @@ disabled:opacity-50
 >
 
 
-
 <RefreshCw
 
 size={20}
@@ -234,7 +238,6 @@ syncLoading
 }
 
 />
-
 
 
 {
@@ -254,9 +257,6 @@ t("syncButton")
 
 
 </button>
-
-
-
 
 
 
@@ -286,8 +286,6 @@ disabled:opacity-50
 >
 
 
-
-
 <DollarSign
 
 size={20}
@@ -301,8 +299,6 @@ priceLoading
 }
 
 />
-
-
 
 
 
@@ -326,14 +322,7 @@ t("pricesButton")
 
 
 
-
-
-
-
 </div>
-
-
-
 
 
 
@@ -342,7 +331,6 @@ t("pricesButton")
 {
 
 message && (
-
 
 <div
 
@@ -357,14 +345,19 @@ text-zinc-300
 >
 
 
-<CheckCircle size={16}/>
+<CheckCircle
+
+size={18}
+
+className="text-green-400"
+
+/>
 
 
 {message}
 
 
 </div>
-
 
 )
 
@@ -374,8 +367,6 @@ text-zinc-300
 
 </div>
 
-
 );
-
 
 }
