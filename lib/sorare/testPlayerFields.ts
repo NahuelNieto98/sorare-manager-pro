@@ -14,30 +14,13 @@ rarities:[limited,rare,super_rare,unique]
 
 nodes {
 
-slug
-
-
 anyPlayer {
 
 displayName
 
-}
-
-
-
-playerGameStats {
-
-l5Score
-
-l10Score
-
-l15Score
-
-l40Score
+averageScore(type: LAST_FIFTEEN)
 
 }
-
-
 
 }
 
