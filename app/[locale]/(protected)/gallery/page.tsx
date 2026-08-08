@@ -10,6 +10,7 @@ import GalleryFilters from "@/components/gallery/GalleryFilters";
 import CardItem from "@/components/gallery/CardItem";
 import GalleryChart from "@/components/charts/GalleryChart";
 import CollectionDistribution from "@/components/gallery/CollectionDistribution";
+import GalleryEmpty from "@/components/gallery/GalleryEmpty";
 
 
 export default function GalleryPage(){
@@ -28,6 +29,7 @@ error
 
 
 
+
 const [search,setSearch] =
 useState("");
 
@@ -36,6 +38,8 @@ useState("all");
 
 const [sort,setSort] =
 useState("value");
+
+
 
 
 
@@ -48,12 +52,15 @@ Math.max(...cards.map(c=>c.season))
 
 
 
+
 const galleryValue =
 cards.reduce(
 (sum,card)=>
 sum + (card.marketValue ?? 0),
 0
 );
+
+
 
 
 
@@ -65,11 +72,15 @@ card.season === currentSeason
 
 
 
+
+
 const classicCards =
 cards.filter(
 card =>
 card.season !== currentSeason
 );
+
+
 
 
 
@@ -82,12 +93,18 @@ sum + (card.marketValue ?? 0),
 
 
 
+
+
 const classicValue =
 classicCards.reduce(
 (sum,card)=>
 sum + (card.marketValue ?? 0),
 0
 );
+
+
+
+
 
 
 
@@ -100,6 +117,7 @@ search.toLowerCase();
 
 
 
+
 return [...cards]
 
 .filter(card =>
@@ -108,18 +126,24 @@ return [...cards]
 card.playerName
 .toLowerCase()
 .includes(q)
+
 ||
+
 (card.club ?? "")
 .toLowerCase()
 .includes(q)
+
 )
 
 &&
 
 (
 rarity === "all"
+
 ||
+
 card.scarcity === rarity
+
 )
 
 )
@@ -135,9 +159,13 @@ switch(sort){
 case "value":
 
 return (
+
 (b.marketValue ?? 0)
+
 -
+
 (a.marketValue ?? 0)
+
 );
 
 
@@ -145,9 +173,13 @@ return (
 case "lowValue":
 
 return (
+
 (a.marketValue ?? 0)
+
 -
+
 (b.marketValue ?? 0)
+
 );
 
 
@@ -155,9 +187,13 @@ return (
 case "aa":
 
 return (
+
 (b.averageScore ?? 0)
+
 -
+
 (a.averageScore ?? 0)
+
 );
 
 
@@ -165,9 +201,13 @@ return (
 case "lowAA":
 
 return (
+
 (a.averageScore ?? 0)
+
 -
+
 (b.averageScore ?? 0)
+
 );
 
 
@@ -193,6 +233,8 @@ sort
 
 
 
+
+
 if(error){
 
 return (
@@ -206,6 +248,23 @@ return (
 );
 
 }
+
+
+
+
+
+
+if(!loading && cards.length === 0){
+
+return (
+
+<GalleryEmpty />
+
+);
+
+}
+
+
 
 
 
@@ -233,6 +292,8 @@ totalCards={cards.length}
 
 
 
+
+
 <GalleryFilters
 
 search={search}
@@ -248,6 +309,8 @@ sort={sort}
 setSort={setSort}
 
 />
+
+
 
 
 
@@ -274,7 +337,10 @@ setSort={setSort}
 
 
 
+
+
 {loading ? (
+
 
 <div className="text-center text-zinc-400">
 
@@ -283,10 +349,13 @@ setSort={setSort}
 </div>
 
 
+
 ) : (
 
 
+
 <div
+
 className="
 grid
 gap-6
@@ -294,7 +363,9 @@ md:grid-cols-2
 xl:grid-cols-3
 2xl:grid-cols-4
 "
+
 >
+
 
 
 {filteredCards.map(card=>(
@@ -310,6 +381,7 @@ key={card.id}
 
 
 ))}
+
 
 
 </div>
