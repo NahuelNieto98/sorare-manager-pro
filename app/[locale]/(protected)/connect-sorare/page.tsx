@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+import ConnectHero from "@/components/connect/ConnectHero";
+import ConnectButton from "@/components/connect/ConnectButton";
+
 
 export default function ConnectSorarePage(){
 
 
-const t = useTranslations("connect");
+const t =
+useTranslations("connect");
 
 
 const [loading,setLoading] =
@@ -15,102 +19,83 @@ useState(false);
 
 
 
-
 function connectSorare(){
 
-
 setLoading(true);
-
 
 window.location.href =
 "/api/sorare/connect";
 
-
 }
-
-
 
 
 
 return (
 
-<div className="max-w-xl">
+<div className="space-y-8">
 
 
 
-<h1 className="text-4xl font-bold text-white">
+<ConnectHero
 
-{t("title")}
+title={t("title")}
 
-</h1>
+subtitle={t("subtitle")}
+
+/>
 
 
 
+
+
+<section
+
+className="
+rounded-3xl
+border
+border-white/10
+bg-[#17112F]
+p-8
+"
+
+>
+
+
+<h2 className="text-2xl font-black text-white">
+
+Conectar cuenta
+
+</h2>
 
 
 <p className="mt-3 text-zinc-400">
 
-{t("subtitle")}
+Autoriza la conexión para sincronizar tu colección de Sorare.
 
 </p>
 
 
 
+<ConnectButton
+
+loading={loading}
+
+onConnect={connectSorare}
+
+label={t("button")}
+
+loadingLabel={t("connecting")}
+
+/>
 
 
 
-
-<button
-
-
-onClick={connectSorare}
-
-
-disabled={loading}
-
-
-className="
-mt-8
-rounded-xl
-bg-purple-600
-px-8
-py-4
-font-bold
-text-white
-hover:bg-purple-500
-disabled:opacity-50
-"
-
-
-
->
-
-
-{
-
-loading
-
-?
-
-t("connecting")
-
-:
-
-t("button")
-
-}
-
-
-
-</button>
-
-
+</section>
 
 
 
 </div>
 
 );
-
 
 }

@@ -1,62 +1,49 @@
 import { NextResponse } from "next/server";
-
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-
 
 
 export async function GET(
 request: Request
 ) {
 
-
 const session =
 await auth();
 
 
-
 if(!session?.user?.email) {
 
-
 return NextResponse.redirect(
-  new URL(
-    "/login",
-    request.url
-  )
+new URL(
+"/login",
+request.url
+)
 );
-
 
 }
 
 
 
-
 const { searchParams } =
-new URL(
-request.url
-);
+new URL(request.url);
 
 
 const code =
 searchParams.get("code");
 
 
-
 if(!code) {
 
-
 return NextResponse.json(
-  {
-    error:"No se recibió código OAuth",
-  },
-  {
-    status:400,
-  }
+{
+error:"No se recibió código OAuth",
+},
+{
+status:400,
+}
 );
 
-
 }
-
 
 
 
@@ -71,26 +58,22 @@ process.env.SORARE_REDIRECT_URI;
 
 
 
-
 if(
 !clientId ||
 !clientSecret ||
 !redirectUri
 ) {
 
-
 return NextResponse.json(
-  {
-    error:"Faltan variables OAuth",
-  },
-  {
-    status:500,
-  }
+{
+error:"Faltan variables OAuth",
+},
+{
+status:500,
+}
 );
 
-
 }
-
 
 
 
@@ -100,46 +83,34 @@ await fetch(
 "https://api.sorare.com/oauth/token",
 {
 
-
 method:"POST",
 
-
 headers:{
-  "Content-Type":
-    "application/x-www-form-urlencoded",
+"Content-Type":
+"application/x-www-form-urlencoded",
 },
-
 
 body:
 new URLSearchParams({
 
-
 grant_type:
 "authorization_code",
-
 
 client_id:
 clientId,
 
-
 client_secret:
 clientSecret,
 
-
 code,
-
 
 redirect_uri:
 redirectUri,
 
-
 }),
-
 
 }
 );
-
-
 
 
 
@@ -148,25 +119,19 @@ await tokenResponse.json();
 
 
 
-
-
 if(!tokenResponse.ok) {
 
-
 return NextResponse.json(
-  {
-    error:"No se pudo obtener token Sorare",
-    details:tokenData,
-  },
-  {
-    status:500,
-  }
+{
+error:"No se pudo obtener token Sorare",
+details:tokenData,
+},
+{
+status:500,
+}
 );
 
-
 }
-
-
 
 
 
@@ -180,36 +145,30 @@ tokenData.refresh_token;
 
 
 
-
 const user =
 await prisma.user.findUnique({
 
 where:{
-  email:
-    session.user.email,
+email:
+session.user.email,
 },
 
 });
 
 
 
-
-
 if(!user) {
 
-
 return NextResponse.json(
-  {
-    error:"Usuario no encontrado",
-  },
-  {
-    status:404,
-  }
+{
+error:"Usuario no encontrado",
+},
+{
+status:404,
+}
 );
 
-
 }
-
 
 
 
@@ -221,15 +180,9 @@ query {
 
 currentUser {
 
-  slug
+slug
 
-  profilePictureUrl
-
-  pictureUrl
-
-  avatarUrl
-
-  imageUrl
+nickname
 
 }
 
@@ -241,36 +194,28 @@ currentUser {
 
 
 
-
 const meResponse =
 await fetch(
 "https://api.sorare.com/graphql",
 {
 
-
 method:"POST",
 
-
 headers:{
-
 
 "Content-Type":
 "application/json",
 
-
 Authorization:
 `Bearer ${accessToken}`,
 
-
 },
-
 
 body:JSON.stringify({
 
 query:meQuery,
 
 }),
-
 
 }
 );
@@ -279,11 +224,8 @@ query:meQuery,
 
 
 
-
 const meData =
 await meResponse.json();
-
-
 
 
 
@@ -310,37 +252,18 @@ currentUser?.slug;
 
 
 
-
-
-const avatarUrl =
-currentUser?.profilePictureUrl
-??
-currentUser?.pictureUrl
-??
-currentUser?.avatarUrl
-??
-currentUser?.imageUrl
-??
-null;
-
-
-
-
-
-
 if(!slug) {
 
-
 return NextResponse.json(
-  {
-    error:
-    "No se pudo obtener usuario Sorare",
-  },
-  {
-    status:500,
-  }
+{
+error:
+"No se pudo obtener usuario Sorare",
+details:meData,
+},
+{
+status:500,
+}
 );
-
 
 }
 
@@ -353,49 +276,35 @@ return NextResponse.json(
 await prisma.sorareAccount.upsert({
 
 where:{
-  userId:user.id,
+userId:user.id,
 },
-
 
 
 update:{
 
-
 slug,
-
 
 accessToken,
 
-
 refreshToken,
 
-
 },
-
-
 
 
 create:{
 
-
 userId:user.id,
-
 
 slug,
 
-
 accessToken,
 
-
 refreshToken,
-
 
 },
 
 
-
 });
-
 
 
 
@@ -405,15 +314,6 @@ console.log(
 "✅ Sorare conectado:",
 slug
 );
-
-
-
-console.log(
-"🖼️ Avatar Sorare:",
-avatarUrl
-);
-
-
 
 
 
@@ -427,7 +327,6 @@ request.url
 )
 
 );
-
 
 
 }
