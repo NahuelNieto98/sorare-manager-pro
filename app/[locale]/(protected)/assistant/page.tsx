@@ -1,107 +1,59 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+
+import { useAssistant } from "@/hooks/useAssistant";
+
+import AssistantHero from "@/components/assistant/AssistantHero";
+import AssistantButton from "@/components/assistant/AssistantButton";
+import AssistantResult from "@/components/assistant/AssistantResult";
 
 
 export default function AssistantPage(){
 
 
-const t = useTranslations("assistant");
+const t =
+useTranslations("assistant");
 
 
+const {
 
-const [loading,setLoading] =
-useState(false);
+loading,
 
+analysis,
 
-const [analysis,setAnalysis] =
-useState("");
+error,
 
+analyze,
 
-
-
-
-async function analyze(){
-
-
-setLoading(true);
-
-
-
-try{
-
-
-const res =
-await fetch("/api/assistant");
-
-
-
-const data =
-await res.json();
-
-
-
-setAnalysis(data.analysis);
-
-
-
-}finally{
-
-
-setLoading(false);
-
-
-}
-
-
-
-}
-
-
-
+} = useAssistant();
 
 
 
 return (
 
-
 <div className="space-y-8">
 
 
 
-<div>
+<AssistantHero
 
+title={t("title")}
 
-<h1 className="text-3xl font-bold text-white">
+subtitle={t("subtitle")}
 
-{t("title")}
-
-</h1>
-
-
-
-<p className="mt-2 text-zinc-400">
-
-{t("subtitle")}
-
-</p>
-
-
-</div>
+/>
 
 
 
 
 
-
-
-<div
+<section
 
 className="
 rounded-3xl
 border
-border-violet-700/30
+border-white/10
 bg-[#17112F]
 p-8
 "
@@ -109,7 +61,7 @@ p-8
 >
 
 
-<h2 className="text-2xl font-bold text-white">
+<h2 className="text-2xl font-black text-white">
 
 {t("analyzeTitle")}
 
@@ -125,122 +77,47 @@ p-8
 
 
 
-
-
-<button
-
+<AssistantButton
 
 onClick={analyze}
 
+loading={loading}
 
-disabled={loading}
+label={t("analyzeButton")}
+
+loadingLabel={t("analyzing")}
+
+/>
 
 
-className="
-mt-8
-rounded-xl
-bg-violet-600
-px-8
-py-4
-font-bold
-text-white
-transition
-hover:bg-violet-500
-disabled:opacity-50
-"
+</section>
 
->
+
+
 
 
 {
-loading
 
-?
-
-t("analyzing")
-
-:
-
-t("analyzeButton")
-
-}
-
-
-
-</button>
-
-
-
-</div>
-
-
-
-
-
-
+error && (
 
 <div
 
 className="
-rounded-3xl
+rounded-2xl
 border
-border-violet-700/30
-bg-[#17112F]
-p-8
+border-red-500/20
+bg-red-500/10
+p-5
+text-red-400
 "
 
 >
 
+{error}
 
-
-<h2 className="mb-6 text-2xl font-bold text-white">
-
-{t("result")}
-
-</h2>
-
-
-
-
-
-{
-
-analysis
-
-?
-
-(
-
-<pre
-
-className="
-whitespace-pre-wrap
-text-zinc-300
-leading-8
-"
-
->
-
-{analysis}
-
-</pre>
-
+</div>
 
 )
-
-:
-
-(
-
-<p className="text-zinc-500">
-
-{t("empty")}
-
-</p>
-
-
-)
-
 
 }
 
@@ -248,16 +125,20 @@ leading-8
 
 
 
+<AssistantResult
+
+analysis={analysis}
+
+title={t("result")}
+
+empty={t("empty")}
+
+/>
+
+
+
 </div>
-
-
-
-
-
-</div>
-
 
 );
-
 
 }
