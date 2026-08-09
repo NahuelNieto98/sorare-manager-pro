@@ -3,7 +3,7 @@ import { sorareRequest } from "../sorare";
 
 const QUERY = `
 
-query TestPlayer {
+query TestPlayer($scoreType: AveragePlayerScore!) {
 
 currentUser {
 
@@ -14,11 +14,11 @@ rarities:[limited,rare,super_rare,unique]
 
 nodes {
 
-player {
+anyPlayer {
 
 displayName
 
-averageScore(type: LAST_FIFTEEN)
+averageScore(type:$scoreType)
 
 }
 
@@ -38,37 +38,29 @@ export async function testPlayerFields(
 accessToken:string
 ){
 
-
 const data = await sorareRequest(
 
 QUERY,
 
-{},
+{
+scoreType:"LAST_FIFTEEN"
+},
 
 accessToken
 
 );
 
 
-
 console.log(
-
 "PLAYER TEST:",
-
 JSON.stringify(
-
 data,
-
 null,
 2
-
 )
-
 );
 
 
-
 return data;
-
 
 }
