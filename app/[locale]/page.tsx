@@ -150,8 +150,8 @@ export default function HomePage() {
             <button
               onClick={() =>
                 signIn("google", {
-                  callbackUrl: "/es/connect",
-                })
+  callbackUrl: "/es/dashboard",
+})
               }
               className="
               rounded-2xl

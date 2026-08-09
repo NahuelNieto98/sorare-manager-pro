@@ -3,7 +3,8 @@ import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#0F0B1F] text-white">
+
+    <main className="min-h-screen bg-[#090714] text-white">
 
       {/* Barra superior */}
 
@@ -47,7 +48,18 @@ export default function HomePage() {
       <section className="mx-auto flex max-w-7xl flex-col items-center px-8 pt-24 text-center">
 
 
-        <span className="rounded-full border border-purple-700 bg-purple-900/30 px-4 py-2 text-sm text-purple-300">
+        <span
+          className="
+          rounded-full
+          border
+          border-purple-700
+          bg-purple-900/30
+          px-4
+          py-2
+          text-sm
+          text-purple-300
+          "
+        >
 
           🚀 La herramienta definitiva para managers de Sorare
 
@@ -55,9 +67,17 @@ export default function HomePage() {
 
 
 
-        <h2 className="mt-8 max-w-4xl text-6xl font-extrabold leading-tight">
+        <h2
+          className="
+          mt-8
+          max-w-4xl
+          text-6xl
+          font-extrabold
+          leading-tight
+          "
+        >
 
-          Gestiona tu cuenta de{" "}
+          Controla tu colección{" "}
 
           <span className="text-purple-400">
             Sorare
@@ -72,10 +92,27 @@ export default function HomePage() {
 
 
 
+
         <p className="mt-8 max-w-2xl text-xl text-zinc-400">
 
           Analiza tu galería, calcula tu ROI, controla compras y ventas,
           visualiza tus premios y toma mejores decisiones.
+
+        </p>
+
+
+
+        <p
+          className="
+          mt-5
+          max-w-xl
+          text-sm
+          text-zinc-500
+          "
+        >
+
+          🔐 Conecta tu cuenta mediante OAuth oficial de Sorare
+          y analiza tu colección automáticamente.
 
         </p>
 
@@ -90,8 +127,8 @@ export default function HomePage() {
 
 
 
-          <Link
-            href="/dashboard"
+          <a
+            href="#features"
             className="
             rounded-xl
             border
@@ -103,15 +140,17 @@ export default function HomePage() {
             "
           >
 
-            Ver demo
+            Ver funciones
 
-          </Link>
+          </a>
 
 
         </div>
 
 
       </section>
+
+
 
 
 
@@ -173,6 +212,8 @@ export default function HomePage() {
 
 
 
+
+
       {/* Precios */}
 
       <section
@@ -189,17 +230,18 @@ export default function HomePage() {
 
 
         <h3 className="text-4xl font-bold">
-          Empieza gratis
+          Acceso Beta
         </h3>
 
 
 
         <p className="mt-4 text-zinc-400">
 
-          Prueba todas las funciones durante 14 días.
-          Después podrás elegir si quieres continuar con la suscripción.
+          Disfruta de todas las funciones durante la fase de lanzamiento.
+          Más adelante podrás acceder al plan Pro.
 
         </p>
+
 
 
 
@@ -215,40 +257,25 @@ export default function HomePage() {
           "
         >
 
+
           <h4 className="text-2xl font-bold">
-            Plan Pro
+            Sorare Manager Pro Beta
           </h4>
 
 
 
-          <p className="mt-6 text-6xl font-extrabold">
+          <p className="mt-6 text-3xl font-extrabold">
 
-            €9.99
-
-            <span className="text-xl text-zinc-400">
-              /mes
-            </span>
+            🚀 Gratis durante el lanzamiento
 
           </p>
 
 
 
 
-          <button
-            className="
-            mt-8
-            rounded-xl
-            bg-purple-600
-            px-8
-            py-4
-            font-semibold
-            hover:bg-purple-500
-            "
-          >
 
-            Comenzar prueba gratuita
+          <GoogleSignInButton />
 
-          </button>
 
 
         </div>
@@ -257,6 +284,8 @@ export default function HomePage() {
       </section>
 
 
+
     </main>
+
   );
 }
