@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
-
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 
 function sleep(ms:number) {
-
   return new Promise(
     resolve => setTimeout(resolve, ms)
   );
-
 }
 
 
@@ -19,13 +16,10 @@ export async function GET(
 ) {
 
 
-  const session =
-    await auth();
-
+  const session = await auth();
 
 
   if(!session?.user?.email) {
-
 
     return NextResponse.redirect(
       new URL(
@@ -35,8 +29,6 @@ export async function GET(
     );
 
   }
-
-
 
 
 
@@ -50,26 +42,22 @@ export async function GET(
 
 
 
-
-
   if(!code) {
 
-
     return NextResponse.json(
-
       {
         error:"No se recibió código OAuth",
       },
-
       {
         status:400,
       }
-
     );
 
   }
 
 
+
+  const safeCode: string = code;
 
 
 
@@ -77,16 +65,12 @@ export async function GET(
     process.env.SORARE_CLIENT_ID;
 
 
-
   const clientSecret =
     process.env.SORARE_CLIENT_SECRET;
 
 
-
   const redirectUri =
     process.env.SORARE_REDIRECT_URI;
-
-
 
 
 
@@ -96,98 +80,71 @@ export async function GET(
     !redirectUri
   ) {
 
-
     return NextResponse.json(
-
       {
         error:"Faltan variables OAuth",
       },
-
       {
         status:500,
       }
-
     );
 
   }
 
 
 
-
-
-  console.log(
-    "🔑 OAuth callback:",
-    {
-      codeLength:code.length,
-      redirectUri,
-    }
-  );
+  const safeClientId: string = clientId;
+  const safeClientSecret: string = clientSecret;
+  const safeRedirectUri: string = redirectUri;
 
 
 
+  async function requestToken(){
 
 
-  async function getToken(){
-
-
-    return await fetch(
-
+    return fetch(
       "https://api.sorare.com/oauth/token",
-
       {
 
         method:"POST",
 
-
         headers:{
-
           "Content-Type":
             "application/x-www-form-urlencoded",
-
         },
 
 
         body:
-
           new URLSearchParams({
 
             grant_type:
               "authorization_code",
 
-
             client_id:
-              clientId,
-
+              safeClientId,
 
             client_secret:
-              clientSecret,
+              safeClientSecret,
 
-
-            code,
-
+            code:
+              safeCode,
 
             redirect_uri:
-              redirectUri.trim(),
+              safeRedirectUri,
 
           }),
 
-
       }
-
     );
 
-
   }
-
 
 
 
 
 
   let tokenResponse =
-    await getToken();
-
-
+    await requestToken();
 
 
 
@@ -201,74 +158,37 @@ export async function GET(
   if(
     !tokenResponse.ok &&
     tokenData?.error === "Too many requests, please retry later."
-  ) {
-
-
-    console.log(
-      "⏳ Sorare rate limit OAuth. Esperando..."
-    );
-
+  ){
 
     await sleep(10000);
 
-
-
     tokenResponse =
-      await getToken();
-
-
+      await requestToken();
 
     tokenData =
       await tokenResponse.json();
 
-
   }
 
 
 
 
 
-
-
-  console.log(
-    "🔐 TOKEN RESPONSE:",
-    JSON.stringify(
-      tokenData,
-      null,
-      2
-    )
-  );
-
-
-
-
-
-
-  if(!tokenResponse.ok) {
-
+  if(!tokenResponse.ok){
 
     return NextResponse.json(
-
       {
-
         error:
           "No se pudo obtener token Sorare",
-
         details:
           tokenData,
-
       },
-
       {
-
         status:500,
-
       }
-
     );
 
   }
-
 
 
 
@@ -278,11 +198,8 @@ export async function GET(
     tokenData.access_token;
 
 
-
   const refreshToken =
     tokenData.refresh_token;
-
-
 
 
 
@@ -292,10 +209,8 @@ export async function GET(
     await prisma.user.findUnique({
 
       where:{
-
         email:
           session.user.email,
-
       },
 
     });
@@ -304,21 +219,15 @@ export async function GET(
 
 
 
-
-
-  if(!user) {
-
+  if(!user){
 
     return NextResponse.json(
-
       {
         error:"Usuario no encontrado",
       },
-
       {
         status:404,
       }
-
     );
 
   }
@@ -327,26 +236,14 @@ export async function GET(
 
 
 
-
-
-
   const meQuery = `
-
     query {
-
       currentUser {
-
         slug
-
         nickname
-
       }
-
     }
-
   `;
-
-
 
 
 
@@ -354,20 +251,15 @@ export async function GET(
 
   const meResponse =
     await fetch(
-
       "https://api.sorare.com/graphql",
-
       {
 
         method:"POST",
 
-
         headers:{
-
 
           "Content-Type":
             "application/json",
-
 
           Authorization:
             `Bearer ${accessToken}`,
@@ -383,12 +275,8 @@ export async function GET(
 
           }),
 
-
       }
-
     );
-
-
 
 
 
@@ -399,25 +287,6 @@ export async function GET(
 
 
 
-
-
-
-
-  console.log(
-    "👤 SORARE USER:",
-    JSON.stringify(
-      meData,
-      null,
-      2
-    )
-  );
-
-
-
-
-
-
-
   const slug =
     meData.data?.currentUser?.slug;
 
@@ -425,29 +294,18 @@ export async function GET(
 
 
 
-
-
-  if(!slug) {
-
+  if(!slug){
 
     return NextResponse.json(
-
       {
-
         error:
           "No se pudo obtener usuario Sorare",
-
         details:
           meData,
-
       },
-
       {
-
         status:500,
-
       }
-
     );
 
   }
@@ -456,53 +314,37 @@ export async function GET(
 
 
 
-
-
   await prisma.sorareAccount.upsert({
 
     where:{
-
       userId:user.id,
-
     },
 
 
     update:{
 
-
       slug,
-
 
       accessToken,
 
-
       refreshToken,
-
 
     },
 
 
     create:{
 
-
       userId:user.id,
-
 
       slug,
 
-
       accessToken,
-
 
       refreshToken,
 
-
     },
 
-
   });
-
-
 
 
 
@@ -517,18 +359,11 @@ export async function GET(
 
 
 
-
-
   return NextResponse.redirect(
-
     new URL(
-
       "/es/dashboard",
-
       request.url
-
     )
-
   );
 
 
