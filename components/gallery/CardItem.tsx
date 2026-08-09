@@ -30,6 +30,7 @@ function scoreColor(value: number | null) {
   if (value === null) return "text-white/50";
   if (value >= 60) return "text-emerald-400";
   if (value >= 40) return "text-yellow-400";
+
   return "text-red-400";
 }
 
@@ -58,7 +59,7 @@ export default function CardItem({
       border-white/10
       bg-gradient-to-br
       from-[#18122f]
-      via-[#211844]
+      via-[#24184b]
       to-[#100c22]
       transition-all
       duration-300
@@ -67,7 +68,7 @@ export default function CardItem({
       hover:shadow-violet-900/40
       "
     >
-      <div className="relative h-[210px] overflow-hidden">
+      <div className="relative h-[230px]">
         {pictureUrl ? (
           <img
             src={pictureUrl}
@@ -113,32 +114,32 @@ export default function CardItem({
           backdrop-blur
           "
         >
-          <p className="text-[10px] font-bold text-white/60">
-            AA15
+          <p className="text-[10px] font-bold tracking-widest text-white/50">
+            AA
           </p>
 
-          <p className="font-mono text-xl font-black text-white">
+          <p className="font-mono text-2xl font-black text-white">
             {averageScore !== null ? Math.round(averageScore) : "-"}
           </p>
         </div>
       </div>
 
       <div className="p-4">
-        <h2 className="truncate text-lg font-black text-white">
+        <h2 className="truncate text-xl font-black tracking-tight text-white">
           {playerName}
         </h2>
 
-        <p className="truncate text-sm text-white/50">
+        <p className="mt-1 truncate text-sm text-white/50">
           {club ?? "Sin club"}
         </p>
 
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           <span className="rounded-full bg-violet-500/20 px-3 py-1 text-xs font-bold text-violet-300">
             {positionLabel(position)}
           </span>
 
           <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white/60">
-            {rarityLabel(scarcity)}
+            {rarityLabel(scarcity)} · {season}
           </span>
         </div>
 
@@ -150,20 +151,28 @@ export default function CardItem({
             ["L40", l40Score],
           ].map(([label, value]) => (
             <div key={label}>
-              <p className="text-[10px] text-white/40">{label}</p>
-              <p className={`font-mono text-sm font-bold ${scoreColor(value as number | null)}`}>
+              <p className="text-[10px] font-bold text-white/40">
+                {label}
+              </p>
+
+              <p
+                className={`mt-1 font-mono text-base font-black ${scoreColor(
+                  value as number | null
+                )}`}
+              >
                 {value ?? "-"}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-5 flex items-center justify-between">
           <div>
-            <p className="text-xs text-white/50">
+            <p className="text-xs font-bold text-white/40">
               VALOR
             </p>
-            <p className="font-black text-emerald-400">
+
+            <p className="text-xl font-black text-emerald-400">
               €{marketValue?.toFixed(2) ?? "0.00"}
             </p>
           </div>
@@ -173,8 +182,8 @@ export default function CardItem({
             className="
             rounded-xl
             bg-violet-600
-            px-4
-            py-2
+            px-5
+            py-2.5
             text-sm
             font-bold
             text-white
@@ -182,7 +191,7 @@ export default function CardItem({
             hover:bg-violet-500
             "
           >
-            Ver
+            Ver carta
           </Link>
         </div>
       </div>
