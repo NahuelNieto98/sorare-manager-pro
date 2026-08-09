@@ -68,7 +68,6 @@ name
 
 }
 
-
 }
 
 
@@ -79,7 +78,6 @@ hasNextPage
 endCursor
 
 }
-
 
 }
 
@@ -157,7 +155,6 @@ throw new Error(
 
 
 
-
 export async function getUserCards(
 accessToken:string
 ){
@@ -218,7 +215,6 @@ data.data.currentUser.cards.nodes;
 
 if(page === 1){
 
-
 console.log(
 "🔎 PRIMERA CARTA DEBUG:",
 JSON.stringify(
@@ -257,8 +253,6 @@ null,
 2
 )
 );
-
-
 
 }
 
@@ -320,7 +314,6 @@ allCards.length
 
 return allCards.map(
 (card:any)=>({
-
 
 assetId:
 card.assetId,
@@ -390,7 +383,7 @@ null,
 
 
 averageScore:
-card.anyPlayer?.l15
+card.anyPlayer?.aa15
 ??
 null,
 
@@ -402,6 +395,8 @@ null,
 
 
 club:
+card.anyPlayer?.activeClub?.name
+??
 card.anyTeam?.name
 ??
 null,
