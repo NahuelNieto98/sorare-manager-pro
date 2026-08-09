@@ -87,22 +87,22 @@ export default async function ProtectedLayout({
 
 
         <section
-          className="
-          flex-1
-          overflow-y-auto
-          bg-[#0F0B1F]
-          p-4
-          md:p-8
-          "
-        >
+  className="
+  flex-1
+  overflow-y-auto
+  bg-[#0F0B1F]
+  p-4
+  md:p-8
+  "
+>
 
           <div
-            className="
-            mx-auto
-            w-full
-            max-w-[1600px]
-            "
-          >
+  className="
+  mx-auto
+  w-full
+  max-w-[1600px]
+  "
+>
 
             {children}
 
