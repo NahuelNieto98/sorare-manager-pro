@@ -209,7 +209,7 @@ gap-4
 
 
 <Link
-href="/dashboard"
+href="/es/dashboard"
 className="
 rounded-xl
 border

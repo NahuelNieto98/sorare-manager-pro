@@ -180,7 +180,7 @@ export default async function ConnectPage() {
 
 
             <a
-              href="/dashboard"
+              href="/es/dashboard"
               className="
               mt-8
               block

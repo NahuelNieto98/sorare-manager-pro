@@ -50,7 +50,7 @@ rendimiento y estadísticas.
 
 <Link
 
-href="/connect-sorare"
+href="/es/connect-sorare"
 
 className="
 mt-8

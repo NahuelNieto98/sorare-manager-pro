@@ -53,7 +53,7 @@ analizar ROI, beneficios, distribución y rendimiento.
 
 <Link
 
-href="/connect-sorare"
+href="/es/connect-sorare"
 
 className="
 mt-8
