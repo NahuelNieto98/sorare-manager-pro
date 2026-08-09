@@ -132,7 +132,7 @@ backdrop-blur
 AA15
 </p>
 
-<p className="text-3xl font-black text-white font-mono">{averageScore ?? "-"}
+<p className="text-3xl font-black text-white font-mono">{averageScore !== null ? Math.round(averageScore) : "-"}
 </p>
 
 </div>
