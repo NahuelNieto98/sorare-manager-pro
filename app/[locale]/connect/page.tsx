@@ -1,109 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
 import {
   ShieldCheck,
   Sparkles,
   WalletCards,
-  Loader2,
 } from "lucide-react";
 
 
 export default function ConnectPage() {
 
 
-  const router = useRouter();
+  function connectSorare() {
 
-
-  const [slug,setSlug] = useState("");
-
-  const [loading,setLoading] = useState(false);
-
-  const [error,setError] = useState("");
-
-
-
-
-  async function connectSorare(){
-
-
-    if(!slug.trim()){
-
-      setError("Introduce tu usuario de Sorare");
-
-      return;
-
-    }
-
-
-
-    try {
-
-
-      setLoading(true);
-
-      setError("");
-
-
-
-      const res = await fetch(
-        "/api/connect-sorare",
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":"application/json",
-          },
-
-          body:JSON.stringify({
-            slug,
-          }),
-
-        }
-      );
-
-
-
-      const json = await res.json();
-
-
-
-      if(!res.ok){
-
-        throw new Error(
-          json.error || "Error conectando Sorare"
-        );
-
-      }
-
-
-
-      router.push("/es/dashboard");
-
-
-
-    } catch(err:any){
-
-
-      setError(
-        err.message || "Error desconocido"
-      );
-
-
-    } finally {
-
-
-      setLoading(false);
-
-
-    }
-
+    window.location.href =
+      "/api/sorare/connect";
 
   }
-
-
 
 
 
@@ -199,8 +111,9 @@ export default function ConnectPage() {
           "
         >
 
-          Introduce tu username de Sorare para importar tu
-          colección y empezar a analizar tus cartas.
+          Autoriza el acceso con Sorare para importar
+          automáticamente tu colección, valores y
+          estadísticas.
 
         </p>
 
@@ -222,67 +135,41 @@ export default function ConnectPage() {
         >
 
 
-          <label
+
+          <div
             className="
-            block
+            rounded-2xl
+            border
+            border-violet-500/20
+            bg-violet-500/10
+            p-5
             text-left
-            text-sm
-            font-bold
-            text-zinc-300
             "
           >
 
-            Username de Sorare
-
-          </label>
-
-
-
-
-          <input
-
-            value={slug}
-
-            onChange={(e)=>setSlug(e.target.value)}
-
-            placeholder="ej: lightenN1"
-
-            className="
-            mt-3
-            w-full
-            rounded-xl
-            border
-            border-white/10
-            bg-black/20
-            px-4
-            py-3
-            text-white
-            outline-none
-            focus:border-violet-500
-            "
-
-          />
+            <p
+              className="
+              font-bold
+              text-violet-300
+              "
+            >
+              🔐 Conexión segura
+            </p>
 
 
+            <p
+              className="
+              mt-2
+              text-sm
+              text-zinc-400
+              "
+            >
+              Utilizamos OAuth oficial de Sorare.
+              Nunca necesitamos tu contraseña.
+            </p>
 
 
-          {
-            error && (
-
-              <p
-                className="
-                mt-3
-                text-sm
-                text-red-400
-                "
-              >
-
-                {error}
-
-              </p>
-
-            )
-          }
+          </div>
 
 
 
@@ -293,8 +180,6 @@ export default function ConnectPage() {
             type="button"
 
             onClick={connectSorare}
-
-            disabled={loading}
 
             className="
             mt-6
@@ -312,38 +197,18 @@ export default function ConnectPage() {
             font-black
             transition
             hover:scale-[1.02]
-            disabled:opacity-50
             "
-
           >
 
-            {
-              loading ? (
-
-                <>
-                  <Loader2
-                    className="animate-spin"
-                    size={20}
-                  />
-
-                  Conectando...
-
-                </>
-
-              ) : (
-
-                <>
-                  🚀 Conectar Sorare
-                </>
-
-              )
-            }
+            🔗 Conecta tu cuenta de Sorare
 
 
           </button>
 
 
+
         </div>
+
 
 
 
@@ -363,14 +228,14 @@ export default function ConnectPage() {
           <InfoCard
             icon={<ShieldCheck />}
             title="Seguro"
-            text="Solo guardamos la conexión de tu cuenta."
+            text="Solo guardamos la conexión OAuth de tu cuenta."
           />
 
 
           <InfoCard
             icon={<WalletCards />}
             title="Colección"
-            text="Analiza tus cartas automáticamente."
+            text="Importamos tus cartas automáticamente."
           />
 
 
@@ -397,69 +262,74 @@ export default function ConnectPage() {
 
 
 
+
 function InfoCard({
 
-  icon,
-  title,
-  text,
+icon,
+title,
+text,
 
 }:{
 
-  icon:React.ReactNode;
+icon:React.ReactNode;
 
-  title:string;
+title:string;
 
-  text:string;
+text:string;
 
 }) {
 
 
-  return (
+return (
 
-    <div
-      className="
-      rounded-2xl
-      border
-      border-white/10
-      bg-[#17112F]
-      p-5
-      "
-    >
-
-      <div className="text-violet-400">
-
-        {icon}
-
-      </div>
+<div
+  className="
+  rounded-2xl
+  border
+  border-white/10
+  bg-[#17112F]
+  p-5
+  "
+>
 
 
-      <h3
-        className="
-        mt-4
-        font-black
-        "
-      >
+  <div className="text-violet-400">
 
-        {title}
+    {icon}
 
-      </h3>
+  </div>
 
 
-      <p
-        className="
-        mt-2
-        text-sm
-        text-zinc-400
-        "
-      >
 
-        {text}
+  <h3
+    className="
+    mt-4
+    font-black
+    "
+  >
 
-      </p>
+    {title}
+
+  </h3>
 
 
-    </div>
 
-  );
+  <p
+    className="
+    mt-2
+    text-sm
+    text-zinc-400
+    "
+  >
+
+    {text}
+
+  </p>
+
+
+</div>
+
+);
+
 
 }
