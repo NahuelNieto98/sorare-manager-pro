@@ -5,28 +5,30 @@ const QUERY = `
 
 query TestPlayer($scoreType: AveragePlayerScore!) {
 
-currentUser {
+  currentUser {
 
-cards(
-first:1
-rarities:[limited,rare,super_rare,unique]
-){
+    cards(
+      first:1
+      rarities:[limited,rare,super_rare,unique]
+    ) {
 
-nodes {
+      nodes {
 
-anyPlayer {
+        anyPlayer {
 
-displayName
+          displayName
 
-averageScore(type:$scoreType)
+          averageScore(
+            type:$scoreType
+          )
 
-}
+        }
 
-}
+      }
 
-}
+    }
 
-}
+  }
 
 }
 
@@ -35,32 +37,37 @@ averageScore(type:$scoreType)
 
 
 export async function testPlayerFields(
-accessToken:string
+  accessToken:string
 ){
 
-const data = await sorareRequest(
 
-QUERY,
+  const data = await sorareRequest(
 
-{
-scoreType:"LAST_FIFTEEN"
-},
+    QUERY,
 
-accessToken
+    {
+      scoreType:"LAST_FIFTEEN_SO5_AVERAGE_SCORE"
+    },
 
-);
+    accessToken
 
-
-console.log(
-"PLAYER TEST:",
-JSON.stringify(
-data,
-null,
-2
-)
-);
+  );
 
 
-return data;
+  console.log(
+
+    "PLAYER TEST:",
+
+    JSON.stringify(
+      data,
+      null,
+      2
+    )
+
+  );
+
+
+  return data;
+
 
 }
