@@ -243,7 +243,7 @@
     "button": "🔗 Conectar con Sorare"
   },
 
-  "settings": {
+    "settings": {
     "title": "Configuración",
     "subtitle": "Conecta tu cuenta de Sorare.",
     "account": "Cuenta Sorare",
@@ -251,5 +251,19 @@
     "button": "Conectar cuenta",
     "error": "Error al conectar la cuenta",
     "success": "Cuenta conectada correctamente"
+  },
+
+  "card": {
+    "rarity": "Rareza",
+    "position": "Posición",
+    "aa": "Media AA",
+    "marketValue": "Valor de mercado",
+    "season": "Temporada",
+    "performance": "Rendimiento",
+    "l5": "L5",
+    "l10": "L10",
+    "l15": "L15",
+    "l40": "L40",
+    "addTransaction": "Añadir transacción"
   }
 }
