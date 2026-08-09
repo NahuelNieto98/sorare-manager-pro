@@ -1,7 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
 import AuthProvider from "@/components/providers/SessionProvider";
 
 const geistSans = Geist({
@@ -14,24 +13,41 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+
 export const metadata: Metadata = {
   title: "Sorare Manager Pro",
   description: "Sorare Manager Pro",
 };
+
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
   return (
+
     <html
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <AuthProvider>{children}</AuthProvider>
+
+      <body className="h-full">
+
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+
       </body>
+
     </html>
+
   );
 }
