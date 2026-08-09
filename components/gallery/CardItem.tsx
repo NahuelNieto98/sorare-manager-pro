@@ -69,11 +69,26 @@ export default function CardItem({
       "
     >
       <div className="relative h-[240px] overflow-hidden">
+
+        <div
+          className="
+          absolute
+          inset-x-10
+          top-8
+          h-32
+          rounded-full
+          bg-violet-500/20
+          blur-3xl
+          "
+        />
+
         {pictureUrl ? (
           <img
             src={pictureUrl}
             alt={playerName}
             className="
+            relative
+            z-10
             h-full
             w-full
             object-contain
@@ -105,6 +120,7 @@ export default function CardItem({
           absolute
           right-3
           top-3
+          z-20
           rounded-2xl
           border
           border-white/10
@@ -119,22 +135,45 @@ export default function CardItem({
             AA15
           </p>
 
-          <p className="font-mono text-xl font-black text-white">
+          <p className="font-mono text-2xl font-black text-white">
             {averageScore !== null ? Math.round(averageScore) : "-"}
           </p>
         </div>
       </div>
 
+
       <div className="p-4">
-        <h2 className="truncate text-lg font-semibold tracking-tight text-white">
+
+        <h2
+          className="
+          truncate
+          text-lg
+          font-bold
+          tracking-tight
+          text-white
+          "
+        >
           {playerName}
         </h2>
 
-        <p className="mt-1 truncate text-sm text-white/50">
+
+        <p
+          className="
+          mt-1
+          truncate
+          text-xs
+          font-medium
+          uppercase
+          tracking-wide
+          text-white/40
+          "
+        >
           {club ?? "Sin club"}
         </p>
 
+
         <div className="mt-3 flex flex-wrap gap-2">
+
           <span
             className="
             rounded-full
@@ -149,6 +188,7 @@ export default function CardItem({
             {positionLabel(position)}
           </span>
 
+
           <span
             className="
             rounded-full
@@ -162,7 +202,9 @@ export default function CardItem({
           >
             {rarityLabel(scarcity)} · {season}
           </span>
+
         </div>
+
 
         <div
           className="
@@ -176,16 +218,28 @@ export default function CardItem({
           text-center
           "
         >
+
           {[
             ["L5", l5Score],
             ["L10", l10Score],
             ["L15", l15Score],
             ["L40", l40Score],
           ].map(([label, value]) => (
+
             <div key={label}>
-              <p className="text-[10px] font-bold text-white/40">
+
+              <p
+                className="
+                text-[9px]
+                font-bold
+                uppercase
+                tracking-widest
+                text-white/30
+                "
+              >
                 {label}
               </p>
+
 
               <p
                 className={`
@@ -198,12 +252,18 @@ export default function CardItem({
               >
                 {value ?? "-"}
               </p>
+
             </div>
+
           ))}
+
         </div>
 
+
         <div className="mt-5 flex items-center justify-between">
+
           <div>
+
             <p className="text-xs font-bold text-white/40">
               VALOR
             </p>
@@ -211,7 +271,9 @@ export default function CardItem({
             <p className="text-xl font-black text-emerald-400">
               €{marketValue?.toFixed(2) ?? "0.00"}
             </p>
+
           </div>
+
 
           <Link
             href={`/gallery/${id}`}
@@ -229,8 +291,11 @@ export default function CardItem({
           >
             Ver carta
           </Link>
+
         </div>
+
       </div>
+
     </div>
   );
 }
