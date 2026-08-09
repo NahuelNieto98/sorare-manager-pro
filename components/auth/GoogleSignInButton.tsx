@@ -16,8 +16,8 @@ export default function GoogleSignInButton() {
 
 
       await signIn("google", {
-        callbackUrl: "/es/connect",
-      });
+  callbackUrl: "/es/dashboard",
+});
 
 
     } catch (error) {
