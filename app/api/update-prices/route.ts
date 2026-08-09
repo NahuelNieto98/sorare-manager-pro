@@ -10,9 +10,11 @@ import { savePortfolioSnapshot } from "@/lib/portfolio";
 
 
 function sleep(ms:number) {
+
   return new Promise(
     resolve => setTimeout(resolve, ms)
   );
+
 }
 
 
@@ -82,11 +84,13 @@ async function getPriceSafe(
 
 
 
+
 export async function POST() {
 
 
   const session =
     await auth();
+
 
 
 
@@ -197,7 +201,11 @@ export async function POST() {
 
 
 
-  const limit = 10;
+  // Menos llamadas simultáneas para evitar 429 de Sorare
+
+  const limit = 3;
+
+
 
 
 
@@ -214,6 +222,7 @@ export async function POST() {
         i,
         i + limit
       );
+
 
 
 
@@ -302,8 +311,16 @@ export async function POST() {
 
     );
 
-  }
 
+
+
+    // Evitar rate limit Sorare
+
+    await sleep(1000);
+
+
+
+  }
 
 
 
@@ -325,6 +342,7 @@ export async function POST() {
 
 
 
+
   const updatedCards =
     await prisma.card.findMany({
 
@@ -333,6 +351,7 @@ export async function POST() {
       },
 
     });
+
 
 
 
@@ -349,17 +368,20 @@ export async function POST() {
 
 
 
+
   const totalBought =
     user.transactions
 
       .filter(
-        t => t.type === "BUY"
+        t=>t.type==="BUY"
       )
 
       .reduce(
         (sum,t)=>sum+t.price,
         0
       );
+
+
 
 
 
@@ -369,13 +391,14 @@ export async function POST() {
     user.transactions
 
       .filter(
-        t => t.type === "SELL"
+        t=>t.type==="SELL"
       )
 
       .reduce(
         (sum,t)=>sum+t.price,
         0
       );
+
 
 
 
@@ -386,6 +409,7 @@ export async function POST() {
     galleryValue +
     totalSold -
     totalBought;
+
 
 
 
