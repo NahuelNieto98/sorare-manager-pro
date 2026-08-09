@@ -1,9 +1,9 @@
 "use client";
 
 import {
+  Search,
   SlidersHorizontal,
 } from "lucide-react";
-
 import { useTranslations } from "next-intl";
 
 import SortDropdown from "@/components/ui/SortDropdown";
