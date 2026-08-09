@@ -68,7 +68,7 @@ export default function CardItem({
       hover:shadow-violet-900/40
       "
     >
-      <div className="relative h-[230px]">
+      <div className="relative h-[240px] overflow-hidden">
         {pictureUrl ? (
           <img
             src={pictureUrl}
@@ -77,9 +77,10 @@ export default function CardItem({
             h-full
             w-full
             object-contain
+            scale-[1.04]
             transition
             duration-500
-            group-hover:scale-105
+            group-hover:scale-110
             "
           />
         ) : (
@@ -114,18 +115,18 @@ export default function CardItem({
           backdrop-blur
           "
         >
-          <p className="text-[10px] font-bold tracking-widest text-white/50">
-            AA
+          <p className="text-[9px] font-bold tracking-[0.2em] text-white/40">
+            AA15
           </p>
 
-          <p className="font-mono text-2xl font-black text-white">
+          <p className="font-mono text-xl font-black text-white">
             {averageScore !== null ? Math.round(averageScore) : "-"}
           </p>
         </div>
       </div>
 
       <div className="p-4">
-        <h2 className="truncate text-xl font-black tracking-tight text-white">
+        <h2 className="truncate text-lg font-semibold tracking-tight text-white">
           {playerName}
         </h2>
 
@@ -134,16 +135,47 @@ export default function CardItem({
         </p>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          <span className="rounded-full bg-violet-500/20 px-3 py-1 text-xs font-bold text-violet-300">
+          <span
+            className="
+            rounded-full
+            bg-violet-500/20
+            px-3
+            py-1
+            text-xs
+            font-bold
+            text-violet-300
+            "
+          >
             {positionLabel(position)}
           </span>
 
-          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white/60">
+          <span
+            className="
+            rounded-full
+            bg-white/10
+            px-3
+            py-1
+            text-xs
+            font-bold
+            text-white/60
+            "
+          >
             {rarityLabel(scarcity)} · {season}
           </span>
         </div>
 
-        <div className="mt-4 grid grid-cols-4 gap-2 rounded-2xl bg-black/20 p-3 text-center">
+        <div
+          className="
+          mt-4
+          grid
+          grid-cols-4
+          gap-2
+          rounded-2xl
+          bg-black/20
+          p-3
+          text-center
+          "
+        >
           {[
             ["L5", l5Score],
             ["L10", l10Score],
@@ -156,9 +188,13 @@ export default function CardItem({
               </p>
 
               <p
-                className={`mt-1 font-mono text-base font-black ${scoreColor(
-                  value as number | null
-                )}`}
+                className={`
+                mt-1
+                font-mono
+                text-base
+                font-black
+                ${scoreColor(value as number | null)}
+                `}
               >
                 {value ?? "-"}
               </p>
