@@ -3,7 +3,7 @@ import { sorareRequest } from "../sorare";
 
 const QUERY = `
 
-query TestPlayer($scoreType: AveragePlayerScore!) {
+query TestPlayer {
 
   currentUser {
 
@@ -18,8 +18,24 @@ query TestPlayer($scoreType: AveragePlayerScore!) {
 
           displayName
 
-          averageScore(
-            type:$scoreType
+          l5: averageScore(
+            type: LAST_FIVE_SO5_AVERAGE_SCORE
+          )
+
+          l10: averageScore(
+            type: LAST_TEN_PLAYED_SO5_AVERAGE_SCORE
+          )
+
+          l15: averageScore(
+            type: LAST_FIFTEEN_SO5_AVERAGE_SCORE
+          )
+
+          l40: averageScore(
+            type: LAST_FORTY_SO5_AVERAGE_SCORE
+          )
+
+          aa15: averageScore(
+            type: LAST_FIFTEEN_AVERAGE_ALL_AROUND_SCORE
           )
 
         }
@@ -41,33 +57,32 @@ export async function testPlayerFields(
 ){
 
 
-  const data = await sorareRequest(
+const data = await sorareRequest(
 
-    QUERY,
+QUERY,
 
-    {
-      scoreType:"LAST_FIFTEEN_SO5_AVERAGE_SCORE"
-    },
+{},
 
-    accessToken
+accessToken
 
-  );
+);
 
 
-  console.log(
 
-    "PLAYER TEST:",
+console.log(
 
-    JSON.stringify(
-      data,
-      null,
-      2
-    )
+"PLAYER SCORES TEST:",
 
-  );
+JSON.stringify(
+data,
+null,
+2
+)
+
+);
 
 
-  return data;
+return data;
 
 
 }
