@@ -34,6 +34,7 @@ function scoreColor(value: number | null) {
   return "text-red-400";
 }
 
+
 export default function CardItem({
   id,
   playerName,
@@ -49,26 +50,27 @@ export default function CardItem({
   l15Score,
   l40Score,
 }: Props) {
+
   return (
     <div
       className="
-      group
       overflow-hidden
       rounded-3xl
       border
       border-white/10
-      bg-gradient-to-br
-      from-[#18122f]
-      via-[#24184b]
-      to-[#100c22]
-      transition-all
-      duration-300
-      hover:-translate-y-1
-      hover:shadow-2xl
-      hover:shadow-violet-900/40
+      bg-[#17112F]
+      transition
+      hover:border-violet-500/40
       "
     >
-      <div className="relative h-[240px] overflow-hidden">
+
+      <div
+        className="
+        relative
+        h-[210px]
+        md:h-[240px]
+        "
+      >
 
         <div
           className="
@@ -81,6 +83,7 @@ export default function CardItem({
           blur-3xl
           "
         />
+
 
         {pictureUrl ? (
           <img
@@ -99,10 +102,19 @@ export default function CardItem({
             "
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-white/40">
+          <div
+            className="
+            flex
+            h-full
+            items-center
+            justify-center
+            text-white/40
+            "
+          >
             Sin imagen
           </div>
         )}
+
 
         <div
           className="
@@ -114,6 +126,7 @@ export default function CardItem({
           to-transparent
           "
         />
+
 
         <div
           className="
@@ -131,6 +144,7 @@ export default function CardItem({
           backdrop-blur
           "
         >
+
           <p className="text-[9px] font-bold tracking-[0.2em] text-white/40">
             AA15
           </p>
@@ -138,19 +152,23 @@ export default function CardItem({
           <p className="font-mono text-2xl font-black text-white">
             {averageScore !== null ? Math.round(averageScore) : "-"}
           </p>
+
         </div>
+
       </div>
 
 
-      <div className="p-4">
+
+      <div className="p-3 md:p-4">
 
         <h2
           className="
           truncate
-          text-lg
+          text-base
           font-bold
           tracking-tight
           text-white
+          md:text-lg
           "
         >
           {playerName}
@@ -206,6 +224,7 @@ export default function CardItem({
         </div>
 
 
+
         <div
           className="
           mt-4
@@ -228,15 +247,7 @@ export default function CardItem({
 
             <div key={label}>
 
-              <p
-                className="
-                text-[9px]
-                font-bold
-                uppercase
-                tracking-widest
-                text-white/30
-                "
-              >
+              <p className="text-[9px] font-bold tracking-widest text-white/30">
                 {label}
               </p>
 
@@ -260,7 +271,8 @@ export default function CardItem({
         </div>
 
 
-        <div className="mt-5 flex items-center justify-between">
+
+        <div className="mt-4 flex items-center justify-between">
 
           <div>
 
@@ -268,11 +280,12 @@ export default function CardItem({
               VALOR
             </p>
 
-            <p className="text-xl font-black text-emerald-400">
+            <p className="text-lg font-black text-emerald-400 md:text-xl">
               €{marketValue?.toFixed(2) ?? "0.00"}
             </p>
 
           </div>
+
 
 
           <Link
@@ -280,17 +293,21 @@ export default function CardItem({
             className="
             rounded-xl
             bg-violet-600
-            px-5
-            py-2.5
-            text-sm
+            px-4
+            py-2
+            text-xs
             font-bold
             text-white
             transition
             hover:bg-violet-500
+            md:px-5
+            md:py-2.5
+            md:text-sm
             "
           >
             Ver carta
           </Link>
+
 
         </div>
 
