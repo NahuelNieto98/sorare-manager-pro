@@ -1,298 +1,294 @@
 import { prisma } from "@/lib/prisma";
 
-
 export async function importGallery(
-userId: string,
-cards: any[]
+  userId: string,
+  cards: any[]
 ) {
 
+  console.log(
+    "🔥 IMPORTANDO CARTAS:",
+    cards.length
+  );
 
-console.log(
-"🔥 IMPORTANDO CARTAS:",
-cards.length
-);
 
 
+  const sorareIds =
+    cards.map(
+      (card:any) => card.assetId
+    );
 
-const sorareIds =
-cards.map(
-(card:any) => card.assetId
-);
 
 
+  const deleted =
+    await prisma.card.deleteMany({
 
-const deleted =
-await prisma.card.deleteMany({
+      where:{
 
-where:{
+        ownerId:userId,
 
-ownerId:userId,
+        sorareId:{
+          notIn:sorareIds
+        }
 
-sorareId:{
-notIn:sorareIds
-}
+      }
 
-}
+    });
 
-});
 
 
+  console.log(
+    "🧹 CARTAS ELIMINADAS:",
+    deleted.count
+  );
 
-console.log(
-"🧹 CARTAS ELIMINADAS:",
-deleted.count
-);
 
 
 
-const limit = 50;
+  // Reducimos carga sobre Prisma para evitar
+  // timeout del connection pool en producción
 
+  const limit = 5;
 
 
-for(
-let i = 0;
-i < cards.length;
-i += limit
-){
 
+  for(
+    let i = 0;
+    i < cards.length;
+    i += limit
+  ){
 
-const batch =
-cards.slice(
-i,
-i + limit
-);
+    const batch =
+      cards.slice(
+        i,
+        i + limit
+      );
 
 
 
-console.log(
-`🔥 GUARDANDO ${i + 1}-${i + batch.length}`
-);
+    console.log(
+      `🔥 GUARDANDO ${i + 1}-${i + batch.length}`
+    );
 
 
 
-await Promise.all(
+    for(const card of batch){
 
-batch.map(
 
-async(card:any)=>{
+      await prisma.card.upsert({
 
+        where:{
 
-await prisma.card.upsert({
+          sorareId:
+            card.assetId
 
+        },
 
-where:{
-sorareId:
-card.assetId
-},
 
+        update:{
 
 
-update:{
+          slug:
+            card.slug,
 
 
-slug:
-card.slug,
+          season:
+            card.season,
 
 
-season:
-card.season,
+          scarcity:
+            card.rarity,
 
 
-scarcity:
-card.rarity,
 
+          playerName:
+            card.player?.displayName
+            ??
+            "Desconocido",
 
 
-playerName:
-card.player?.displayName
-??
-"Desconocido",
 
+          playerSlug:
+            card.player?.slug
+            ??
+            null,
 
 
-playerSlug:
-card.player?.slug
-??
-null,
 
+          club:
+            card.player?.club
+            ??
+            null,
 
 
-club:
-card.player?.club
-??
-null,
 
+          position:
+            card.player?.position
+            ??
+            null,
 
 
-position:
-card.player?.position
-??
-null,
 
+          averageScore:
+            card.player?.averageScore
+            ??
+            null,
 
 
-averageScore:
-card.player?.averageScore
-??
-null,
 
+          l5Score:
+            card.player?.l5Score
+            ??
+            null,
 
 
-l5Score:
-card.player?.l5Score
-??
-null,
 
+          l10Score:
+            card.player?.l10Score
+            ??
+            null,
 
 
-l10Score:
-card.player?.l10Score
-??
-null,
 
+          l15Score:
+            card.player?.l15Score
+            ??
+            null,
 
 
-l15Score:
-card.player?.l15Score
-??
-null,
 
+          l40Score:
+            card.player?.l40Score
+            ??
+            null,
 
 
-l40Score:
-card.player?.l40Score
-??
-null,
 
+          pictureUrl:
+            card.pictureUrl
+            ??
+            null,
 
 
-pictureUrl:
-card.pictureUrl
-??
-null,
+        },
 
 
-},
 
+        create:{
 
 
-create:{
+          sorareId:
+            card.assetId,
 
 
-sorareId:
-card.assetId,
 
+          slug:
+            card.slug,
 
-slug:
-card.slug,
 
 
-season:
-card.season,
+          season:
+            card.season,
 
 
-scarcity:
-card.rarity,
 
+          scarcity:
+            card.rarity,
 
 
-playerName:
-card.player?.displayName
-??
-"Desconocido",
 
+          playerName:
+            card.player?.displayName
+            ??
+            "Desconocido",
 
 
-playerSlug:
-card.player?.slug
-??
-null,
 
+          playerSlug:
+            card.player?.slug
+            ??
+            null,
 
 
-club:
-card.player?.club
-??
-null,
 
+          club:
+            card.player?.club
+            ??
+            null,
 
 
-position:
-card.player?.position
-??
-null,
 
+          position:
+            card.player?.position
+            ??
+            null,
 
 
-averageScore:
-card.player?.averageScore
-??
-null,
 
+          averageScore:
+            card.player?.averageScore
+            ??
+            null,
 
 
-l5Score:
-card.player?.l5Score
-??
-null,
 
+          l5Score:
+            card.player?.l5Score
+            ??
+            null,
 
 
-l10Score:
-card.player?.l10Score
-??
-null,
 
+          l10Score:
+            card.player?.l10Score
+            ??
+            null,
 
 
-l15Score:
-card.player?.l15Score
-??
-null,
 
+          l15Score:
+            card.player?.l15Score
+            ??
+            null,
 
 
-l40Score:
-card.player?.l40Score
-??
-null,
 
+          l40Score:
+            card.player?.l40Score
+            ??
+            null,
 
 
-pictureUrl:
-card.pictureUrl
-??
-null,
 
+          pictureUrl:
+            card.pictureUrl
+            ??
+            null,
 
 
-marketValue:
-null,
 
+          marketValue:
+            null,
 
 
-ownerId:userId
 
-}
+          ownerId:
+            userId
 
+        }
 
-});
 
+      });
 
-}
 
-)
+    }
 
-);
 
+  }
 
-}
 
 
-
-console.log(
-"🔥 IMPORTACIÓN TERMINADA"
-);
-
+  console.log(
+    "🔥 IMPORTACIÓN TERMINADA"
+  );
 
 }
