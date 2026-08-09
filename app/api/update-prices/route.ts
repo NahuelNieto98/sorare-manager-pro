@@ -9,15 +9,6 @@ import { calculateGalleryValue } from "@/lib/gallery";
 import { savePortfolioSnapshot } from "@/lib/portfolio";
 
 
-function sleep(ms:number) {
-
-  return new Promise(
-    resolve => setTimeout(resolve, ms)
-  );
-
-}
-
-
 
 async function getPriceSafe(
   playerSlug:string,
@@ -37,39 +28,36 @@ async function getPriceSafe(
   } catch(error:any) {
 
 
-    const message =
-      error?.message ?? "";
+    const status =
+      error?.status;
 
 
 
-    if(message.includes("429")) {
-
+    if(status === 403){
 
       console.log(
-        "⏳ Rate limit Sorare. Esperando 30 segundos..."
+        "🚫 Sorare bloqueó las consultas de precios"
       );
 
 
-      await sleep(30000);
+      throw new Error(
+        "SORARE_PRICE_BLOCKED"
+      );
+
+    }
 
 
 
-      try {
+    if(status === 429){
+
+      console.log(
+        "⏳ Sorare rate limit precios"
+      );
 
 
-        return await getLastTokenPrice(
-          playerSlug,
-          rarity,
-          season
-        );
-
-
-      } catch {
-
-
-        return null;
-
-      }
+      throw new Error(
+        "SORARE_RATE_LIMIT"
+      );
 
     }
 
@@ -84,6 +72,7 @@ async function getPriceSafe(
 
 
 
+
 export async function POST() {
 
 
@@ -93,7 +82,7 @@ export async function POST() {
 
 
 
-  if(!session?.user?.email) {
+  if(!session?.user?.email){
 
 
     return NextResponse.json(
@@ -111,11 +100,13 @@ export async function POST() {
 
 
 
+
   const user =
     await prisma.user.findUnique({
 
       where:{
-        email:session.user.email,
+        email:
+          session.user.email,
       },
 
       include:{
@@ -128,7 +119,8 @@ export async function POST() {
 
 
 
-  if(!user) {
+
+  if(!user){
 
 
     return NextResponse.json(
@@ -141,6 +133,7 @@ export async function POST() {
     );
 
   }
+
 
 
 
@@ -159,10 +152,12 @@ export async function POST() {
 
 
 
+
   console.log(
     "💰 Cartas totales:",
     cards.length
   );
+
 
 
 
@@ -174,8 +169,9 @@ export async function POST() {
 
 
 
+
   const cardsToUpdate =
-    cards.filter(card => {
+    cards.filter(card=>{
 
 
       if(!card.playerSlug){
@@ -191,8 +187,6 @@ export async function POST() {
         return true;
 
       }
-
-
 
 
 
@@ -213,12 +207,11 @@ export async function POST() {
 
 
 
-
-
       return hoursSinceUpdate > 24;
 
 
     });
+
 
 
 
@@ -233,6 +226,7 @@ export async function POST() {
 
 
 
+
   let updated = 0;
 
   let failed = 0;
@@ -241,7 +235,9 @@ export async function POST() {
 
 
 
+
   const limit = 3;
+
 
 
 
@@ -265,9 +261,12 @@ export async function POST() {
 
 
 
+
     console.log(
       `🔥 Actualizando ${i + 1}-${i + batch.length}`
     );
+
+
 
 
 
@@ -281,16 +280,53 @@ export async function POST() {
 
 
 
-          const price =
-            await getPriceSafe(
+          let price:number | null = null;
 
-              card.playerSlug!,
 
-              card.scarcity,
 
-              card.season
 
-            );
+
+          try {
+
+
+            price =
+              await getPriceSafe(
+
+                card.playerSlug!,
+
+                card.scarcity,
+
+                card.season
+
+              );
+
+
+
+          } catch(error:any){
+
+
+
+            if(
+
+              error.message === "SORARE_PRICE_BLOCKED"
+
+              ||
+
+              error.message === "SORARE_RATE_LIMIT"
+
+            ){
+
+
+
+              throw error;
+
+
+            }
+
+
+
+          }
+
 
 
 
@@ -315,11 +351,13 @@ export async function POST() {
 
 
 
+
           await prisma.card.update({
 
             where:{
               id:card.id,
             },
+
 
             data:{
 
@@ -337,7 +375,9 @@ export async function POST() {
 
 
 
+
           updated++;
+
 
 
         }
@@ -350,10 +390,9 @@ export async function POST() {
 
 
 
-    await sleep(1000);
-
 
   }
+
 
 
 
@@ -365,11 +404,11 @@ export async function POST() {
   );
 
 
+
   console.log(
     "❌ Fallos:",
     failed
   );
-
 
 
 
@@ -390,12 +429,10 @@ export async function POST() {
 
 
 
-
   const galleryValue =
     calculateGalleryValue(
       updatedCards
     );
-
 
 
 
@@ -419,7 +456,6 @@ export async function POST() {
 
 
 
-
   const totalSold =
     user.transactions
 
@@ -437,12 +473,10 @@ export async function POST() {
 
 
 
-
   const profit =
     galleryValue +
     totalSold -
     totalBought;
-
 
 
 
@@ -483,7 +517,6 @@ export async function POST() {
 
 
 
-
   return NextResponse.json({
 
     success:true,
@@ -499,7 +532,6 @@ export async function POST() {
     profit,
 
   });
-
 
 
 }
