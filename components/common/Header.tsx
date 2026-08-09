@@ -1,11 +1,13 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 import {
   Bell,
   Settings,
   UserCircle,
+  LogOut,
 } from "lucide-react";
 
 
@@ -21,189 +23,202 @@ export default function Header({
   sorareSlug,
 }: HeaderProps) {
 
+  const router = useRouter();
 
-const router = useRouter();
+  const pathname = usePathname();
 
-const pathname = usePathname();
-
-const locale =
-pathname.split("/")[1] || "es";
-
+  const locale =
+    pathname.split("/")[1] || "es";
 
 
-return (
+  async function handleLogout() {
 
-<header
-  className="
-  flex
-  items-center
-  justify-between
-  border-b
-  border-white/10
-  bg-[#09090F]/80
-  px-8
-  py-5
-  backdrop-blur-xl
-  "
->
+    await signOut({
+      callbackUrl: `/${locale}`,
+    });
+
+  }
 
 
-<div>
+  return (
 
-<p
-className="
-text-sm
-font-black
-uppercase
-tracking-widest
-text-violet-300
-"
->
-Sorare Manager Pro
-</p>
-
-
-<p
-className="
-mt-1
-text-xs
-text-zinc-400
-"
->
-Tu centro de gestión Sorare
-</p>
-
-</div>
+    <header
+      className="
+      flex
+      items-center
+      justify-between
+      border-b
+      border-white/10
+      bg-[#09090F]/80
+      px-8
+      py-5
+      backdrop-blur-xl
+      "
+    >
 
 
+      <div>
 
-<div
-className="
-flex
-items-center
-gap-4
-"
->
-
-
-<div
-className="
-hidden
-rounded-xl
-border
-border-white/10
-bg-white/5
-px-4
-py-2
-md:block
-"
->
-
-<p
-className="
-text-xs
-text-zinc-400
-"
->
-Cuenta conectada
-</p>
+        <p
+          className="
+          text-sm
+          font-black
+          uppercase
+          tracking-widest
+          text-violet-300
+          "
+        >
+          Sorare Manager Pro
+        </p>
 
 
-<p
-className="
-font-bold
-text-white
-"
->
-{sorareSlug ?? "Usuario"}
-</p>
+        <p
+          className="
+          mt-1
+          text-xs
+          text-zinc-400
+          "
+        >
+          Tu centro de gestión Sorare
+        </p>
 
-
-</div>
+      </div>
 
 
 
-
-<button
-
-className="
-rounded-xl
-border
-border-white/10
-bg-white/5
-p-3
-text-zinc-300
-transition
-hover:bg-white/10
-hover:text-white
-"
-
->
-
-<Bell size={20}/>
-
-</button>
+      <div
+        className="
+        flex
+        items-center
+        gap-3
+        "
+      >
 
 
+        <div
+          className="
+          hidden
+          rounded-xl
+          border
+          border-white/10
+          bg-white/5
+          px-4
+          py-2
+          md:block
+          "
+        >
+
+          <p className="text-xs text-zinc-400">
+            Cuenta conectada
+          </p>
 
 
+          <p className="font-bold text-white">
+            {sorareSlug ?? "Usuario"}
+          </p>
 
-<button
-
-onClick={() => router.push(`/${locale}/settings`)}
-
-className="
-rounded-xl
-border
-border-white/10
-bg-white/5
-p-3
-text-zinc-300
-transition
-hover:bg-white/10
-hover:text-white
-"
-
->
-
-<Settings size={20}/>
-
-</button>
+        </div>
 
 
 
+        <button
+          className="
+          rounded-xl
+          border
+          border-white/10
+          bg-white/5
+          p-3
+          text-zinc-300
+          transition
+          hover:bg-white/10
+          hover:text-white
+          "
+        >
+
+          <Bell size={20}/>
+
+        </button>
 
 
-<div
 
-className="
-flex
-items-center
-gap-2
-rounded-xl
-border
-border-violet-500/20
-bg-violet-500/10
-px-3
-py-2
-"
+        <button
+          onClick={() =>
+            router.push(`/${locale}/settings`)
+          }
+          className="
+          rounded-xl
+          border
+          border-white/10
+          bg-white/5
+          p-3
+          text-zinc-300
+          transition
+          hover:bg-white/10
+          hover:text-white
+          "
+        >
 
->
+          <Settings size={20}/>
 
-<UserCircle
-size={24}
-className="text-violet-300"
-/>
-
-
-</div>
+        </button>
 
 
-</div>
+
+        <button
+          onClick={handleLogout}
+          className="
+          flex
+          items-center
+          gap-2
+          rounded-xl
+          border
+          border-red-500/20
+          bg-red-500/10
+          px-3
+          py-2
+          text-red-300
+          transition
+          hover:bg-red-500/20
+          "
+        >
+
+          <LogOut size={20}/>
+
+          <span className="hidden md:block">
+            Salir
+          </span>
+
+        </button>
 
 
-</header>
 
-);
+        <div
+          className="
+          flex
+          items-center
+          gap-2
+          rounded-xl
+          border
+          border-violet-500/20
+          bg-violet-500/10
+          px-3
+          py-2
+          "
+        >
+
+          <UserCircle
+            size={24}
+            className="text-violet-300"
+          />
+
+        </div>
+
+
+      </div>
+
+
+    </header>
+
+  );
 
 }
