@@ -133,7 +133,7 @@ AA15
 </p>
 
 <p className="text-2xl font-black text-white">
-{averageScore ?? "-"}
+{averageScore !== null ? Math.round(averageScore) : "-"}
 </p>
 
 </div>
