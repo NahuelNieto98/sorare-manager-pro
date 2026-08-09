@@ -519,10 +519,10 @@ loading ? (
 
 className="
 grid
-gap-6
-md:grid-cols-2
-xl:grid-cols-3
-2xl:grid-cols-4
+gap-5
+md:grid-cols-3
+lg:grid-cols-4
+2xl:grid-cols-5
 "
 
 >
