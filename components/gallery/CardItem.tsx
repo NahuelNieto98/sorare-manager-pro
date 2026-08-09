@@ -3,130 +3,127 @@ import Link from "next/link";
 
 type Props = {
 
-  id:string;
+id:string;
 
-  playerName:string;
+playerName:string;
 
-  club:string|null;
+club:string|null;
 
-  position:string|null;
+position:string|null;
 
-  pictureUrl:string|null;
+pictureUrl:string|null;
 
-  scarcity:string;
+scarcity:string;
 
-  marketValue:number|null;
+marketValue:number|null;
 
-  season:number;
+season:number;
 
-  averageScore:number|null;
+averageScore:number|null;
 
-  l5Score:number|null;
+l5Score:number|null;
 
-  l10Score:number|null;
+l10Score:number|null;
 
-  l15Score:number|null;
+l15Score:number|null;
 
-  l40Score:number|null;
+l40Score:number|null;
 
 };
 
 
 
 function rarityStyle(
-  scarcity:string
+scarcity:string
 ){
 
-  switch(
-    scarcity.toLowerCase()
-  ){
+switch(
+scarcity.toLowerCase()
+){
 
-    case "limited":
-      return {
-        badge:"bg-yellow-400 text-black",
-        border:"hover:border-yellow-400/50",
-      };
-
-
-    case "rare":
-      return {
-        badge:"bg-red-500 text-white",
-        border:"hover:border-red-400/50",
-      };
+case "limited":
+return {
+badge:"bg-yellow-400 text-black",
+border:"hover:border-yellow-400/50",
+};
 
 
-    case "super_rare":
-      return {
-        badge:"bg-blue-500 text-white",
-        border:"hover:border-blue-400/50",
-      };
+case "rare":
+return {
+badge:"bg-red-500 text-white",
+border:"hover:border-red-400/50",
+};
 
 
-    case "unique":
-      return {
-        badge:"bg-black text-yellow-300 border border-yellow-400",
-        border:"hover:border-yellow-400/60",
-      };
+case "super_rare":
+return {
+badge:"bg-blue-500 text-white",
+border:"hover:border-blue-400/50",
+};
 
 
-    default:
-      return {
-        badge:"bg-purple-600 text-white",
-        border:"hover:border-purple-400/50",
-      };
+case "unique":
+return {
+badge:"bg-black text-yellow-300 border border-yellow-400",
+border:"hover:border-yellow-400/60",
+};
 
-  }
+
+default:
+return {
+badge:"bg-purple-600 text-white",
+border:"hover:border-purple-400/50",
+};
 
 }
 
+}
 
 
 
 function positionLabel(
-  position:string|null
+position:string|null
 ){
 
-  if(!position)
-    return "—";
+if(!position)
+return "—";
 
 
-  return position
-    .replace("_"," ")
-    .toUpperCase();
+return position
+.replace("_"," ")
+.toUpperCase();
 
 }
-
-
 
 
 
 export default function CardItem({
 
-  id,
+id,
 
-  playerName,
+playerName,
 
-  club,
+club,
 
-  position,
+position,
 
-  pictureUrl,
+pictureUrl,
 
-  scarcity,
+scarcity,
 
-  marketValue,
+marketValue,
 
-  season,
+season,
 
-  averageScore,
+averageScore,
 
-  l5Score,
+l5Score,
 
-  l10Score,
+l10Score,
 
-  l15Score,
+l15Score,
 
-  l40Score,
+l40Score,
 
 }:Props){
 
@@ -139,7 +136,6 @@ rarityStyle(scarcity);
 
 const isInSeason =
 season === 2026;
-
 
 
 
@@ -170,8 +166,7 @@ ${style.border}
 >
 
 
-
-<div className="relative h-[360px] overflow-hidden">
+<div className="relative">
 
 
 {
@@ -200,16 +195,13 @@ group-hover:scale-105
 
 (
 
-<div className="flex h-full items-center justify-center text-zinc-500">
-
+<div className="p-10 text-center">
 Sin imagen
-
 </div>
 
 )
 
 }
-
 
 
 
@@ -225,8 +217,6 @@ to-transparent
 "
 
 />
-
-
 
 
 
@@ -252,8 +242,6 @@ ${style.badge}
 {scarcity.replace("_"," ")}
 
 </span>
-
-
 
 
 
@@ -304,9 +292,6 @@ isInSeason
 
 
 
-
-
-
 <div
 
 className="
@@ -318,56 +303,38 @@ bg-black/40
 px-4
 py-3
 backdrop-blur
+text-center
 "
 
 >
 
-<p className="text-xs text-zinc-400">
-
-AA
-
-</p>
+<div className="text-[10px] uppercase text-white/60">
+AA15
+</div>
 
 
-<p className="text-2xl font-black text-white">
-
+<div className="text-2xl font-black text-white">
 {averageScore ?? "-"}
+</div>
 
-</p>
+
+</div>
 
 
 </div>
 
 
 
-</div>
+<div className="p-5">
 
 
-
-
-
-
-
-<div className="p-6">
-
-
-
-<h2 className="truncate text-2xl font-black text-white">
-
+<h2 className="text-xl font-bold">
 {playerName}
-
 </h2>
 
 
-
-
-<div className="mt-2 flex items-center gap-2">
-
-
-<p className="text-zinc-400">
-
+<p className="mt-1 text-sm text-white/60">
 {club ?? "Sin club"}
-
 </p>
 
 
@@ -375,6 +342,8 @@ AA
 <span
 
 className="
+mt-3
+inline-block
 rounded-full
 bg-violet-500/20
 px-3
@@ -392,14 +361,6 @@ text-violet-300
 
 
 
-</div>
-
-
-
-
-
-
-
 <div
 
 className="
@@ -414,65 +375,24 @@ p-3
 
 >
 
-
-
-<div className="text-center">
-
-<p className="text-[10px] text-zinc-500">
-L5
-</p>
-
-<p className="font-bold text-white">
-{l5Score ?? "-"}
-</p>
-
+<div>
+<p className="text-xs text-white/40">L5</p>
+<p>{l5Score ?? "-"}</p>
 </div>
 
-
-
-
-<div className="text-center">
-
-<p className="text-[10px] text-zinc-500">
-L10
-</p>
-
-<p className="font-bold text-white">
-{l10Score ?? "-"}
-</p>
-
+<div>
+<p className="text-xs text-white/40">L10</p>
+<p>{l10Score ?? "-"}</p>
 </div>
 
-
-
-
-
-<div className="text-center">
-
-<p className="text-[10px] text-zinc-500">
-L15
-</p>
-
-<p className="font-bold text-white">
-{l15Score ?? "-"}
-</p>
-
+<div>
+<p className="text-xs text-white/40">L15</p>
+<p>{l15Score ?? "-"}</p>
 </div>
 
-
-
-
-
-<div className="text-center">
-
-<p className="text-[10px] text-zinc-500">
-L40
-</p>
-
-<p className="font-bold text-white">
-{l40Score ?? "-"}
-</p>
-
+<div>
+<p className="text-xs text-white/40">L40</p>
+<p>{l40Score ?? "-"}</p>
 </div>
 
 
@@ -480,34 +400,21 @@ L40
 
 
 
-
-
-
-
-<div className="mt-6 flex items-end justify-between">
-
+<div className="mt-5 flex items-center justify-between">
 
 
 <div>
 
-<p className="text-xs uppercase text-zinc-500">
-
-Valor
-
+<p className="text-xs text-white/50">
+VALOR
 </p>
 
 
-<p className="text-3xl font-black text-green-400">
-
+<p className="text-2xl font-black text-green-400">
 €{marketValue?.toFixed(2) ?? "0.00"}
-
 </p>
-
 
 </div>
-
-
-
 
 
 
@@ -534,14 +441,10 @@ Ver carta
 </Link>
 
 
-
 </div>
 
 
-
-
 </div>
-
 
 
 </div>
