@@ -4,7 +4,6 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 
 import { prisma } from "@/lib/prisma";
 
-
 export const {
   handlers,
   auth,
@@ -12,15 +11,14 @@ export const {
   signOut,
 } = NextAuth({
 
-  debug:true,
+  debug: true,
 
-  trustHost:true,
-
+  trustHost: true,
 
   adapter: PrismaAdapter(prisma),
 
 
-  providers:[
+  providers: [
 
     Google({
 
@@ -35,37 +33,21 @@ export const {
   ],
 
 
+  session: {
 
-  session:{
-
-    strategy:"database",
+    strategy: "database",
 
   },
 
 
   callbacks: {
 
-    async redirect({ url, baseUrl }) {
-
-      if (url.includes("/api/auth")) {
-
-        return `${baseUrl}/es/connect`;
-
-      }
-
-
-      if (url.startsWith(baseUrl)) {
-
-        return url;
-
-      }
-
+    async redirect({ baseUrl }) {
 
       return `${baseUrl}/es/connect`;
 
     },
 
   },
-
 
 });
