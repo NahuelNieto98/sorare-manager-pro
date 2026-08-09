@@ -67,7 +67,7 @@ export default function CardItem({
       <div
         className="
         relative
-        h-[210px]
+        h-[190px]
         md:h-[240px]
         "
       >
@@ -95,7 +95,7 @@ export default function CardItem({
             h-full
             w-full
             object-contain
-            scale-[1.04]
+            scale-[1.12]
             transition
             duration-500
             group-hover:scale-110
