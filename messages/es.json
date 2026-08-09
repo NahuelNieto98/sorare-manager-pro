@@ -120,11 +120,19 @@
   },
 
   "sort": {
-    "label": "Ordenar",
-    "value": "Valor",
-    "score": "AA",
-    "name": "Nombre"
-  },
+  "label": "Ordenar",
+  "value": "Valor",
+  "score": "AA",
+  "highest": "Mayor precio",
+  "lowest": "Menor precio",
+  "bestAA": "Mejor AA",
+  "worstAA": "Peor AA",
+  "bestL10": "Mejor L10",
+  "bestL40": "Mejor L40",
+  "nameAZ": "Nombre A-Z",
+  "recent": "Más recientes",
+  "name": "Nombre"
+},
 
   "systemStatus": {
     "title": "Estado del sistema",
