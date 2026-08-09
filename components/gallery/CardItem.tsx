@@ -75,8 +75,7 @@ hover:shadow-violet-900/40
 "
 >
 
-<div className="relative h-[240px]">
-
+<div className="relative h-[270px]">
 {
 pictureUrl ?
 
@@ -142,8 +141,7 @@ AA15
 </div>
 
 
-<div className="p-4">
-
+<div className="p-3">
 <h2
 className="
 text-lg
