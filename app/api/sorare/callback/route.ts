@@ -307,10 +307,10 @@ export async function GET(
 
 
   return NextResponse.redirect(
-    new URL(
-      "/dashboard",
-      request.url
-    )
-  );
+  new URL(
+    "/es/dashboard",
+    request.url
+  )
+);
 
 }
