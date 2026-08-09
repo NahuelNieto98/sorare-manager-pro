@@ -132,7 +132,8 @@ backdrop-blur
 AA15
 </p>
 
-<p className="text-3xl font-black text-white font-mono">{averageScore ?? "-"}
+<p className="text-2xl font-black text-white">
+{averageScore !== null ? Math.round(averageScore) : "-"}
 </p>
 
 </div>
@@ -143,12 +144,10 @@ AA15
 <div className="p-3">
 <h2
 className="
-text-xl
-font-serif
+text-lg
 font-bold
 text-white
 truncate
-tracking-wide
 "
 >
 {playerName}
@@ -199,18 +198,16 @@ className="
 mt-4
 grid
 grid-cols-4
-gap-1
+gap-2
 rounded-xl
-border
-border-white/10
-bg-black/30
-p-3
+bg-black/20
+p-2
 "
 >
 
 <div className="text-center">
 <p className="text-[10px] text-white/40">L5</p>
-<p className={`${scoreColor(l5Score)} font-mono font-bold text-lg`}>
+<p className={scoreColor(l5Score)}>
 {l5Score ?? "-"}
 </p>
 </div>
