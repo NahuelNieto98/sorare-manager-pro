@@ -1,97 +1,59 @@
 import Link from "next/link";
 
-
 type Props = {
-
-id:string;
-
-playerName:string;
-
-club:string|null;
-
-position:string|null;
-
-pictureUrl:string|null;
-
-scarcity:string;
-
-marketValue:number|null;
-
-season:number;
-
-averageScore:number|null;
-
-l5Score:number|null;
-
-l10Score:number|null;
-
-l15Score:number|null;
-
-l40Score:number|null;
-
+  id:string;
+  playerName:string;
+  club:string|null;
+  position:string|null;
+  pictureUrl:string|null;
+  scarcity:string;
+  marketValue:number|null;
+  season:number;
+  averageScore:number|null;
+  l5Score:number|null;
+  l10Score:number|null;
+  l15Score:number|null;
+  l40Score:number|null;
 };
 
 
-
-function rarityStyle(
-scarcity:string
+function rarityLabel(
+  scarcity:string
 ){
-
-switch(
-scarcity.toLowerCase()
-){
-
-case "limited":
-return {
-badge:"bg-yellow-400 text-black",
-border:"hover:border-yellow-400/50",
-};
-
-
-case "rare":
-return {
-badge:"bg-red-500 text-white",
-border:"hover:border-red-400/50",
-};
-
-
-case "super_rare":
-return {
-badge:"bg-blue-500 text-white",
-border:"hover:border-blue-400/50",
-};
-
-
-case "unique":
-return {
-badge:"bg-black text-yellow-300 border border-yellow-400",
-border:"hover:border-yellow-400/60",
-};
-
-
-default:
-return {
-badge:"bg-purple-600 text-white",
-border:"hover:border-purple-400/50",
-};
-
+  return scarcity
+    .replace("_"," ")
+    .toUpperCase();
 }
-
-}
-
 
 
 function positionLabel(
-position:string|null
+  position:string|null
 ){
 
-if(!position)
-return "—";
+  if(!position)
+    return "—";
+
+  return position
+    .replace("_"," ")
+    .toUpperCase();
+
+}
 
 
-return position
-.replace("_"," ")
-.toUpperCase();
+function scoreColor(
+  value:number|null
+){
+
+  if(value === null)
+    return "text-white";
+
+  if(value >= 60)
+    return "text-green-400";
+
+  if(value >= 40)
+    return "text-yellow-400";
+
+  return "text-red-400";
 
 }
 
@@ -100,51 +62,27 @@ return position
 export default function CardItem({
 
 id,
-
 playerName,
-
 club,
-
 position,
-
 pictureUrl,
-
 scarcity,
-
 marketValue,
-
 season,
-
 averageScore,
-
 l5Score,
-
 l10Score,
-
 l15Score,
-
 l40Score,
 
 }:Props){
-
-
-
-const style =
-rarityStyle(scarcity);
-
-
-
-const isInSeason =
-season === 2026;
-
 
 
 return (
 
 <div
 
-className={`
-
+className="
 group
 overflow-hidden
 rounded-3xl
@@ -159,9 +97,7 @@ duration-300
 hover:-translate-y-2
 hover:shadow-2xl
 hover:shadow-violet-900/40
-${style.border}
-
-`}
+"
 
 >
 
@@ -170,7 +106,9 @@ ${style.border}
 
 
 {
-pictureUrl ? (
+pictureUrl ?
+
+(
 
 <img
 
@@ -220,78 +158,6 @@ to-transparent
 
 
 
-<span
-
-className={`
-
-absolute
-left-4
-top-4
-rounded-full
-px-4
-py-1.5
-text-xs
-font-black
-uppercase
-${style.badge}
-
-`}
-
->
-
-{scarcity.replace("_"," ")}
-
-</span>
-
-
-
-<span
-
-className={`
-
-absolute
-left-4
-top-14
-rounded-full
-px-4
-py-1.5
-text-xs
-font-black
-
-${
-isInSeason
-
-?
-
-"bg-green-500 text-black"
-
-:
-
-"bg-yellow-300 text-black"
-
-}
-
-`}
-
->
-
-{
-isInSeason
-
-?
-
-"🟢 IN SEASON 26/27"
-
-:
-
-"🟡 CLASSIC"
-
-}
-
-</span>
-
-
-
 <div
 
 className="
@@ -299,23 +165,37 @@ absolute
 right-4
 top-4
 rounded-2xl
-bg-black/40
-px-4
-py-3
-backdrop-blur
+border
+border-white/10
+bg-black/60
+px-5
+py-4
 text-center
+backdrop-blur
 "
 
 >
 
-<div className="text-[10px] uppercase text-white/60">
+<p className="
+text-xs
+font-bold
+text-white/70
+">
+
 AA15
-</div>
+
+</p>
 
 
-<div className="text-2xl font-black text-white">
+<p className="
+text-3xl
+font-black
+text-white
+">
+
 {averageScore ?? "-"}
-</div>
+
+</p>
 
 
 </div>
@@ -328,22 +208,39 @@ AA15
 <div className="p-5">
 
 
-<h2 className="text-xl font-bold">
+<h2 className="
+text-xl
+font-bold
+text-white
+">
+
 {playerName}
+
 </h2>
 
 
-<p className="mt-1 text-sm text-white/60">
+
+<p className="
+mt-1
+text-sm
+text-white/60
+">
+
 {club ?? "Sin club"}
+
 </p>
 
 
 
+<div className="
+mt-3
+flex
+gap-2
+">
+
 <span
 
 className="
-mt-3
-inline-block
 rounded-full
 bg-violet-500/20
 px-3
@@ -361,6 +258,29 @@ text-violet-300
 
 
 
+<span
+
+className="
+rounded-full
+bg-white/10
+px-3
+py-1
+text-xs
+font-bold
+text-white/60
+"
+
+>
+
+{rarityLabel(scarcity)} · {season}
+
+</span>
+
+
+</div>
+
+
+
 <div
 
 className="
@@ -375,24 +295,36 @@ p-3
 
 >
 
+
 <div>
 <p className="text-xs text-white/40">L5</p>
-<p>{l5Score ?? "-"}</p>
+<p className={scoreColor(l5Score)}>
+{l5Score ?? "-"}
+</p>
 </div>
+
 
 <div>
 <p className="text-xs text-white/40">L10</p>
-<p>{l10Score ?? "-"}</p>
+<p className={scoreColor(l10Score)}>
+{l10Score ?? "-"}
+</p>
 </div>
+
 
 <div>
 <p className="text-xs text-white/40">L15</p>
-<p>{l15Score ?? "-"}</p>
+<p className={scoreColor(l15Score)}>
+{l15Score ?? "-"}
+</p>
 </div>
+
 
 <div>
 <p className="text-xs text-white/40">L40</p>
-<p>{l40Score ?? "-"}</p>
+<p className={scoreColor(l40Score)}>
+{l40Score ?? "-"}
+</p>
 </div>
 
 
@@ -400,19 +332,40 @@ p-3
 
 
 
-<div className="mt-5 flex items-center justify-between">
+<div
+
+className="
+mt-5
+flex
+items-center
+justify-between
+"
+
+>
 
 
 <div>
 
-<p className="text-xs text-white/50">
+<p className="
+text-xs
+text-white/50
+">
+
 VALOR
+
 </p>
 
 
-<p className="text-2xl font-black text-green-400">
+<p className="
+text-2xl
+font-black
+text-green-400
+">
+
 €{marketValue?.toFixed(2) ?? "0.00"}
+
 </p>
+
 
 </div>
 
@@ -448,6 +401,7 @@ Ver carta
 
 
 </div>
+
 
 );
 
