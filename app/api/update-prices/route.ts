@@ -84,7 +84,6 @@ async function getPriceSafe(
 
 
 
-
 export async function POST() {
 
 
@@ -98,15 +97,12 @@ export async function POST() {
 
 
     return NextResponse.json(
-
       {
         error:"No autorizado",
       },
-
       {
         status:401,
       }
-
     );
 
   }
@@ -136,15 +132,12 @@ export async function POST() {
 
 
     return NextResponse.json(
-
       {
         error:"Usuario no encontrado",
       },
-
       {
         status:404,
       }
-
     );
 
   }
@@ -175,10 +168,57 @@ export async function POST() {
 
 
 
+  const now =
+    new Date();
+
+
+
+
   const cardsToUpdate =
-    cards.filter(
-      card => card.playerSlug !== null
-    );
+    cards.filter(card => {
+
+
+      if(!card.playerSlug){
+
+        return false;
+
+      }
+
+
+
+      if(!card.priceUpdatedAt){
+
+        return true;
+
+      }
+
+
+
+
+
+      const hoursSinceUpdate =
+
+        (
+          now.getTime()
+          -
+          card.priceUpdatedAt.getTime()
+
+        )
+        /
+        (
+          1000 *
+          60 *
+          60
+        );
+
+
+
+
+
+      return hoursSinceUpdate > 24;
+
+
+    });
 
 
 
@@ -200,8 +240,6 @@ export async function POST() {
 
 
 
-
-  // Menos llamadas simultáneas para evitar 429 de Sorare
 
   const limit = 3;
 
@@ -302,9 +340,6 @@ export async function POST() {
           updated++;
 
 
-
-
-
         }
 
       )
@@ -314,10 +349,8 @@ export async function POST() {
 
 
 
-    // Evitar rate limit Sorare
 
     await sleep(1000);
-
 
 
   }
