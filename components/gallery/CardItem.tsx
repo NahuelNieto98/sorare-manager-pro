@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useLocale } from "next-intl";
 
 type Props = {
   id: string;
@@ -34,7 +37,6 @@ function scoreColor(value: number | null) {
   return "text-red-400";
 }
 
-
 export default function CardItem({
   id,
   playerName,
@@ -51,7 +53,11 @@ export default function CardItem({
   l40Score,
 }: Props) {
 
+  const locale = useLocale();
+
+
   return (
+
     <div
       className="
       overflow-hidden
@@ -59,16 +65,14 @@ export default function CardItem({
       border
       border-white/10
       bg-[#17112F]
-      transition
-      hover:border-violet-500/40
       "
     >
 
       <div
         className="
         relative
-        h-[190px]
-        md:h-[240px]
+        h-64
+        overflow-hidden
         "
       >
 
@@ -84,7 +88,6 @@ export default function CardItem({
           "
         />
 
-
         {pictureUrl ? (
           <img
             src={pictureUrl}
@@ -95,22 +98,14 @@ export default function CardItem({
             h-full
             w-full
             object-contain
-            scale-[1.12]
+            scale-[1.04]
             transition
             duration-500
             group-hover:scale-110
             "
           />
         ) : (
-          <div
-            className="
-            flex
-            h-full
-            items-center
-            justify-center
-            text-white/40
-            "
-          >
+          <div className="flex h-full items-center justify-center text-white/40">
             Sin imagen
           </div>
         )}
@@ -159,16 +154,15 @@ export default function CardItem({
 
 
 
-      <div className="p-3 md:p-4">
+      <div className="p-4">
 
         <h2
           className="
           truncate
-          text-base
+          text-lg
           font-bold
           tracking-tight
           text-white
-          md:text-lg
           "
         >
           {playerName}
@@ -224,7 +218,6 @@ export default function CardItem({
         </div>
 
 
-
         <div
           className="
           mt-4
@@ -247,7 +240,7 @@ export default function CardItem({
 
             <div key={label}>
 
-              <p className="text-[9px] font-bold tracking-widest text-white/30">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-white/30">
                 {label}
               </p>
 
@@ -271,8 +264,7 @@ export default function CardItem({
         </div>
 
 
-
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-5 flex items-center justify-between">
 
           <div>
 
@@ -280,16 +272,15 @@ export default function CardItem({
               VALOR
             </p>
 
-            <p className="text-lg font-black text-emerald-400 md:text-xl">
+            <p className="text-xl font-black text-emerald-400">
               €{marketValue?.toFixed(2) ?? "0.00"}
             </p>
 
           </div>
 
 
-
           <Link
-            href={`/gallery/${id}`}
+            href={`/${locale}/gallery/${id}`}
             className="
             rounded-xl
             bg-violet-600
@@ -308,11 +299,12 @@ export default function CardItem({
             Ver carta
           </Link>
 
-
         </div>
 
       </div>
 
     </div>
+
   );
+
 }
