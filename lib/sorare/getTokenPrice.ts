@@ -1,6 +1,8 @@
 import { sorareRequest } from "../sorare";
 
+
 const GET_TOKEN_PRICES = `
+
 query GetTokenPrices(
   $playerSlug: String!,
   $rarity: Rarity!,
@@ -27,9 +29,8 @@ query GetTokenPrices(
   }
 
 }
+
 `;
-
-
 
 
 
@@ -58,12 +59,15 @@ export async function getLastTokenPrice(
 
     const data =
       await sorareRequest(
+
         GET_TOKEN_PRICES,
+
         {
           playerSlug,
           rarity,
           season,
         }
+
       );
 
 
@@ -79,6 +83,7 @@ export async function getLastTokenPrice(
         2
       )
     );
+
 
 
 
@@ -103,9 +108,10 @@ export async function getLastTokenPrice(
 
 
 
-
     const prices =
       data.data?.tokens?.tokenPrices;
+
+
 
 
 
@@ -135,8 +141,6 @@ export async function getLastTokenPrice(
 
 
 
-
-
     const latestPrice =
       prices
         .filter(
@@ -151,6 +155,7 @@ export async function getLastTokenPrice(
             new Date(a.date).getTime()
 
         )[0];
+
 
 
 
@@ -172,12 +177,13 @@ export async function getLastTokenPrice(
 
     const value =
       Number(
+
         (
           latestPrice.amounts.eurCents / 100
         )
         .toFixed(2)
-      );
 
+      );
 
 
 
@@ -196,13 +202,16 @@ export async function getLastTokenPrice(
 
 
 
+
+
     return value;
 
 
 
 
 
-  } catch(error){
+  } catch(error:any){
+
 
 
     console.error(
@@ -211,7 +220,13 @@ export async function getLastTokenPrice(
     );
 
 
-    return null;
+
+    // IMPORTANTE:
+    // No devolvemos null aquí.
+    // Dejamos subir 403/429 para que update-prices
+    // pueda parar el proceso correctamente.
+
+    throw error;
 
 
   }
