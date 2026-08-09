@@ -17,7 +17,6 @@ import {
   Newspaper,
 } from "lucide-react";
 
-
 const links = [
   {
     key: "dashboard",
@@ -57,7 +56,6 @@ const links = [
   },
 ];
 
-
 const productLinks = [
   {
     key: "roadmap",
@@ -73,42 +71,26 @@ const productLinks = [
   },
 ];
 
-
 export default function Sidebar({
   sorareSlug,
 }: {
   sorareSlug: string | null;
 }) {
-
-
   const pathname = usePathname();
 
+  const locale = pathname.split("/")[1] || "es";
 
-  const locale =
-    pathname.split("/")[1] || "es";
-
-
-
-  const renderLink = (item:any) => {
-
+  const renderLink = (item: any) => {
     const Icon = item.icon;
-
 
     const active =
       pathname === `/${locale}${item.href}`;
 
-
-
     return (
-
       <Link
-
         key={item.href}
-
         href={`/${locale}${item.href}`}
-
         className={`
-
         group
         flex
         items-center
@@ -120,54 +102,34 @@ export default function Sidebar({
 
         ${
           active
-          ?
-          "bg-violet-600 text-white shadow-lg shadow-violet-900/30"
-          :
-          "text-zinc-400 hover:bg-white/5 hover:text-white"
+            ? "bg-violet-600 text-white shadow-lg shadow-violet-900/30"
+            : "text-zinc-400 hover:bg-white/5 hover:text-white"
         }
-
         `}
-
       >
-
         <Icon
-
           size={21}
-
           className={`
-
           ${
             active
-            ?
-            "text-white"
-            :
-            "text-zinc-500 group-hover:text-violet-300"
+              ? "text-white"
+              : "text-zinc-500 group-hover:text-violet-300"
           }
-
           `}
-
         />
-
 
         <span>
           {item.label}
         </span>
-
-
       </Link>
-
     );
-
   };
 
-
-
   return (
-
     <aside
-
       className="
-      flex
+      hidden
+      md:flex
       w-72
       flex-col
       border-r
@@ -175,10 +137,7 @@ export default function Sidebar({
       bg-[#0F0B1F]
       p-6
       "
-
     >
-
-
       <h2
         className="
         mb-8
@@ -190,14 +149,9 @@ export default function Sidebar({
         Menú
       </h2>
 
-
-
       <nav className="space-y-2">
 
-
         {links.map(renderLink)}
-
-
 
         <div
           className="
@@ -206,8 +160,6 @@ export default function Sidebar({
           border-white/10
           "
         />
-
-
 
         <p
           className="
@@ -223,30 +175,18 @@ export default function Sidebar({
           Producto
         </p>
 
-
-
         {productLinks.map(renderLink)}
-
-
 
       </nav>
 
-
-
-
-
       <div
-
         className="
         mt-auto
         space-y-4
         "
-
       >
 
-
         <div
-
           className="
           rounded-2xl
           border
@@ -254,18 +194,14 @@ export default function Sidebar({
           bg-white/5
           p-4
           "
-
         >
 
-
           <div
-
             className="
             flex
             items-center
             gap-3
             "
-
           >
 
             <Activity
@@ -273,51 +209,33 @@ export default function Sidebar({
               className="text-green-400"
             />
 
-
             <span className="font-bold text-white">
               Sistema activo
             </span>
 
-
           </div>
-
-
 
           <p className="mt-3 text-sm text-zinc-400">
             🟢 API conectada
           </p>
 
 
+          {sorareSlug && (
+            <p className="mt-2 text-sm text-zinc-400">
+              Cuenta:
 
-          {
-            sorareSlug && (
+              <span className="ml-1 text-white">
+                {sorareSlug}
+              </span>
 
-              <p className="mt-2 text-sm text-zinc-400">
-
-                Cuenta:
-
-                <span className="ml-1 text-white">
-
-                  {sorareSlug}
-
-                </span>
-
-              </p>
-
-            )
-          }
-
+            </p>
+          )}
 
         </div>
 
 
-
-
-
         <Link
-
           href={`/${locale}/settings`}
-
           className="
           flex
           items-center
@@ -330,25 +248,16 @@ export default function Sidebar({
           hover:bg-white/5
           hover:text-white
           "
-
         >
 
-          <Settings
-            size={22}
-          />
-
+          <Settings size={22} />
 
           Configuración
-
 
         </Link>
 
 
-
-
-
         <div
-
           className="
           rounded-2xl
           border
@@ -356,37 +265,25 @@ export default function Sidebar({
           bg-purple-500/10
           p-4
           "
-
         >
 
           <ShieldCheck
-
             className="text-green-400"
-
             size={22}
-
           />
-
 
           <p className="mt-3 font-bold text-white">
             Prueba Pro
           </p>
 
-
           <p className="mt-1 text-sm text-zinc-400">
             14 días restantes
           </p>
 
-
         </div>
-
 
       </div>
 
-
-
     </aside>
-
   );
-
 }

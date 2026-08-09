@@ -17,7 +17,6 @@ export default async function ProtectedLayout({
     redirect("/api/auth/signin");
   }
 
-
   const user = await prisma.user.findUnique({
     where: {
       email: session.user?.email ?? "",
@@ -28,14 +27,11 @@ export default async function ProtectedLayout({
     },
   });
 
-
   const sorareSlug =
     user?.sorareAccount?.slug ?? null;
 
-
   const totalCards =
     user?.cards.length ?? 0;
-
 
   const galleryValue =
     user?.cards.reduce(
@@ -50,8 +46,10 @@ export default async function ProtectedLayout({
       className="
       flex
       min-h-screen
+      flex-col
       bg-[#0F0B1F]
       text-white
+      md:flex-row
       "
     >
 
@@ -64,11 +62,11 @@ export default async function ProtectedLayout({
         className="
         flex
         min-h-screen
+        w-full
         flex-1
         flex-col
         "
       >
-
 
         <div
           className="
@@ -93,13 +91,15 @@ export default async function ProtectedLayout({
           flex-1
           overflow-y-auto
           bg-[#0F0B1F]
-          p-8
+          p-4
+          md:p-8
           "
         >
 
           <div
             className="
             mx-auto
+            w-full
             max-w-[1600px]
             "
           >
