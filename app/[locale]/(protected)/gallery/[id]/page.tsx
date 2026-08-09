@@ -38,7 +38,7 @@ export default async function CardDetailPage({
 
 
       <Link
-        href="/gallery"
+  href="/es/gallery"
         className="
         inline-flex
         rounded-xl
