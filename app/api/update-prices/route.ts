@@ -9,16 +9,11 @@ import { calculateGalleryValue } from "@/lib/gallery";
 import { savePortfolioSnapshot } from "@/lib/portfolio";
 
 
-
 function sleep(ms:number) {
-
   return new Promise(
     resolve => setTimeout(resolve, ms)
   );
-
 }
-
-
 
 
 
@@ -28,9 +23,7 @@ async function getPriceSafe(
   season:number
 ) {
 
-
   try {
-
 
     return await getLastTokenPrice(
       playerSlug,
@@ -89,10 +82,6 @@ async function getPriceSafe(
 
 
 
-
-
-
-
 export async function POST() {
 
 
@@ -105,19 +94,18 @@ export async function POST() {
 
 
     return NextResponse.json(
+
       {
         error:"No autorizado",
       },
+
       {
         status:401,
       }
+
     );
 
   }
-
-
-
-
 
 
 
@@ -144,19 +132,18 @@ export async function POST() {
 
 
     return NextResponse.json(
+
       {
         error:"Usuario no encontrado",
       },
+
       {
         status:404,
       }
+
     );
 
   }
-
-
-
-
 
 
 
@@ -175,9 +162,6 @@ export async function POST() {
 
 
 
-
-
-
   console.log(
     "💰 Cartas totales:",
     cards.length
@@ -187,16 +171,10 @@ export async function POST() {
 
 
 
-
-
-
   const cardsToUpdate =
-    cards.filter(card =>
-      card.playerSlug !== null
+    cards.filter(
+      card => card.playerSlug !== null
     );
-
-
-
 
 
 
@@ -211,9 +189,6 @@ export async function POST() {
 
 
 
-
-
-
   let updated = 0;
 
   let failed = 0;
@@ -222,116 +197,112 @@ export async function POST() {
 
 
 
+  const limit = 10;
 
 
 
+  for(
+    let i = 0;
+    i < cardsToUpdate.length;
+    i += limit
+  ){
 
-  for(const card of cardsToUpdate) {
+
+
+    const batch =
+      cardsToUpdate.slice(
+        i,
+        i + limit
+      );
+
 
 
 
     console.log(
-      "🔥 Actualizando:",
-      card.playerName,
-      card.scarcity,
-      "temporada:",
-      card.season
+      `🔥 Actualizando ${i + 1}-${i + batch.length}`
     );
 
 
 
 
-    const price =
-      await getPriceSafe(
-        card.playerSlug!,
-        card.scarcity,
-        card.season
-      );
+
+    await Promise.all(
+
+      batch.map(
+
+        async(card)=>{
+
+
+
+          const price =
+            await getPriceSafe(
+
+              card.playerSlug!,
+
+              card.scarcity,
+
+              card.season
+
+            );
 
 
 
 
 
-    if(price === null) {
+          if(price === null){
 
 
-      console.log(
-        "❌ SIN PRECIO:",
-        card.playerName,
-        card.scarcity,
-        "temporada:",
-        card.season
-      );
+            console.log(
+              "❌ SIN PRECIO:",
+              card.playerName
+            );
 
 
-      failed++;
+            failed++;
 
-      await sleep(3000);
+            return;
 
-      continue;
-
-    }
+          }
 
 
 
 
 
+          await prisma.card.update({
 
+            where:{
+              id:card.id,
+            },
 
+            data:{
 
-    if(
-      card.playerSlug?.includes("mbappe")
-    ){
+              marketValue:
+                price,
 
-      console.log(
-        "🔥🔥🔥 MBAPPE PRECIO REAL:",
-        price,
-        "temporada:",
-        card.season
-      );
+              priceUpdatedAt:
+                new Date(),
 
-    }
+            },
 
-
-
-
+          });
 
 
 
 
 
-    await prisma.card.update({
-
-      where:{
-        id:card.id,
-      },
-
-      data:{
-
-        marketValue:
-          price,
-
-        priceUpdatedAt:
-          new Date(),
-
-      },
-
-    });
-
-
-
-    updated++;
+          updated++;
 
 
 
 
-    await sleep(3000);
 
+        }
+
+      )
+
+    );
 
   }
-
-
-
 
 
 
@@ -354,9 +325,6 @@ export async function POST() {
 
 
 
-
-
-
   const updatedCards =
     await prisma.card.findMany({
 
@@ -365,8 +333,6 @@ export async function POST() {
       },
 
     });
-
-
 
 
 
@@ -383,20 +349,17 @@ export async function POST() {
 
 
 
-
-
   const totalBought =
     user.transactions
+
       .filter(
-        t=>t.type==="BUY"
+        t => t.type === "BUY"
       )
+
       .reduce(
         (sum,t)=>sum+t.price,
         0
       );
-
-
-
 
 
 
@@ -404,15 +367,15 @@ export async function POST() {
 
   const totalSold =
     user.transactions
+
       .filter(
-        t=>t.type==="SELL"
+        t => t.type === "SELL"
       )
+
       .reduce(
         (sum,t)=>sum+t.price,
         0
       );
-
-
 
 
 
@@ -429,14 +392,16 @@ export async function POST() {
 
 
 
-
-
   const roi =
     totalBought === 0
-      ? 0
-      :
-      (profit / totalBought) * 100;
 
+    ?
+
+    0
+
+    :
+
+    (profit / totalBought) * 100;
 
 
 
@@ -445,12 +410,16 @@ export async function POST() {
 
 
   await savePortfolioSnapshot(
-    user.id,
-    galleryValue,
-    roi,
-    profit
-  );
 
+    user.id,
+
+    galleryValue,
+
+    roi,
+
+    profit
+
+  );
 
 
 
@@ -473,6 +442,7 @@ export async function POST() {
     profit,
 
   });
+
 
 
 }
