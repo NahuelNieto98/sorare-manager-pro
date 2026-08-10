@@ -9,316 +9,448 @@ export default async function CardDetailPage({
   params: Promise<{ id: string }>;
 }) {
 
-
   const { id } = await params;
-
 
   const t = await getTranslations("card");
 
 
-
   const card = await prisma.card.findUnique({
-    where: {
+
+    where:{
       id,
     },
+
+    include:{
+      MarketTransaction:true,
+    },
+
   });
 
 
 
-  if (!card) {
+  if(!card){
     notFound();
   }
 
 
 
-  return (
+  const purchase =
+    card.MarketTransaction
+      .filter(
+        (transaction)=>
+          transaction.userId === card.ownerId
+      )
+      .sort(
+        (a,b)=>
+          new Date(a.date).getTime()
+          -
+          new Date(b.date).getTime()
+      )[0];
 
-    <div className="space-y-8">
 
 
+  const roi =
+    purchase && card.marketValue
+    ?
+    (
+      (
+        (card.marketValue - purchase.price)
+        /
+        purchase.price
+      )
+      *
+      100
+    ).toFixed(1)
+    :
+    null;
 
-      <Link
-  href="/es/gallery"
-        className="
-        inline-flex
-        rounded-xl
-        bg-white/5
-        px-5
-        py-3
-        text-sm
-        font-bold
-        text-zinc-300
-        hover:bg-white/10
-        "
-      >
 
-        {t("back")}
 
-      </Link>
+return (
 
+<div className="space-y-8">
 
 
+<Link
 
+href="/es/gallery"
 
-      <div
-        className="
-        grid
-        gap-8
-        xl:grid-cols-2
-        "
-      >
+className="
+inline-flex
+rounded-xl
+bg-white/5
+px-5
+py-3
+text-sm
+font-bold
+text-zinc-300
+hover:bg-white/10
+"
 
+>
 
+{t("back")}
 
-        <div
-          className="
-          overflow-hidden
-          rounded-3xl
-          border
-          border-white/10
-          bg-gradient-to-br
-          from-[#181530]
-          via-[#221B45]
-          to-[#141127]
-          p-8
-          "
-        >
+</Link>
 
 
-          <div className="flex justify-center">
 
 
-            {
-              card.pictureUrl ? (
+<div
+className="
+grid
+gap-8
+xl:grid-cols-2
+"
+>
 
-                <img
-                  src={card.pictureUrl}
-                  alt={card.playerName}
-                  className="
-                  h-[500px]
-                  object-contain
-                  "
-                />
 
-              ) : (
 
-                <div className="text-zinc-500">
+<div
 
-                  {t("noImage")}
+className="
+overflow-hidden
+rounded-3xl
+border
+border-white/10
+bg-gradient-to-br
+from-[#181530]
+via-[#221B45]
+to-[#141127]
+p-8
+"
 
-                </div>
+>
 
-              )
-            }
 
+<div className="flex justify-center">
 
-          </div>
 
+{
+card.pictureUrl
+?
 
-        </div>
+<img
 
+src={card.pictureUrl}
 
+alt={card.playerName}
 
+className="
+h-[500px]
+object-contain
+"
 
+/>
 
+:
 
+<div className="text-zinc-500">
 
+{t("noImage")}
 
-        <div
-          className="
-          rounded-3xl
-          border
-          border-white/10
-          bg-[#17112F]
-          p-8
-          "
-        >
+</div>
 
+}
 
 
-          <h1
-            className="
-            text-5xl
-            font-black
-            text-white
-            "
-          >
+</div>
 
-            {card.playerName}
 
-          </h1>
+</div>
 
 
 
 
-          <p
-            className="
-            mt-3
-            text-xl
-            text-zinc-400
-            "
-          >
 
-            {card.club ?? t("noClub")}
 
-          </p>
 
+<div
 
+className="
+rounded-3xl
+border
+border-white/10
+bg-[#17112F]
+p-8
+"
 
+>
 
 
 
+<h1
 
-          <div
-            className="
-            mt-10
-            grid
-            gap-5
-            md:grid-cols-2
-            "
-          >
+className="
+text-5xl
+font-black
+text-white
+"
 
+>
 
+{card.playerName}
 
-            <Info
-              title={t("rarity")}
-              value={card.scarcity}
-            />
+</h1>
 
 
 
-            <Info
-              title={t("position")}
-              value={card.position ?? "-"}
-            />
 
+<p
 
+className="
+mt-3
+text-xl
+text-zinc-400
+"
 
-            <Info
-              title={t("aa")}
-              value={
-                card.averageScore?.toString() ?? "-"
-              }
-            />
+>
 
+{card.club ?? t("noClub")}
 
+</p>
 
-            <Info
-              title={t("marketValue")}
-              value={
-                `€${card.marketValue?.toFixed(2) ?? "0.00"}`
-              }
-            />
 
 
 
-            <Info
-              title={t("season")}
-              value={
-                card.season?.toString() ?? "-"
-              }
-            />
 
 
 
-          </div>
+<div
 
+className="
+mt-10
+grid
+gap-5
+md:grid-cols-2
+"
 
+>
 
 
 
+<Info
 
+title={t("rarity")}
 
-          <h2
-            className="
-            mt-10
-            mb-4
-            text-xl
-            font-black
-            text-white
-            "
-          >
+value={card.scarcity}
 
-            {t("performance")}
+/>
 
-          </h2>
 
 
+<Info
 
+title={t("position")}
 
+value={card.position ?? "-"}
 
+/>
 
 
-          <div
-            className="
-            grid
-            grid-cols-4
-            gap-3
-            "
-          >
 
+<Info
 
-            <Score
-              title="L5"
-              value={card.l5Score}
-            />
+title={t("aa")}
 
-            <Score
-              title="L10"
-              value={card.l10Score}
-            />
+value={
+card.averageScore?.toString()
+??
+"-"
+}
 
-            <Score
-              title="L15"
-              value={card.l15Score}
-            />
+/>
 
-            <Score
-              title="L40"
-              value={card.l40Score}
-            />
 
 
-          </div>
+<Info
 
+title={t("marketValue")}
 
+value={
+`€${card.marketValue?.toFixed(2) ?? "0.00"}`
+}
 
+/>
 
 
 
+<Info
 
-          <button
-            className="
-            mt-10
-            w-full
-            rounded-xl
-            bg-violet-600
-            py-4
-            font-bold
-            text-white
-            hover:bg-violet-500
-            "
-          >
+title="Precio compra"
 
-            {t("addTransaction")}
+value={
+purchase
+?
+`€${purchase.price.toFixed(2)}`
+:
+"-"
+}
 
-          </button>
+/>
 
 
 
+<Info
 
+title="Fecha compra"
 
-        </div>
+value={
+purchase
+?
+new Date(
+purchase.date
+)
+.toLocaleDateString(
+"es-ES"
+)
+:
+"-"
+}
 
+/>
 
 
-      </div>
 
+<Info
 
+title="ROI"
 
-    </div>
+value={
+roi
+?
+`${roi}%`
+:
+"-"
+}
 
-  );
+/>
+
+
+
+<Info
+
+title={t("season")}
+
+value={
+card.season.toString()
+}
+
+/>
+
+
+
+</div>
+
+
+
+
+
+
+
+<h2
+
+className="
+mt-10
+mb-4
+text-xl
+font-black
+text-white
+"
+
+>
+
+{t("performance")}
+
+</h2>
+
+
+
+
+
+<div
+
+className="
+grid
+grid-cols-4
+gap-3
+"
+
+>
+
+
+<Score
+
+title="L5"
+
+value={card.l5Score}
+
+/>
+
+
+<Score
+
+title="L10"
+
+value={card.l10Score}
+
+/>
+
+
+<Score
+
+title="L15"
+
+value={card.l15Score}
+
+/>
+
+
+<Score
+
+title="L40"
+
+value={card.l40Score}
+
+/>
+
+
+</div>
+
+
+
+
+
+<button
+
+className="
+mt-10
+w-full
+rounded-xl
+bg-violet-600
+py-4
+font-bold
+text-white
+hover:bg-violet-500
+"
+
+>
+
+{t("addTransaction")}
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+);
 
 }
 
@@ -326,50 +458,59 @@ export default async function CardDetailPage({
 
 
 
-
 function Info({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
+
+title,
+
+value,
+
+}:{
+
+title:string;
+
+value:string;
+
 }) {
 
 
-  return (
+return (
 
-    <div
-      className="
-      rounded-2xl
-      bg-white/5
-      p-5
-      "
-    >
+<div
 
-      <p className="text-sm text-zinc-500">
+className="
+rounded-2xl
+bg-white/5
+p-5
+"
 
-        {title}
+>
 
-      </p>
+<p className="text-sm text-zinc-500">
 
+{title}
 
-      <p
-        className="
-        mt-2
-        text-2xl
-        font-black
-        text-white
-        "
-      >
-
-        {value}
-
-      </p>
+</p>
 
 
-    </div>
+<p
 
-  );
+className="
+mt-2
+text-2xl
+font-black
+text-white
+"
+
+>
+
+{value}
+
+</p>
+
+
+</div>
+
+);
 
 }
 
@@ -379,49 +520,57 @@ function Info({
 
 
 function Score({
-  title,
-  value,
-}: {
-  title: string;
-  value: number | null;
+
+title,
+
+value,
+
+}:{
+
+title:string;
+
+value:number|null;
+
 }) {
 
 
-  return (
+return (
 
-    <div
-      className="
-      rounded-xl
-      bg-black/20
-      p-3
-      text-center
-      "
-    >
+<div
 
+className="
+rounded-xl
+bg-black/20
+p-3
+text-center
+"
 
-      <p className="text-xs text-zinc-500">
+>
 
-        {title}
+<p className="text-xs text-zinc-500">
 
-      </p>
+{title}
 
-
-
-      <p
-        className="
-        mt-1
-        font-black
-        text-white
-        "
-      >
-
-        {value ?? "-"}
-
-      </p>
+</p>
 
 
-    </div>
+<p
 
-  );
+className="
+mt-1
+font-black
+text-white
+"
+
+>
+
+{value ?? "-"}
+
+</p>
+
+
+</div>
+
+);
 
 }

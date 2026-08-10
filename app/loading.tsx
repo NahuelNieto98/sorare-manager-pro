@@ -1,17 +1,63 @@
 export default function Loading() {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0F0B1F]">
-      <div className="flex flex-col items-center gap-6">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-purple-500 border-t-transparent" />
 
-        <h2 className="text-2xl font-bold text-white">
-          Sorare Manager Pro
-        </h2>
+return (
 
-        <p className="text-zinc-400">
-          Cargando...
-        </p>
-      </div>
-    </main>
-  );
+<main
+className="
+min-h-screen
+bg-[#0b0718]
+flex
+items-center
+justify-center
+"
+>
+
+<div
+className="
+text-center
+"
+>
+
+<h2
+className="
+text-2xl
+font-bold
+text-white
+"
+>
+Sorare Manager Pro
+</h2>
+
+
+<p
+className="
+mt-3
+text-zinc-400
+"
+>
+Cargando...
+</p>
+
+
+<div
+className="
+mx-auto
+mt-6
+h-8
+w-8
+animate-spin
+rounded-full
+border-4
+border-violet-500
+border-t-transparent
+"
+/>
+
+
+</div>
+
+</main>
+
+);
+
 }
