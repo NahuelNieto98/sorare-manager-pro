@@ -13,6 +13,18 @@
     "opportunity": "Opportunity"
   },
 
+  "marketFilters": {
+    "search": "Search player...",
+    "allRarities": "All rarities",
+    "price": "Price",
+    "cheap": "Cheap",
+    "medium": "Medium price",
+    "expensive": "Expensive",
+    "recent": "Most recent",
+    "lowest": "Lowest price",
+    "highest": "Highest price"
+  },
+
   "sidebar": {
     "menu": "Menu",
     "dashboard": "Dashboard",
@@ -43,6 +55,20 @@
     "currentResult": "Current result"
   },
 
+  "dashboardQuickStats": {
+    "bought": "Bought",
+    "sold": "Sold",
+    "profit": "Profit"
+  },
+
+  "quickStats": {
+    "title": "Quick statistics",
+    "subtitle": "General information about your collection.",
+    "cards": "Cards",
+    "average": "Average AA",
+    "performance": "Performance based on your current collection."
+  },
+
   "gallery": {
     "filters": "Collection filters",
     "search": "Search player or club...",
@@ -56,6 +82,14 @@
     "loading": "Loading collection...",
     "noCards": "No cards",
     "sync": "Sync your Sorare account to get started."
+  },
+
+  "galleryHeader": {
+    "cards": "Cards",
+    "value": "Value",
+    "average": "Average",
+    "collection": "Collection",
+    "subtitle": "Manage and analyze your Sorare collection."
   },
 
   "card": {
@@ -76,6 +110,82 @@
     "l15": "L15",
     "l40": "L40",
     "addTransaction": "Add transaction"
+  },  "sort": {
+    "label": "Sort",
+    "value": "Value",
+    "score": "AA",
+    "highest": "Highest price",
+    "lowest": "Lowest price",
+    "bestAA": "Best AA",
+    "worstAA": "Worst AA",
+    "bestL10": "Best L10",
+    "bestL40": "Best L40",
+    "nameAZ": "Name A-Z",
+    "recent": "Most recent",
+    "name": "Name"
+  },
+
+  "galleryChart": {
+    "title": "Gallery Evolution",
+    "subtitle": "Historical value of your collection."
+  },
+
+  "galleryValue": {
+    "title": "Gallery value",
+    "subtitle": "Current value of your cards.",
+    "connect": "Connect your Sorare account to see your data.",
+    "chartPlaceholder": "The chart will appear when data exists."
+  },
+
+  "portfolio": {
+    "title": "Portfolio",
+    "subtitle": "Investment summary.",
+    "galleryValue": "Gallery value",
+    "profit": "Profit",
+    "performance": "Performance",
+    "positive": "Positive",
+    "review": "Review"
+  },
+
+  "portfolioChart": {
+    "title": "Portfolio Evolution",
+    "subtitle": "Historical evolution."
+  },
+
+  "systemStatus": {
+    "title": "System status",
+    "subtitle": "Connected services",
+    "sorareApi": "Sorare API",
+    "database": "Database",
+    "dashboard": "Dashboard",
+    "scout": "AI Scout",
+    "betaMessage": "System in beta phase"
+  },
+
+  "scoutCard": {
+    "title": "AI Scout",
+    "subtitle": "Smart Sorare assistant",
+    "beta": "Beta",
+    "description": "Analyze your collection and generate recommendations.",
+    "buyRecommendations": "Buy recommendations",
+    "sellAlerts": "Sell alerts",
+    "lineupOptimization": "Lineup optimization",
+    "riskDetection": "Risk detection",
+    "availableSoon": "Available soon",
+    "automaticAnalysis": "Automatic analysis"
+  },
+
+  "sync": {
+    "syncButton": "Sync gallery",
+    "pricesButton": "Update prices",
+    "syncing": "Syncing...",
+    "updating": "Updating prices...",
+    "successSync": "Gallery synced successfully",
+    "errorSync": "Error syncing gallery",
+    "errorPrices": "Error updating prices",
+    "updated": "Updated",
+    "skipped": "Skipped",
+    "failed": "Failed"
   },
 
   "transactions": {
@@ -109,7 +219,8 @@
     "roiEvolution": "📈 ROI evolution",
     "profitPlayer": "💰 Profit per player",
     "cardRanking": "🏆 Card ranking",
-    "buySell": "📊 Buys vs Sales"
+    "buySell": "📊 Buys vs Sales",
+    "loading": "Loading analytics..."
   },
 
   "assistant": {
@@ -145,39 +256,9 @@
     "success": "Account connected successfully"
   },
 
-  "galleryChart": {
-    "title": "Portfolio Evolution",
-    "subtitle": "Historical value of your collection."
-  },
-
-  "portfolioChart": {
-    "title": "Portfolio Evolution",
-    "subtitle": "Historical value of your account."
-  },
-
-  "quickStats": {
-    "title": "Quick statistics",
-    "subtitle": "General information about your collection.",
-    "cards": "Cards",
-    "average": "Average AA",
-    "performance": "Performance based on your current collection."
-  },
-
-  "galleryValue": {
-    "title": "Gallery value",
-    "subtitle": "Updated automatically",
-    "connect": "Connect your Sorare account to start syncing your cards.",
-    "chartPlaceholder": "Your gallery value chart will appear here."
-  },
-
   "topPlayers": {
-    "title": "Top cards"
-  },
-
-  "dashboardQuickStats": {
-    "bought": "Bought",
-    "sold": "Sold",
-    "profit": "Profit"
+    "title": "Top cards",
+    "empty": "No data available."
   },
 
   "notFound": {
