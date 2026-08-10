@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { createMarketTransaction } from "@/app/actions/create-market-transaction";
+import AddTransactionButton from "@/components/gallery/AddTransactionButton";
 
 
 export default async function CardDetailPage({
@@ -19,19 +19,17 @@ export default async function CardDetailPage({
 
 
 
-  const card =
-    await prisma.card.findUnique({
+  const card = await prisma.card.findUnique({
 
-      where:{
-        id,
-      },
+    where:{
+      id,
+    },
 
+    include:{
+      MarketTransaction:true,
+    },
 
-      include:{
-        MarketTransaction:true,
-      },
-
-    });
+  });
 
 
 
@@ -40,7 +38,6 @@ export default async function CardDetailPage({
     notFound();
 
   }
-
 
 
 
@@ -62,7 +59,6 @@ export default async function CardDetailPage({
 
 
 
-
   const purchasePrice =
     purchase?.price ?? null;
 
@@ -73,7 +69,6 @@ export default async function CardDetailPage({
 
 
 
-
   const roi =
     purchasePrice && card.marketValue
 
@@ -81,12 +76,13 @@ export default async function CardDetailPage({
 
     (
       (
-        (card.marketValue - purchasePrice)
-        /
-        purchasePrice
+        card.marketValue - purchasePrice
       )
+      /
+      purchasePrice
       *
       100
+
     ).toFixed(1)
 
     :
@@ -97,237 +93,291 @@ export default async function CardDetailPage({
 
 
 
+  return (
 
-return (
-
-<div className="p-6">
-
-
-<Link href="../">
-
-{t("back")}
-
-</Link>
+    <main className="mx-auto w-full max-w-6xl p-6">
 
 
+      <Link
+        href="../"
+        className="
+        inline-block
+        rounded-xl
+        bg-zinc-900
+        px-5
+        py-3
+        "
+      >
 
-<div className="mt-6">
+        {t("back")}
+
+      </Link>
 
 
-{
-card.pictureUrl ?
 
-<img
-src={card.pictureUrl}
-alt={card.playerName}
-className="w-full rounded-xl"
-/>
 
-:
+      <div
+        className="
+        mt-8
+        grid
+        gap-8
+        lg:grid-cols-2
+        "
+      >
 
-<div>
-{t("noImage")}
-</div>
+
+
+        <div
+          className="
+          rounded-2xl
+          bg-zinc-900
+          p-6
+          "
+        >
+
+          {
+            card.pictureUrl ?
+
+            <img
+
+              src={card.pictureUrl}
+
+              alt={card.playerName}
+
+              className="
+              mx-auto
+              max-h-[650px]
+              rounded-xl
+              "
+
+            />
+
+            :
+
+            <div>
+
+              {t("noImage")}
+
+            </div>
+
+          }
+
+
+        </div>
+
+
+
+
+
+        <div
+          className="
+          rounded-2xl
+          bg-zinc-900
+          p-8
+          "
+        >
+
+
+
+          <h1
+          className="
+          text-4xl
+          font-bold
+          "
+          >
+
+            {card.playerName}
+
+          </h1>
+
+
+
+          <p className="mt-2 text-gray-400">
+
+            {card.club ?? t("noClub")}
+
+          </p>
+
+
+
+
+
+          <div
+          className="
+          mt-8
+          grid
+          grid-cols-1
+          gap-4
+          md:grid-cols-2
+          "
+          >
+
+
+
+            <Info
+              title={t("rarity")}
+              value={card.scarcity}
+            />
+
+
+
+            <Info
+              title={t("position")}
+              value={card.position ?? "-"}
+            />
+
+
+
+            <Info
+              title={t("aa")}
+              value={
+                card.averageScore?.toString()
+                ??
+                "-"
+              }
+            />
+
+
+
+            <Info
+              title={t("marketValue")}
+              value={
+                `€${card.marketValue?.toFixed(2) ?? "0.00"}`
+              }
+            />
+
+
+
+            <Info
+              title={t("purchasePrice")}
+              value={
+                purchasePrice
+                ?
+                `€${purchasePrice.toFixed(2)}`
+                :
+                "-"
+              }
+            />
+
+
+
+            <Info
+              title={t("purchaseDate")}
+              value={
+                purchaseDate
+                ?
+                new Date(purchaseDate)
+                .toLocaleDateString("es-ES")
+                :
+                "-"
+              }
+            />
+
+
+
+            <Info
+              title={t("roi")}
+              value={
+                roi
+                ?
+                `${roi}%`
+                :
+                "-"
+              }
+            />
+
+
+
+            <Info
+              title={t("season")}
+              value={
+                card.season.toString()
+              }
+            />
+
+
+
+          </div>
+
+
+
+
+
+          <AddTransactionButton
+
+            cardId={card.id}
+
+            price={card.marketValue ?? 0}
+
+          />
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+    </main>
+
+  );
+
 
 }
 
 
-
-
-<h1 className="mt-6 text-3xl font-bold">
-
-{card.playerName}
-
-</h1>
-
-
-
-<p className="text-gray-400">
-
-{card.club ?? t("noClub")}
-
-</p>
-
-
-
-
-<div className="mt-6 grid gap-4">
-
-
-<Info
-title={t("rarity")}
-value={card.scarcity}
-/>
-
-
-
-<Info
-title={t("position")}
-value={card.position ?? "-"}
-/>
-
-
-
-<Info
-title={t("aa")}
-value={
-card.averageScore?.toString()
-??
-"-"
-}
-/>
-
-
-
-<Info
-title={t("marketValue")}
-value={
-`€${card.marketValue?.toFixed(2) ?? "0.00"}`
-}
-/>
-
-
-
-<Info
-title={t("purchasePrice")}
-value={
-purchasePrice
-?
-`€${purchasePrice.toFixed(2)}`
-:
-"-"
-}
-/>
-
-
-
-<Info
-title={t("purchaseDate")}
-value={
-purchaseDate
-?
-new Date(purchaseDate)
-.toLocaleDateString("es-ES")
-:
-"-"
-}
-/>
-
-
-
-<Info
-title={t("roi")}
-value={
-roi
-?
-`${roi}%`
-:
-"-"
-}
-/>
-
-
-
-<Info
-title={t("season")}
-value={
-card.season.toString()
-}
-/>
-
-
-
-</div>
-
-
-
-
-
-<form
-
-action={async()=>{
-
-"use server";
-
-
-await createMarketTransaction(
-card.id,
-card.marketValue ?? 0
-);
-
-
-}}
-
->
-
-
-<button
-
-className="
-mt-10
-w-full
-rounded-xl
-bg-violet-600
-py-4
-font-bold
-text-white
-hover:bg-violet-500
-"
-
->
-
-{t("addTransaction")}
-
-
-</button>
-
-
-</form>
-
-
-
-</div>
-
-
-</div>
-
-);
-
-
-}
 
 
 
 function Info({
-title,
-value,
+  title,
+  value,
 }:{
-title:string;
-value:string;
-}){
+  title:string;
+  value:string;
+}) {
 
 
-return (
+  return (
 
-<div className="rounded-xl bg-zinc-900 p-4">
+    <div
+    className="
+    rounded-xl
+    bg-zinc-800
+    p-4
+    "
+    >
+
+      <p
+      className="
+      text-sm
+      text-gray-400
+      "
+      >
+
+        {title}
+
+      </p>
 
 
-<p className="text-sm text-gray-400">
 
-{title}
+      <p
+      className="
+      mt-2
+      text-xl
+      font-bold
+      "
+      >
 
-</p>
+        {value}
+
+      </p>
 
 
-<p className="text-xl font-bold">
+    </div>
 
-{value}
-
-</p>
-
-
-</div>
-
-);
+  );
 
 }
