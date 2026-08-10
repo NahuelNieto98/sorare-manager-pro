@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { createMarketTransaction } from "@/app/actions/create-market-transaction";
+
 
 export default async function CardDetailPage({
   params,
@@ -9,25 +11,36 @@ export default async function CardDetailPage({
   params: Promise<{ id: string }>;
 }) {
 
+
   const { id } = await params;
+
 
   const t = await getTranslations("card");
 
 
-  const card = await prisma.card.findUnique({
-    where:{
-      id,
-    },
-    include:{
-      MarketTransaction:true,
-    },
-  });
+
+  const card =
+    await prisma.card.findUnique({
+
+      where:{
+        id,
+      },
+
+
+      include:{
+        MarketTransaction:true,
+      },
+
+    });
 
 
 
   if(!card){
+
     notFound();
+
   }
+
 
 
 
@@ -48,6 +61,8 @@ export default async function CardDetailPage({
 
 
 
+
+
   const purchasePrice =
     purchase?.price ?? null;
 
@@ -58,38 +73,37 @@ export default async function CardDetailPage({
 
 
 
+
   const roi =
     purchasePrice && card.marketValue
-      ? (
-          ((card.marketValue - purchasePrice)
-          /
-          purchasePrice)
-          *
-          100
-        ).toFixed(1)
-      : null;
+
+    ?
+
+    (
+      (
+        (card.marketValue - purchasePrice)
+        /
+        purchasePrice
+      )
+      *
+      100
+    ).toFixed(1)
+
+    :
+
+    null;
+
+
+
 
 
 
 return (
 
-<div className="space-y-8">
+<div className="p-6">
 
 
-<Link
-href="/es/gallery"
-className="
-inline-flex
-rounded-xl
-bg-white/5
-px-5
-py-3
-text-sm
-font-bold
-text-zinc-300
-hover:bg-white/10
-"
->
+<Link href="../">
 
 {t("back")}
 
@@ -97,89 +111,30 @@ hover:bg-white/10
 
 
 
-
-<div
-className="
-grid
-gap-8
-xl:grid-cols-2
-"
->
-
-
-
-<div
-className="
-overflow-hidden
-rounded-3xl
-border
-border-white/10
-bg-gradient-to-br
-from-[#181530]
-via-[#221B45]
-to-[#141127]
-p-8
-"
->
-
-
-<div className="flex justify-center">
+<div className="mt-6">
 
 
 {
-card.pictureUrl ? (
+card.pictureUrl ?
 
 <img
 src={card.pictureUrl}
 alt={card.playerName}
-className="
-h-[500px]
-object-contain
-"
+className="w-full rounded-xl"
 />
 
-) : (
+:
 
-<div className="text-zinc-500">
-
+<div>
 {t("noImage")}
-
 </div>
-
-)
 
 }
 
 
-</div>
 
 
-</div>
-
-
-
-
-
-
-<div
-className="
-rounded-3xl
-border
-border-white/10
-bg-[#17112F]
-p-8
-"
->
-
-
-
-<h1
-className="
-text-5xl
-font-black
-text-white
-"
->
+<h1 className="mt-6 text-3xl font-bold">
 
 {card.playerName}
 
@@ -187,14 +142,7 @@ text-white
 
 
 
-
-<p
-className="
-mt-3
-text-xl
-text-zinc-400
-"
->
+<p className="text-gray-400">
 
 {card.club ?? t("noClub")}
 
@@ -203,17 +151,7 @@ text-zinc-400
 
 
 
-
-
-<div
-className="
-mt-10
-grid
-gap-5
-md:grid-cols-2
-"
->
-
+<div className="mt-6 grid gap-4">
 
 
 <Info
@@ -305,70 +243,26 @@ card.season.toString()
 
 
 
+<form
+
+action={async()=>{
+
+"use server";
 
 
+await createMarketTransaction(
+card.id,
+card.marketValue ?? 0
+);
 
-<h2
-className="
-mt-10
-mb-4
-text-xl
-font-black
-text-white
-"
+
+}}
+
 >
-
-{t("performance")}
-
-</h2>
-
-
-
-
-
-<div
-className="
-grid
-grid-cols-4
-gap-3
-"
->
-
-
-<Score
-title="L5"
-value={card.l5Score}
-/>
-
-
-<Score
-title="L10"
-value={card.l10Score}
-/>
-
-
-<Score
-title="L15"
-value={card.l15Score}
-/>
-
-
-<Score
-title="L40"
-value={card.l40Score}
-/>
-
-
-
-</div>
-
-
-
-
-
 
 
 <button
+
 className="
 mt-10
 w-full
@@ -379,15 +273,17 @@ font-bold
 text-white
 hover:bg-violet-500
 "
+
 >
 
 {t("addTransaction")}
 
+
 </button>
 
 
+</form>
 
-</div>
 
 
 </div>
@@ -397,9 +293,8 @@ hover:bg-violet-500
 
 );
 
+
 }
-
-
 
 
 
@@ -409,104 +304,26 @@ value,
 }:{
 title:string;
 value:string;
-}) {
+}){
 
 
 return (
 
-<div
-className="
-rounded-2xl
-bg-white/5
-p-5
-"
->
+<div className="rounded-xl bg-zinc-900 p-4">
 
 
-<p
-className="
-text-sm
-text-zinc-500
-"
->
+<p className="text-sm text-gray-400">
 
 {title}
 
 </p>
 
 
-
-<p
-className="
-mt-2
-text-2xl
-font-black
-text-white
-"
->
+<p className="text-xl font-bold">
 
 {value}
 
 </p>
-
-
-
-</div>
-
-);
-
-}
-
-
-
-
-
-function Score({
-title,
-value,
-}:{
-title:string;
-value:number|null;
-}) {
-
-
-return (
-
-<div
-className="
-rounded-xl
-bg-black/20
-p-3
-text-center
-"
->
-
-
-<p
-className="
-text-xs
-text-zinc-500
-"
->
-
-{title}
-
-</p>
-
-
-
-<p
-className="
-mt-1
-font-black
-text-white
-"
->
-
-{value ?? "-"}
-
-</p>
-
 
 
 </div>
