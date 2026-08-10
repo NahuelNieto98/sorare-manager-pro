@@ -66,7 +66,7 @@
     "subtitle": "Resumen de tu colección",
     "cards": "Cartas",
     "average": "AA Medio",
-    "performance": "Rendimiento"
+    "performance": "Rendimiento basado en tu colección actual."
   },
 
   "gallery": {
@@ -92,37 +92,29 @@
     "subtitle": "Gestiona y analiza tu colección Sorare."
   },
 
-  "card": {
-    "back": "Volver",
-    "noImage": "Sin imagen",
-    "noClub": "Sin club",
-    "rarity": "Rareza",
-    "position": "Posición",
-    "aa": "Media AA",
-    "marketValue": "Valor de mercado",
-    "purchasePrice": "Precio compra",
-    "purchaseDate": "Fecha compra",
-    "roi": "ROI",
-    "season": "Temporada",
-    "performance": "Rendimiento",
-    "l5": "L5",
-    "l10": "L10",
-    "l15": "L15",
-    "l40": "L40",
-    "addTransaction": "Añadir transacción"
-  },  "marketFilters": {
-    "search": "Buscar jugador...",
-    "allRarities": "Todas las rarezas",
-    "price": "Precio",
-    "cheap": "Baratas",
-    "medium": "Precio medio",
-    "expensive": "Caras",
-    "recent": "Más recientes",
-    "lowest": "Menor precio",
-    "highest": "Mayor precio"
+  "galleryChart": {
+    "title": "Evolución de la galería",
+    "subtitle": "Histórico del valor de tu colección."
   },
 
-  "sort": {
+  "galleryValue": {
+    "title": "Valor de galería",
+    "subtitle": "Valor actual de tus cartas.",
+    "connect": "Conecta tu cuenta de Sorare para ver tus datos.",
+    "chartPlaceholder": "El gráfico aparecerá cuando existan datos."
+  },
+
+  "portfolio": {
+  "title": "Portfolio",
+  "subtitle": "Resumen de tu inversión.",
+  "galleryValue": "Valor galería",
+  "profit": "Beneficio",
+  "performance": "Rendimiento",
+  "positive": "Positivo",
+  "review": "Revisar"
+},
+
+"sort": {
     "label": "Ordenar",
     "value": "Valor",
     "score": "AA",
@@ -137,37 +129,10 @@
     "name": "Nombre"
   },
 
-  "galleryChart": {
-    "title": "Evolución de la galería",
-    "subtitle": "Histórico del valor de tu colección."
-  },
-
-  "galleryValue": {
-    "title": "Valor de galería",
-    "subtitle": "Valor actual de tus cartas.",
-    "connect": "Conecta Sorare para ver tus datos.",
-    "chartPlaceholder": "El gráfico aparecerá cuando existan datos."
-  },
-
-  "portfolio": {
-    "title": "Portfolio",
-    "subtitle": "Resumen de tu inversión.",
-    "galleryValue": "Valor galería",
-    "profit": "Beneficio",
-    "performance": "Rendimiento",
-    "positive": "Positivo",
-    "review": "Revisar"
-  },
-
-  "portfolioChart": {
-    "title": "Evolución del portfolio",
-    "subtitle": "Histórico de evolución."
-  },
-
   "systemStatus": {
     "title": "Estado del sistema",
     "subtitle": "Servicios conectados",
-    "sorareApi": "Sorare API",
+    "sorareApi": "API Sorare",
     "database": "Base de datos",
     "dashboard": "Dashboard",
     "scout": "Scout IA",
@@ -198,6 +163,16 @@
     "updated": "Actualizadas",
     "skipped": "Omitidas",
     "failed": "Fallidas"
+  },
+
+  "notifications": {
+    "title": "Notificaciones",
+    "syncTitle": "Sincronización",
+    "syncDescription": "Tu galería ha sido actualizada.",
+    "scoutTitle": "Scout IA",
+    "scoutDescription": "Nuevas recomendaciones disponibles.",
+    "portfolioTitle": "Portfolio",
+    "portfolioDescription": "Revisa el estado de tu inversión."
   },
 
   "transactions": {
@@ -249,9 +224,7 @@
   "rewards": {
     "title": "Rewards",
     "subtitle": "Aquí aparecerán todos tus premios."
-  },
-
-  "connect": {
+  },  "connect": {
     "title": "Conectar Sorare",
     "subtitle": "Conecta tu cuenta de Sorare directamente para sincronizar automáticamente tu colección.",
     "connecting": "Conectando con Sorare...",
@@ -266,6 +239,36 @@
     "button": "Conectar cuenta",
     "error": "Error al conectar la cuenta",
     "success": "Cuenta conectada correctamente"
+  },
+
+  "topPlayers": {
+    "title": "Mejores cartas",
+    "empty": "Sin datos disponibles."
+  },
+
+  "card": {
+    "back": "Volver",
+    "noImage": "Sin imagen",
+    "noClub": "Sin club",
+    "rarity": "Rareza",
+    "position": "Posición",
+    "aa": "Media AA",
+    "marketValue": "Valor de mercado",
+    "purchasePrice": "Precio compra",
+    "purchaseDate": "Fecha compra",
+    "roi": "ROI",
+    "season": "Temporada",
+    "performance": "Rendimiento",
+    "l5": "L5",
+    "l10": "L10",
+    "l15": "L15",
+    "l40": "L40",
+    "addTransaction": "Añadir transacción"
+  },
+
+  "portfolioChart": {
+    "title": "Evolución del portfolio",
+    "subtitle": "Histórico de evolución."
   },
 
   "notFound": {

@@ -92,39 +92,6 @@
     "subtitle": "Manage and analyze your Sorare collection."
   },
 
-  "card": {
-    "back": "Back",
-    "noImage": "No image",
-    "noClub": "No club",
-    "rarity": "Rarity",
-    "position": "Position",
-    "aa": "Average AA",
-    "marketValue": "Market value",
-    "purchasePrice": "Purchase price",
-    "purchaseDate": "Purchase date",
-    "roi": "ROI",
-    "season": "Season",
-    "performance": "Performance",
-    "l5": "L5",
-    "l10": "L10",
-    "l15": "L15",
-    "l40": "L40",
-    "addTransaction": "Add transaction"
-  },  "sort": {
-    "label": "Sort",
-    "value": "Value",
-    "score": "AA",
-    "highest": "Highest price",
-    "lowest": "Lowest price",
-    "bestAA": "Best AA",
-    "worstAA": "Worst AA",
-    "bestL10": "Best L10",
-    "bestL40": "Best L40",
-    "nameAZ": "Name A-Z",
-    "recent": "Most recent",
-    "name": "Name"
-  },
-
   "galleryChart": {
     "title": "Gallery Evolution",
     "subtitle": "Historical value of your collection."
@@ -145,11 +112,24 @@
     "performance": "Performance",
     "positive": "Positive",
     "review": "Review"
-  },
-
-  "portfolioChart": {
+  },  "portfolioChart": {
     "title": "Portfolio Evolution",
     "subtitle": "Historical evolution."
+  },
+
+  "sort": {
+    "label": "Sort",
+    "value": "Value",
+    "score": "AA",
+    "highest": "Highest price",
+    "lowest": "Lowest price",
+    "bestAA": "Best AA",
+    "worstAA": "Worst AA",
+    "bestL10": "Best L10",
+    "bestL40": "Best L40",
+    "nameAZ": "Name A-Z",
+    "recent": "Most recent",
+    "name": "Name"
   },
 
   "systemStatus": {
@@ -186,6 +166,16 @@
     "updated": "Updated",
     "skipped": "Skipped",
     "failed": "Failed"
+  },
+
+  "notifications": {
+    "title": "Notifications",
+    "syncTitle": "Synchronization",
+    "syncDescription": "Your gallery has been updated.",
+    "scoutTitle": "AI Scout",
+    "scoutDescription": "New recommendations available.",
+    "portfolioTitle": "Portfolio",
+    "portfolioDescription": "Check your investment status."
   },
 
   "transactions": {
@@ -237,9 +227,7 @@
   "rewards": {
     "title": "Rewards",
     "subtitle": "All your rewards will appear here."
-  },
-
-  "connect": {
+  },  "connect": {
     "title": "Connect Sorare",
     "subtitle": "Connect your Sorare account directly to automatically sync your collection.",
     "connecting": "Connecting with Sorare...",
@@ -259,6 +247,26 @@
   "topPlayers": {
     "title": "Top cards",
     "empty": "No data available."
+  },
+
+  "card": {
+    "back": "Back",
+    "noImage": "No image",
+    "noClub": "No club",
+    "rarity": "Rarity",
+    "position": "Position",
+    "aa": "Average AA",
+    "marketValue": "Market value",
+    "purchasePrice": "Purchase price",
+    "purchaseDate": "Purchase date",
+    "roi": "ROI",
+    "season": "Season",
+    "performance": "Performance",
+    "l5": "L5",
+    "l10": "L10",
+    "l15": "L15",
+    "l40": "L40",
+    "addTransaction": "Add transaction"
   },
 
   "notFound": {
