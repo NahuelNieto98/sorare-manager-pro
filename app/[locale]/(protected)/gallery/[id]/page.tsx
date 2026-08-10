@@ -15,15 +15,12 @@ export default async function CardDetailPage({
 
 
   const card = await prisma.card.findUnique({
-
     where:{
       id,
     },
-
     include:{
       MarketTransaction:true,
     },
-
   });
 
 
@@ -37,32 +34,40 @@ export default async function CardDetailPage({
   const purchase =
     card.MarketTransaction
       .filter(
-        (transaction)=>
-          transaction.userId === card.ownerId
+        (tx)=>
+          tx.type.includes("BUY") ||
+          tx.type.includes("PURCHASE") ||
+          tx.type.includes("AUCTION")
       )
       .sort(
         (a,b)=>
-          new Date(a.date).getTime()
-          -
           new Date(b.date).getTime()
+          -
+          new Date(a.date).getTime()
       )[0];
 
 
 
+  const purchasePrice =
+    purchase?.price ?? null;
+
+
+
+  const purchaseDate =
+    purchase?.date ?? null;
+
+
+
   const roi =
-    purchase && card.marketValue
-    ?
-    (
-      (
-        (card.marketValue - purchase.price)
-        /
-        purchase.price
-      )
-      *
-      100
-    ).toFixed(1)
-    :
-    null;
+    purchasePrice && card.marketValue
+      ? (
+          ((card.marketValue - purchasePrice)
+          /
+          purchasePrice)
+          *
+          100
+        ).toFixed(1)
+      : null;
 
 
 
@@ -72,9 +77,7 @@ return (
 
 
 <Link
-
 href="/es/gallery"
-
 className="
 inline-flex
 rounded-xl
@@ -86,7 +89,6 @@ font-bold
 text-zinc-300
 hover:bg-white/10
 "
-
 >
 
 {t("back")}
@@ -107,7 +109,6 @@ xl:grid-cols-2
 
 
 <div
-
 className="
 overflow-hidden
 rounded-3xl
@@ -119,7 +120,6 @@ via-[#221B45]
 to-[#141127]
 p-8
 "
-
 >
 
 
@@ -127,29 +127,26 @@ p-8
 
 
 {
-card.pictureUrl
-?
+card.pictureUrl ? (
 
 <img
-
 src={card.pictureUrl}
-
 alt={card.playerName}
-
 className="
 h-[500px]
 object-contain
 "
-
 />
 
-:
+) : (
 
 <div className="text-zinc-500">
 
 {t("noImage")}
 
 </div>
+
+)
 
 }
 
@@ -164,9 +161,7 @@ object-contain
 
 
 
-
 <div
-
 className="
 rounded-3xl
 border
@@ -174,19 +169,16 @@ border-white/10
 bg-[#17112F]
 p-8
 "
-
 >
 
 
 
 <h1
-
 className="
 text-5xl
 font-black
 text-white
 "
-
 >
 
 {card.playerName}
@@ -197,13 +189,11 @@ text-white
 
 
 <p
-
 className="
 mt-3
 text-xl
 text-zinc-400
 "
-
 >
 
 {card.club ?? t("noClub")}
@@ -215,107 +205,80 @@ text-zinc-400
 
 
 
-
 <div
-
 className="
 mt-10
 grid
 gap-5
 md:grid-cols-2
 "
-
 >
 
 
 
 <Info
-
 title={t("rarity")}
-
 value={card.scarcity}
-
 />
 
 
 
 <Info
-
 title={t("position")}
-
 value={card.position ?? "-"}
-
 />
 
 
 
 <Info
-
 title={t("aa")}
-
 value={
 card.averageScore?.toString()
 ??
 "-"
 }
-
 />
 
 
 
 <Info
-
 title={t("marketValue")}
-
 value={
 `€${card.marketValue?.toFixed(2) ?? "0.00"}`
 }
-
 />
 
 
 
 <Info
-
-title="Precio compra"
-
+title={t("purchasePrice")}
 value={
-purchase
+purchasePrice
 ?
-`€${purchase.price.toFixed(2)}`
+`€${purchasePrice.toFixed(2)}`
 :
 "-"
 }
-
 />
 
 
 
 <Info
-
-title="Fecha compra"
-
+title={t("purchaseDate")}
 value={
-purchase
+purchaseDate
 ?
-new Date(
-purchase.date
-)
-.toLocaleDateString(
-"es-ES"
-)
+new Date(purchaseDate)
+.toLocaleDateString("es-ES")
 :
 "-"
 }
-
 />
 
 
 
 <Info
-
-title="ROI"
-
+title={t("roi")}
 value={
 roi
 ?
@@ -323,19 +286,15 @@ roi
 :
 "-"
 }
-
 />
 
 
 
 <Info
-
 title={t("season")}
-
 value={
 card.season.toString()
 }
-
 />
 
 
@@ -348,8 +307,8 @@ card.season.toString()
 
 
 
-<h2
 
+<h2
 className="
 mt-10
 mb-4
@@ -357,7 +316,6 @@ text-xl
 font-black
 text-white
 "
-
 >
 
 {t("performance")}
@@ -369,50 +327,37 @@ text-white
 
 
 <div
-
 className="
 grid
 grid-cols-4
 gap-3
 "
-
 >
 
 
 <Score
-
 title="L5"
-
 value={card.l5Score}
-
 />
 
 
 <Score
-
 title="L10"
-
 value={card.l10Score}
-
 />
 
 
 <Score
-
 title="L15"
-
 value={card.l15Score}
-
 />
 
 
 <Score
-
 title="L40"
-
 value={card.l40Score}
-
 />
+
 
 
 </div>
@@ -421,8 +366,9 @@ value={card.l40Score}
 
 
 
-<button
 
+
+<button
 className="
 mt-10
 w-full
@@ -433,7 +379,6 @@ font-bold
 text-white
 hover:bg-violet-500
 "
-
 >
 
 {t("addTransaction")}
@@ -459,53 +404,51 @@ hover:bg-violet-500
 
 
 function Info({
-
 title,
-
 value,
-
 }:{
-
 title:string;
-
 value:string;
-
 }) {
 
 
 return (
 
 <div
-
 className="
 rounded-2xl
 bg-white/5
 p-5
 "
-
 >
 
-<p className="text-sm text-zinc-500">
+
+<p
+className="
+text-sm
+text-zinc-500
+"
+>
 
 {title}
 
 </p>
 
 
-<p
 
+<p
 className="
 mt-2
 text-2xl
 font-black
 text-white
 "
-
 >
 
 {value}
 
 </p>
+
 
 
 </div>
@@ -518,55 +461,52 @@ text-white
 
 
 
-
 function Score({
-
 title,
-
 value,
-
 }:{
-
 title:string;
-
 value:number|null;
-
 }) {
 
 
 return (
 
 <div
-
 className="
 rounded-xl
 bg-black/20
 p-3
 text-center
 "
-
 >
 
-<p className="text-xs text-zinc-500">
+
+<p
+className="
+text-xs
+text-zinc-500
+"
+>
 
 {title}
 
 </p>
 
 
-<p
 
+<p
 className="
 mt-1
 font-black
 text-white
 "
-
 >
 
 {value ?? "-"}
 
 </p>
+
 
 
 </div>

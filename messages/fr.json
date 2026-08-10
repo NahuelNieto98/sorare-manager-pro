@@ -58,6 +58,26 @@
     "sync": "Synchronisez votre compte Sorare pour commencer."
   },
 
+  "card": {
+    "back": "Retour",
+    "noImage": "Aucune image",
+    "noClub": "Aucun club",
+    "rarity": "Rareté",
+    "position": "Position",
+    "aa": "Moyenne AA",
+    "marketValue": "Valeur du marché",
+    "purchasePrice": "Prix d'achat",
+    "purchaseDate": "Date d'achat",
+    "roi": "ROI",
+    "season": "Saison",
+    "performance": "Performance",
+    "l5": "L5",
+    "l10": "L10",
+    "l15": "L15",
+    "l40": "L40",
+    "addTransaction": "Ajouter une transaction"
+  },
+
   "transactions": {
     "title": "Transactions",
     "subtitle": "Gérez tous vos achats et ventes.",

@@ -55,20 +55,6 @@
     "currentResult": "Resultado actual"
   },
 
-  "dashboardQuickStats": {
-    "bought": "Compradas",
-    "sold": "Vendidas",
-    "profit": "Beneficio"
-  },
-
-  "quickStats": {
-    "title": "Estadísticas rápidas",
-    "subtitle": "Resumen de tu colección",
-    "cards": "Cartas",
-    "average": "AA Medio",
-    "performance": "Rendimiento"
-  },
-
   "gallery": {
     "filters": "Filtros de colección",
     "search": "Buscar jugador o club...",
@@ -84,180 +70,17 @@
     "sync": "Sincroniza tu cuenta de Sorare para empezar."
   },
 
-  "galleryHeader": {
-    "cards": "Cartas",
-    "value": "Valor",
-    "average": "Media",
-    "collection": "Colección",
-    "subtitle": "Gestiona y analiza tu colección Sorare."
-  },
-
-  "galleryChart": {
-    "title": "Evolución de la galería",
-    "subtitle": "Histórico del valor de tu colección."
-  },
-
-  "galleryValue": {
-    "title": "Valor de galería",
-    "subtitle": "Valor actual de tus cartas.",
-    "connect": "Conecta Sorare para ver tus datos.",
-    "chartPlaceholder": "El gráfico aparecerá cuando existan datos."
-  },
-
-  "portfolio": {
-    "title": "Portfolio",
-    "subtitle": "Resumen de tu inversión.",
-    "galleryValue": "Valor galería",
-    "profit": "Beneficio",
-    "performance": "Rendimiento",
-    "positive": "Positivo",
-    "review": "Revisar"
-  },
-
-  "portfolioChart": {
-    "title": "Evolución del portfolio",
-    "subtitle": "Histórico de evolución."
-  },
-
-  "sort": {
-  "label": "Ordenar",
-  "value": "Valor",
-  "score": "AA",
-  "highest": "Mayor precio",
-  "lowest": "Menor precio",
-  "bestAA": "Mejor AA",
-  "worstAA": "Peor AA",
-  "bestL10": "Mejor L10",
-  "bestL40": "Mejor L40",
-  "nameAZ": "Nombre A-Z",
-  "recent": "Más recientes",
-  "name": "Nombre"
-},
-
-  "systemStatus": {
-    "title": "Estado del sistema",
-    "subtitle": "Servicios conectados",
-    "sorareApi": "Sorare API",
-    "database": "Base de datos",
-    "dashboard": "Dashboard",
-    "scout": "Scout IA",
-    "betaMessage": "Sistema en fase beta"
-  },
-
-  "scoutCard": {
-    "title": "Scout IA",
-    "subtitle": "Asistente inteligente Sorare",
-    "beta": "Beta",
-    "description": "Analiza tu colección y genera recomendaciones.",
-    "buyRecommendations": "Recomendaciones de compra",
-    "sellAlerts": "Alertas de venta",
-    "lineupOptimization": "Optimización de alineaciones",
-    "riskDetection": "Detección de riesgos",
-    "availableSoon": "Disponible próximamente",
-    "automaticAnalysis": "Análisis automático"
-  },
-
-  "sync": {
-    "syncButton": "Sincronizar galería",
-    "pricesButton": "Actualizar precios",
-    "syncing": "Sincronizando...",
-    "updating": "Actualizando precios...",
-    "successSync": "Galería sincronizada correctamente",
-    "errorSync": "Error al sincronizar la galería",
-    "errorPrices": "Error actualizando precios",
-    "updated": "Actualizadas",
-    "skipped": "Omitidas",
-    "failed": "Fallidas"
-  },
-
-  "notifications": {
-    "title": "Notificaciones",
-    "syncTitle": "Sincronización",
-    "syncDescription": "Tu galería ha sido actualizada.",
-    "scoutTitle": "Scout IA",
-    "scoutDescription": "Nuevas recomendaciones disponibles.",
-    "portfolioTitle": "Portfolio",
-    "portfolioDescription": "Revisa el estado de tu inversión."
-  },
-
-  "topPlayers": {
-    "title": "Top jugadores",
-    "empty": "Sin datos disponibles."
-  },
-
-  "analytics": {
-    "title": "Analytics",
-    "subtitle": "Analiza el rendimiento de tu galería y tus inversiones.",
-    "roi": "ROI",
-    "profit": "Beneficio",
-    "bought": "Comprado",
-    "sold": "Vendido",
-    "profitability": "Rentabilidad",
-    "sinceStart": "Desde el inicio",
-    "invested": "Invertido",
-    "recovered": "Recuperado",
-    "distribution": "Distribución",
-    "upcoming": "Próximamente",
-    "roiEvolution": "📈 Evolución del ROI",
-    "profitPlayer": "💰 Beneficio por jugador",
-    "cardRanking": "🏆 Ranking de cartas",
-    "buySell": "📊 Compras vs Ventas",
-    "loading": "Cargando analytics..."
-  },
-
-  "transactions": {
-    "title": "Transacciones",
-    "subtitle": "Gestiona todas tus compras y ventas.",
-    "buy": "Compra",
-    "sell": "Venta",
-    "player": "Jugador",
-    "price": "Precio (€)",
-    "save": "Guardar transacción",
-    "error": "Error",
-    "type": "Tipo",
-    "rarity": "Rareza",
-    "purchase": "🟢 Compra",
-    "sale": "🔴 Venta"
-  },
-
-  "assistant": {
-    "title": "Scout IA",
-    "subtitle": "Tu asistente inteligente para Sorare.",
-    "analyzeTitle": "Analiza tu galería",
-    "description": "El Scout IA analizará automáticamente tus cartas, tu ROI, tus compras y ventas y te dará recomendaciones.",
-    "analyzing": "Analizando...",
-    "analyzeButton": "Analizar mi galería",
-    "result": "Resultado",
-    "empty": "Pulsa el botón para generar un análisis."
-  },
-
-  "rewards": {
-    "title": "Rewards",
-    "subtitle": "Aquí aparecerán todos tus premios."
-  },
-
-  "connect": {
-    "title": "Conectar Sorare",
-    "subtitle": "Conecta tu cuenta de Sorare directamente para sincronizar automáticamente tu colección.",
-    "connecting": "Conectando con Sorare...",
-    "button": "🔗 Conectar con Sorare"
-  },
-
-    "settings": {
-    "title": "Configuración",
-    "subtitle": "Conecta tu cuenta de Sorare.",
-    "account": "Cuenta Sorare",
-    "placeholder": "Ejemplo: lightenn1",
-    "button": "Conectar cuenta",
-    "error": "Error al conectar la cuenta",
-    "success": "Cuenta conectada correctamente"
-  },
-
   "card": {
+    "back": "Volver",
+    "noImage": "Sin imagen",
+    "noClub": "Sin club",
     "rarity": "Rareza",
     "position": "Posición",
     "aa": "Media AA",
     "marketValue": "Valor de mercado",
+    "purchasePrice": "Precio compra",
+    "purchaseDate": "Fecha compra",
+    "roi": "ROI",
     "season": "Temporada",
     "performance": "Rendimiento",
     "l5": "L5",
