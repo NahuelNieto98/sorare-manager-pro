@@ -81,6 +81,7 @@ model Card {
   priceUpdatedAt    DateTime?
   owner             User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   MarketTransaction MarketTransaction[]
+  transactions      Transaction[]
 }
 
 model Transaction {
@@ -90,8 +91,12 @@ model Transaction {
   rarity     String
   price      Float
   date       DateTime @default(now())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  cardId String?
+  card   Card?   @relation(fields: [cardId], references: [id], onDelete: SetNull)
 }
 
 model MarketTransaction {
