@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 
 import {
   BarChart3,
@@ -13,586 +15,355 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-
 export default function HomePage() {
+  const t = useTranslations("home");
+  const params = useParams();
 
+  const locale = params.locale as string;
 
-return (
+  return (
+    <main>
+      <section
+        className="
+          relative
+          px-8
+          py-24
+        "
+      >
+        <div
+          className="
+            absolute
+            -right-40
+            -top-40
+            h-96
+            w-96
+            rounded-full
+            bg-violet-600/20
+            blur-3xl
+          "
+        />
 
-<main>
+        <div
+          className="
+            absolute
+            -left-40
+            top-40
+            h-96
+            w-96
+            rounded-full
+            bg-blue-600/20
+            blur-3xl
+          "
+        />
 
+        <div
+          className="
+            relative
+            mx-auto
+            max-w-6xl
+            text-center
+          "
+        >
+          <div
+            className="
+              inline-flex
+              items-center
+              gap-2
+              rounded-full
+              border
+              border-violet-500/30
+              bg-violet-500/10
+              px-5
+              py-2
+              text-sm
+              font-bold
+              text-violet-300
+            "
+          >
+            <Sparkles size={16} />
 
-<section
-className="
-relative
-px-8
-py-24
-"
->
+            {t("badge")}
+          </div>
 
+          <h1
+            className="
+              mt-8
+              text-5xl
+              font-black
+              tracking-tight
+              md:text-7xl
+            "
+          >
+            {t("heroTitle")}
 
-<div
-className="
-absolute
--right-40
--top-40
-h-96
-w-96
-rounded-full
-bg-violet-600/20
-blur-3xl
-"
-/>
+            <span
+              className="
+                block
+                bg-gradient-to-r
+                from-violet-400
+                to-blue-400
+                bg-clip-text
+                text-transparent
+              "
+            >
+              {t("heroTitleHighlight")}
+            </span>
+          </h1>
 
+          <p
+            className="
+              mx-auto
+              mt-8
+              max-w-3xl
+              text-xl
+              leading-8
+              text-zinc-400
+            "
+          >
+            {t("heroDescription")}
+          </p>
 
-<div
-className="
-absolute
--left-40
-top-40
-h-96
-w-96
-rounded-full
-bg-blue-600/20
-blur-3xl
-"
-/>
+          <div
+            className="
+              mt-10
+              flex
+              flex-col
+              justify-center
+              gap-4
+              sm:flex-row
+            "
+          >
+            <button
+              onClick={() =>
+                signIn("sorare", {
+                  callbackUrl: `/${locale}/dashboard`,
+                })
+              }
+              className="
+                rounded-2xl
+                bg-gradient-to-r
+                from-violet-600
+                to-blue-600
+                px-8
+                py-4
+                font-black
+                transition
+                hover:scale-105
+              "
+            >
+              🚀 {t("login")}
+            </button>
 
+            <Link
+              href={`/${locale}/dashboard`}
+              className="
+                rounded-2xl
+                border
+                border-white/10
+                bg-white/5
+                px-8
+                py-4
+                font-black
+                transition
+                hover:bg-white/10
+              "
+            >
+              {t("demo")}
+            </Link>
+          </div>
+        </div>
+      </section>
 
+      <section
+        className="
+          mx-auto
+          max-w-6xl
+          px-8
+          pb-24
+        "
+      >
+        <div
+          className="
+            grid
+            gap-6
+            md:grid-cols-2
+            lg:grid-cols-4
+          "
+        >
+          <Feature
+            icon={<BarChart3 />}
+            title={t("features.dashboard.title")}
+            text={t("features.dashboard.text")}
+          />
 
-<div
-className="
-relative
-mx-auto
-max-w-6xl
-text-center
-"
->
+          <Feature
+            icon={<TrendingUp />}
+            title={t("features.portfolio.title")}
+            text={t("features.portfolio.text")}
+          />
 
+          <Feature
+            icon={<ChartCandlestick />}
+            title={t("features.market.title")}
+            text={t("features.market.text")}
+          />
 
-<div
-className="
-inline-flex
-items-center
-gap-2
-rounded-full
-border
-border-violet-500/30
-bg-violet-500/10
-px-5
-py-2
-text-sm
-font-bold
-text-violet-300
-"
->
+          <Feature
+            icon={<Bot />}
+            title={t("features.scout.title")}
+            text={t("features.scout.text")}
+          />
+        </div>
+      </section>
 
-<Sparkles size={16}/>
+      <section
+        className="
+          mx-auto
+          max-w-6xl
+          px-8
+          pb-24
+        "
+      >
+        <div
+          className="
+            rounded-3xl
+            border
+            border-white/10
+            bg-gradient-to-br
+            from-[#17112F]
+            to-[#0f0b1f]
+            p-8
+          "
+        >
+          <div
+            className="
+              flex
+              items-center
+              gap-3
+            "
+          >
+            <Rocket className="text-violet-400" />
 
-Sorare Manager Pro Beta
+            <h2 className="text-3xl font-black">
+              {t("controlCenter")}
+            </h2>
+          </div>
 
-</div>
+          <div
+            className="
+              mt-8
+              grid
+              gap-5
+              md:grid-cols-3
+            "
+          >
+            <PreviewCard
+              title={t("stats.cards")}
+              value="250+"
+            />
 
+            <PreviewCard
+              title={t("stats.value")}
+              value="€12.450"
+            />
 
+            <PreviewCard
+              title={t("stats.roi")}
+              value="+24.8%"
+            />
+          </div>
+        </div>
+      </section>
 
+      <section
+        className="
+          px-8
+          pb-24
+          text-center
+        "
+      >
+        <ShieldCheck
+          className="
+            mx-auto
+            text-green-400
+          "
+          size={40}
+        />
 
+        <h2 className="mt-6 text-4xl font-black">
+          {t("betaTitle")}
+        </h2>
 
-<h1
-className="
-mt-8
-text-5xl
-font-black
-tracking-tight
-md:text-7xl
-"
->
-
-Gestiona tu colección Sorare
-
-<span
-className="
-block
-bg-gradient-to-r
-from-violet-400
-to-blue-400
-bg-clip-text
-text-transparent
-"
->
-
-como un profesional
-
-</span>
-
-</h1>
-
-
-
-
-
-<p
-className="
-mx-auto
-mt-8
-max-w-3xl
-text-xl
-leading-8
-text-zinc-400
-"
->
-
-Analiza tu portfolio, controla tus cartas,
-descubre oportunidades de mercado y
-toma mejores decisiones con inteligencia.
-
-</p>
-
-
-
-
-
-<div
-className="
-mt-10
-flex
-flex-col
-justify-center
-gap-4
-sm:flex-row
-"
->
-
-
-<button
-
-onClick={() =>
-signIn(
-"sorare",
-{
-callbackUrl:
-"/es/dashboard",
+        <p className="mt-4 text-zinc-400">
+          {t("betaDescription")}
+        </p>
+      </section>
+    </main>
+  );
 }
-)
-}
-
-className="
-rounded-2xl
-bg-gradient-to-r
-from-violet-600
-to-blue-600
-px-8
-py-4
-font-black
-transition
-hover:scale-105
-"
-
->
-
-🚀 Entrar con Sorare
-
-</button>
-
-
-
-
-
-<Link
-
-href="/es/dashboard"
-
-className="
-rounded-2xl
-border
-border-white/10
-bg-white/5
-px-8
-py-4
-font-black
-transition
-hover:bg-white/10
-"
-
->
-
-Ver demo
-
-</Link>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-<section
-
-className="
-mx-auto
-max-w-6xl
-px-8
-pb-24
-"
-
->
-
-
-<div
-
-className="
-grid
-gap-6
-md:grid-cols-2
-lg:grid-cols-4
-"
-
->
-
-
-<Feature
-
-icon={<BarChart3 />}
-
-title="Dashboard"
-
-text="Toda tu colección controlada desde un solo lugar."
-
-/>
-
-
-
-
-<Feature
-
-icon={<TrendingUp />}
-
-title="Portfolio"
-
-text="Analiza valor, ROI y rendimiento."
-
-/>
-
-
-
-
-<Feature
-
-icon={<ChartCandlestick />}
-
-title="Market"
-
-text="Encuentra oportunidades en el mercado."
-
-/>
-
-
-
-
-<Feature
-
-icon={<Bot />}
-
-title="Scout IA"
-
-text="Recomendaciones inteligentes para tu colección."
-
-/>
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-<section
-
-className="
-mx-auto
-max-w-6xl
-px-8
-pb-24
-"
-
->
-
-
-<div
-
-className="
-rounded-3xl
-border
-border-white/10
-bg-gradient-to-br
-from-[#17112F]
-to-[#0f0b1f]
-p-8
-"
-
->
-
-
-<div
-
-className="
-flex
-items-center
-gap-3
-"
-
->
-
-
-<Rocket className="text-violet-400"/>
-
-
-
-<h2 className="text-3xl font-black">
-
-Tu centro de control Sorare
-
-</h2>
-
-
-</div>
-
-
-
-
-
-<div
-
-className="
-mt-8
-grid
-gap-5
-md:grid-cols-3
-"
-
->
-
-
-<PreviewCard
-
-title="Cartas"
-
-value="250+"
-
-/>
-
-
-
-<PreviewCard
-
-title="Valor colección"
-
-value="€12.450"
-
-/>
-
-
-
-<PreviewCard
-
-title="ROI"
-
-value="+24.8%"
-
-/>
-
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-<section
-
-className="
-px-8
-pb-24
-text-center
-"
-
->
-
-
-<ShieldCheck
-
-className="
-mx-auto
-text-green-400
-"
-
-size={40}
-
-/>
-
-
-
-<h2 className="mt-6 text-4xl font-black">
-
-Únete a la beta pública
-
-</h2>
-
-
-
-
-<p className="mt-4 text-zinc-400">
-
-Ayuda a construir la herramienta definitiva para managers Sorare.
-
-</p>
-
-
-</section>
-
-
-
-
-</main>
-
-);
-
-}
-
-
-
-
-
 
 function Feature({
-icon,
-title,
-text,
-}:{
-icon:React.ReactNode;
-title:string;
-text:string;
-}){
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div
+      className="
+        rounded-3xl
+        border
+        border-white/10
+        bg-white/5
+        p-6
+      "
+    >
+      <div className="text-violet-400">
+        {icon}
+      </div>
 
+      <h3 className="mt-5 text-xl font-black">
+        {title}
+      </h3>
 
-return (
-
-<div
-className="
-rounded-3xl
-border
-border-white/10
-bg-white/5
-p-6
-"
->
-
-
-<div className="text-violet-400">
-
-{icon}
-
-</div>
-
-
-
-<h3 className="mt-5 text-xl font-black">
-
-{title}
-
-</h3>
-
-
-
-
-<p className="mt-3 text-zinc-400">
-
-{text}
-
-</p>
-
-
-</div>
-
-);
-
-
+      <p className="mt-3 text-zinc-400">
+        {text}
+      </p>
+    </div>
+  );
 }
 
-
-
-
-
-
 function PreviewCard({
-title,
-value,
-}:{
-title:string;
-value:string;
-}){
+  title,
+  value,
+}: {
+  title: string;
+  value: string;
+}) {
+  return (
+    <div
+      className="
+        rounded-2xl
+        bg-white/5
+        p-5
+      "
+    >
+      <p className="text-zinc-400">
+        {title}
+      </p>
 
-
-return (
-
-<div
-
-className="
-rounded-2xl
-bg-white/5
-p-5
-"
-
->
-
-
-<p className="text-zinc-400">
-
-{title}
-
-</p>
-
-
-
-<p
-
-className="
-mt-3
-text-3xl
-font-black
-"
-
->
-
-{value}
-
-</p>
-
-
-</div>
-
-);
-
-
+      <p
+        className="
+          mt-3
+          text-3xl
+          font-black
+        "
+      >
+        {value}
+      </p>
+    </div>
+  );
 }

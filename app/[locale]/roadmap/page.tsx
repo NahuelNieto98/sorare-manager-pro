@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CheckCircle2,
   Clock3,
@@ -5,57 +7,39 @@ import {
   Sparkles,
 } from "lucide-react";
 
-
-const roadmap = [
-  {
-    title: "Dashboard Premium",
-    description:
-      "Panel completo con estadísticas, valor de colección, transacciones y estado de cuenta.",
-    status: "Completado",
-    done: true,
-  },
-  {
-    title: "Portfolio Intelligence",
-    description:
-      "Análisis avanzado de ROI, distribución de cartera y evolución del valor.",
-    status: "En desarrollo",
-    done: false,
-  },
-  {
-    title: "Scout IA",
-    description:
-      "Recomendaciones inteligentes para detectar oportunidades y riesgos.",
-    status: "Próximamente",
-    done: false,
-  },
-  {
-    title: "Market Scanner Pro",
-    description:
-      "Encontrar cartas infravaloradas y oportunidades de mercado.",
-    status: "Próximamente",
-    done: false,
-  },
-  {
-    title: "Watchlist",
-    description:
-      "Seguimiento de jugadores favoritos y evolución de precios.",
-    status: "Próximamente",
-    done: false,
-  },
-  {
-    title: "Squad Builder IA",
-    description:
-      "Crear alineaciones optimizadas según competición y presupuesto.",
-    status: "Futuro",
-    done: false,
-  },
-];
-
+import { useTranslations } from "next-intl";
 
 export default function RoadmapPage() {
+  const t = useTranslations("roadmapPage");
+
+  const roadmap = [
+    {
+      key: "dashboard",
+      done: true,
+    },
+    {
+      key: "portfolio",
+      done: false,
+    },
+    {
+      key: "scout",
+      done: false,
+    },
+    {
+      key: "market",
+      done: false,
+    },
+    {
+      key: "watchlist",
+      done: false,
+    },
+    {
+      key: "squad",
+      done: false,
+    },
+  ];
 
   return (
-
     <main
       className="
       min-h-screen
@@ -65,19 +49,9 @@ export default function RoadmapPage() {
       text-white
       "
     >
+      <div className="mx-auto max-w-5xl">
 
-      <div
-        className="
-        mx-auto
-        max-w-5xl
-        "
-      >
-
-        <div
-          className="
-          text-center
-          "
-        >
+        <div className="text-center">
 
           <div
             className="
@@ -96,13 +70,10 @@ export default function RoadmapPage() {
             text-violet-300
             "
           >
+            <Rocket size={16} />
 
-            <Rocket size={16}/>
-
-            Roadmap público
-
+            {t("badge")}
           </div>
-
 
           <h1
             className="
@@ -111,7 +82,8 @@ export default function RoadmapPage() {
             font-black
             "
           >
-            El futuro de
+            {t("title")}
+
             <span
               className="
               block
@@ -122,10 +94,9 @@ export default function RoadmapPage() {
               text-transparent
               "
             >
-              Sorare Manager Pro
+              {t("titleHighlight")}
             </span>
           </h1>
-
 
           <p
             className="
@@ -136,26 +107,16 @@ export default function RoadmapPage() {
             text-zinc-400
             "
           >
-            Estamos construyendo una herramienta completa
-            para ayudarte a gestionar y mejorar tu colección Sorare.
+            {t("description")}
           </p>
-
 
         </div>
 
+        <div className="mt-16 space-y-5">
 
-
-        <div
-          className="
-          mt-16
-          space-y-5
-          "
-        >
-
-          {roadmap.map((item)=> (
-
+          {roadmap.map((item) => (
             <div
-              key={item.title}
+              key={item.key}
               className="
               rounded-3xl
               border
@@ -191,19 +152,14 @@ export default function RoadmapPage() {
                   >
 
                     {item.done ? (
-                      <CheckCircle2
-                        className="text-green-400"
-                      />
+                      <CheckCircle2 className="text-green-400" />
                     ) : (
-                      <Clock3
-                        className="text-violet-400"
-                      />
+                      <Clock3 className="text-violet-400" />
                     )}
 
-                    {item.title}
+                    {t(`items.${item.key}.title`)}
 
                   </h2>
-
 
                   <p
                     className="
@@ -211,12 +167,10 @@ export default function RoadmapPage() {
                     text-zinc-400
                     "
                   >
-                    {item.description}
+                    {t(`items.${item.key}.description`)}
                   </p>
 
-
                 </div>
-
 
                 <span
                   className={`
@@ -229,30 +183,24 @@ export default function RoadmapPage() {
 
                   ${
                     item.done
-                    ?
-                    "border-green-500/20 bg-green-500/10 text-green-400"
-                    :
-                    "border-violet-500/20 bg-violet-500/10 text-violet-300"
+                      ? "border-green-500/20 bg-green-500/10 text-green-400"
+                      : "border-violet-500/20 bg-violet-500/10 text-violet-300"
                   }
-
                   `}
                 >
-
-                  {item.status}
-
+                  {t(
+                    item.done
+                      ? "status.completed"
+                      : `items.${item.key}.status`
+                  )}
                 </span>
-
 
               </div>
 
-
             </div>
-
           ))}
 
         </div>
-
-
 
         <div
           className="
@@ -273,7 +221,6 @@ export default function RoadmapPage() {
             "
           />
 
-
           <h2
             className="
             mt-4
@@ -281,9 +228,8 @@ export default function RoadmapPage() {
             font-black
             "
           >
-            Forma parte del desarrollo
+            {t("feedback.title")}
           </h2>
-
 
           <p
             className="
@@ -291,18 +237,12 @@ export default function RoadmapPage() {
             text-zinc-400
             "
           >
-            Tu feedback ayuda a decidir las próximas funcionalidades.
+            {t("feedback.description")}
           </p>
-
 
         </div>
 
-
       </div>
-
-
     </main>
-
   );
-
 }

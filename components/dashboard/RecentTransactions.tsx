@@ -1,8 +1,12 @@
+"use client";
+
 import {
   ArrowDownLeft,
   ArrowUpRight,
   ReceiptText,
 } from "lucide-react";
+
+import { useTranslations } from "next-intl";
 
 type Transaction = {
   id: string;
@@ -19,6 +23,7 @@ type Props = {
 export default function RecentTransactions({
   transactions,
 }: Props) {
+  const t = useTranslations("transactions");
 
   return (
     <div
@@ -34,19 +39,16 @@ export default function RecentTransactions({
       shadow-xl
       "
     >
-
       <div className="flex items-center justify-between">
-
         <div>
           <h2 className="text-2xl font-black text-white">
-            Últimas transacciones
+            {t("title")}
           </h2>
 
           <p className="mt-2 text-sm text-zinc-400">
-            Historial de movimientos de tu portfolio.
+            {t("subtitle")}
           </p>
         </div>
-
 
         <div
           className="
@@ -64,16 +66,10 @@ export default function RecentTransactions({
             size={24}
           />
         </div>
-
       </div>
 
-
-
       <div className="mt-8 space-y-4">
-
-
         {transactions.length === 0 && (
-
           <div
             className="
             rounded-2xl
@@ -85,20 +81,14 @@ export default function RecentTransactions({
             text-zinc-400
             "
           >
-            No hay transacciones todavía.
+            {t("empty")}
           </div>
-
         )}
 
-
-
         {transactions.map((transaction) => {
-
           const isBuy = transaction.type === "BUY";
 
-
           return (
-
             <div
               key={transaction.id}
               className="
@@ -116,10 +106,7 @@ export default function RecentTransactions({
               hover:border-violet-400/30
               "
             >
-
               <div className="flex items-center gap-4">
-
-
                 <div
                   className={`
                   flex
@@ -135,33 +122,26 @@ export default function RecentTransactions({
                   }
                   `}
                 >
-
                   {isBuy ? (
-                    <ArrowDownLeft size={24}/>
+                    <ArrowDownLeft size={24} />
                   ) : (
-                    <ArrowUpRight size={24}/>
+                    <ArrowUpRight size={24} />
                   )}
-
                 </div>
 
-
-
                 <div>
-
                   <p
                     className="
                     font-bold
                     text-white
-                    group-hover:text-violet-300
                     transition
+                    group-hover:text-violet-300
                     "
                   >
                     {transaction.playerName}
                   </p>
 
-
                   <div className="mt-1 flex items-center gap-3">
-
                     <span
                       className="
                       rounded-full
@@ -176,22 +156,16 @@ export default function RecentTransactions({
                       {transaction.rarity}
                     </span>
 
-
                     <span className="text-xs text-zinc-500">
-                      {isBuy ? "Compra" : "Venta"}
+                      {isBuy
+                        ? t("purchase")
+                        : t("sale")}
                     </span>
-
                   </div>
-
                 </div>
-
               </div>
 
-
-
-
               <div className="text-right">
-
                 <p
                   className={`
                   text-xl
@@ -208,23 +182,16 @@ export default function RecentTransactions({
                   {transaction.price.toFixed(2)}
                 </p>
 
-
                 <p className="mt-1 text-xs text-zinc-500">
-                  {transaction.type}
+                  {isBuy
+                    ? t("buy")
+                    : t("sell")}
                 </p>
-
               </div>
-
-
             </div>
-
           );
-
         })}
-
       </div>
-
-
     </div>
   );
 }

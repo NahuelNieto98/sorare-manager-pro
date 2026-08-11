@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 type Card = {
   playerName: string;
   marketValue: number | null;
@@ -23,6 +25,7 @@ export default function GalleryStats({
   inSeasonCards,
   classicCards,
 }: Props) {
+  const t = useTranslations("gallery");
 
   const averageAA =
     cards.length
@@ -40,32 +43,30 @@ export default function GalleryStats({
         (a.marketValue ?? 0)
     )[0];
 
-
   return (
     <div
       className="
-      grid
-      gap-4
-      mb-6
-      md:gap-5
-      md:mb-8
-      md:grid-cols-2
-      xl:grid-cols-4
+        mb-6
+        grid
+        gap-4
+        md:mb-8
+        md:grid-cols-2
+        md:gap-5
+        xl:grid-cols-4
       "
     >
-
       <div
         className="
-        rounded-3xl
-        border
-        border-white/10
-        bg-[#17112F]
-        p-4
-        md:p-6
+          rounded-3xl
+          border
+          border-white/10
+          bg-[#17112F]
+          p-4
+          md:p-6
         "
       >
         <p className="text-sm text-white/70">
-          💎 Valor colección
+          💎 {t("collectionValue")}
         </p>
 
         <p className="mt-2 text-2xl font-black text-emerald-400">
@@ -73,19 +74,18 @@ export default function GalleryStats({
         </p>
       </div>
 
-
       <div
         className="
-        rounded-3xl
-        border
-        border-white/10
-        bg-[#17112F]
-        p-4
-        md:p-6
+          rounded-3xl
+          border
+          border-white/10
+          bg-[#17112F]
+          p-4
+          md:p-6
         "
       >
         <p className="text-sm text-white/70">
-          🃏 Cartas
+          🃏 {t("cards")}
         </p>
 
         <p className="mt-2 text-2xl font-black text-white">
@@ -93,23 +93,23 @@ export default function GalleryStats({
         </p>
 
         <p className="mt-1 text-xs text-white/50">
-          {inSeasonCards} In Season · {classicCards} Classic
+          {inSeasonCards} {t("inSeason")} ·{" "}
+          {classicCards} {t("classic")}
         </p>
       </div>
 
-
       <div
         className="
-        rounded-3xl
-        border
-        border-white/10
-        bg-[#17112F]
-        p-4
-        md:p-6
+          rounded-3xl
+          border
+          border-white/10
+          bg-[#17112F]
+          p-4
+          md:p-6
         "
       >
         <p className="text-sm text-white/70">
-          ⭐ Media AA
+          ⭐ {t("average")}
         </p>
 
         <p className="mt-2 text-2xl font-black text-violet-300">
@@ -117,35 +117,35 @@ export default function GalleryStats({
         </p>
 
         <p className="mt-1 text-xs text-white/50">
-          Media de rendimiento
+          {t("performance")}
         </p>
       </div>
 
-
       <div
         className="
-        rounded-3xl
-        border
-        border-white/10
-        bg-[#17112F]
-        p-4
-        md:p-6
+          rounded-3xl
+          border
+          border-white/10
+          bg-[#17112F]
+          p-4
+          md:p-6
         "
       >
         <p className="text-sm text-white/70">
-          🏆 Carta estrella
+          🏆 {t("starCard")}
         </p>
 
         <p className="mt-2 truncate text-lg font-black text-white">
-          {mostValuableCard?.playerName ?? "Sin datos"}
+          {mostValuableCard?.playerName ??
+            t("noData")}
         </p>
 
         <p className="mt-1 text-lg font-black text-emerald-400">
           €
-          {mostValuableCard?.marketValue?.toFixed(2) ?? "0.00"}
+          {mostValuableCard?.marketValue?.toFixed(2) ??
+            "0.00"}
         </p>
       </div>
-
     </div>
   );
 }

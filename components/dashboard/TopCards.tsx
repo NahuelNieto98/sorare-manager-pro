@@ -1,7 +1,11 @@
+"use client";
+
 import {
   Trophy,
   Crown,
 } from "lucide-react";
+
+import { useTranslations } from "next-intl";
 
 type Card = {
   playerName: string;
@@ -13,7 +17,11 @@ type Props = {
 };
 
 export default function TopCards({ cards }: Props) {
+
+  const t = useTranslations("topPlayers");
+
   return (
+
     <div
       className="
       rounded-3xl
@@ -31,13 +39,15 @@ export default function TopCards({ cards }: Props) {
       <div className="flex items-center justify-between">
 
         <div>
+
           <h2 className="text-2xl font-black text-white">
-            Top cartas
+            {t("title")}
           </h2>
 
           <p className="mt-2 text-sm text-zinc-400">
-            Tus activos con mayor valor de mercado.
+            {t("subtitle")}
           </p>
+
         </div>
 
 
@@ -52,19 +62,21 @@ export default function TopCards({ cards }: Props) {
           bg-yellow-500/10
           "
         >
+
           <Trophy
             className="text-yellow-400"
             size={24}
           />
+
         </div>
 
       </div>
 
 
-
       <div className="mt-8 space-y-4">
 
         {cards.length === 0 && (
+
           <div
             className="
             rounded-2xl
@@ -76,10 +88,12 @@ export default function TopCards({ cards }: Props) {
             text-zinc-400
             "
           >
-            No hay cartas sincronizadas todavía.
-          </div>
-        )}
 
+            {t("empty")}
+
+          </div>
+
+        )}
 
 
         {cards.map((card, index) => (
@@ -104,7 +118,6 @@ export default function TopCards({ cards }: Props) {
 
             <div className="flex items-center gap-4">
 
-
               <div
                 className={`
                 flex
@@ -121,13 +134,14 @@ export default function TopCards({ cards }: Props) {
                 }
                 `}
               >
+
                 {index === 0 ? (
-                  <Crown size={22}/>
+                  <Crown size={22} />
                 ) : (
                   `#${index + 1}`
                 )}
-              </div>
 
+              </div>
 
 
               <div>
@@ -136,23 +150,20 @@ export default function TopCards({ cards }: Props) {
                   className="
                   font-bold
                   text-white
-                  group-hover:text-violet-300
                   transition
+                  group-hover:text-violet-300
                   "
                 >
                   {card.playerName}
                 </p>
 
-
                 <p className="mt-1 text-sm text-zinc-500">
-                  Carta #{index + 1}
+                  {t("card")} #{index + 1}
                 </p>
 
               </div>
 
-
             </div>
-
 
 
             <div className="text-right">
@@ -167,13 +178,11 @@ export default function TopCards({ cards }: Props) {
                 €{(card.marketValue ?? 0).toFixed(2)}
               </p>
 
-
               <p className="text-xs text-zinc-500">
-                Valor estimado
+                {t("estimatedValue")}
               </p>
 
             </div>
-
 
           </div>
 
@@ -182,5 +191,6 @@ export default function TopCards({ cards }: Props) {
       </div>
 
     </div>
+
   );
 }

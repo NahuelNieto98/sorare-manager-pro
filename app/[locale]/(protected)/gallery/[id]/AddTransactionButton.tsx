@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+
 import { createMarketTransaction } from "@/app/actions/create-market-transaction";
 
 
@@ -15,6 +17,8 @@ export default function AddTransactionButton({
 
 
   const router = useRouter();
+
+  const t = useTranslations("card");
 
 
   const [open, setOpen] = useState(false);
@@ -60,13 +64,12 @@ export default function AddTransactionButton({
     if(!value || value <= 0){
 
       alert(
-        "Introduce un precio válido"
+        t("invalidPrice")
       );
 
       return;
 
     }
-
 
 
 
@@ -95,7 +98,6 @@ export default function AddTransactionButton({
 
         setSuccess(false);
 
-
         router.refresh();
 
 
@@ -109,8 +111,8 @@ export default function AddTransactionButton({
 
       alert(
         error instanceof Error
-        ? error.message
-        : "Error guardando compra"
+          ? error.message
+          : t("saveError")
       );
 
 
@@ -153,8 +155,8 @@ export default function AddTransactionButton({
 
         {
           currentPrice
-          ? "Editar compra"
-          : "Añadir compra"
+            ? t("editPurchase")
+            : t("addPurchase")
         }
 
 
@@ -208,8 +210,8 @@ export default function AddTransactionButton({
 
                 {
                   currentPrice
-                  ? "Editar compra"
-                  : "Nueva compra"
+                    ? t("editPurchase")
+                    : t("newPurchase")
                 }
 
 
@@ -236,7 +238,7 @@ export default function AddTransactionButton({
 
                   >
 
-                    Compra guardada ✓
+                    {t("purchaseSaved")}
 
 
                   </div>
@@ -257,7 +259,9 @@ export default function AddTransactionButton({
                     type="number"
 
 
-                    placeholder="Precio de compra (€)"
+                    placeholder={
+                      t("purchasePricePlaceholder")
+                    }
 
 
                     value={price}
@@ -307,7 +311,7 @@ export default function AddTransactionButton({
 
                     >
 
-                      Cancelar
+                      {t("cancel")}
 
 
                     </button>
@@ -339,8 +343,8 @@ export default function AddTransactionButton({
 
                       {
                         loading
-                        ? "Guardando..."
-                        : "Guardar"
+                          ? t("saving")
+                          : t("save")
                       }
 
 

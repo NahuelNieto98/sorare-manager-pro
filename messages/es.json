@@ -1,17 +1,29 @@
 {
   "market": {
-    "title": "Sorare Market Scanner",
-    "subtitle": "Analiza oportunidades del mercado automáticamente",
-    "top": "TOP OPORTUNIDADES HOY",
-    "complete": "Mercado completo",
-    "buy": "COMPRA",
-    "watch": "VIGILAR",
-    "expensive": "CARA",
-    "price": "Precio",
-    "value": "Valor estimado",
-    "score": "Puntuación",
-    "opportunity": "Oportunidad"
-  },
+  "title": "Sorare Market Scanner",
+  "subtitle": "Analiza oportunidades del mercado automáticamente",
+  "intelligence": "INTELIGENCIA DE MERCADO",
+  "top": "TOP OPORTUNIDADES HOY",
+  "complete": "Mercado completo",
+  "completeDescription": "Todas las oportunidades detectadas en el mercado.",
+  "buy": "COMPRA",
+  "watch": "VIGILAR",
+  "expensive": "CARA",
+  "price": "Precio",
+  "value": "Valor estimado",
+  "score": "Puntuación",
+  "opportunity": "Oportunidad",
+  "rarity": "Rareza",
+  "club": "Club",
+  "player": "Jugador",
+  "analyzed": "Cartas analizadas",
+  "opportunities": "Oportunidades",
+  "bestScore": "Mejor puntuación",
+  "loading": "Cargando mercado...",
+  "emptyTitle": "Mercado sin datos",
+  "emptyDescription": "Conecta y sincroniza tu cuenta de Sorare para analizar las oportunidades del mercado y encontrar compras interesantes.",
+  "connect": "🔗 Conectar Sorare"
+},
 
   "marketFilters": {
     "search": "Buscar jugador...",
@@ -29,10 +41,14 @@
     "menu": "Menú",
     "dashboard": "Dashboard",
     "gallery": "Galería",
+    "market": "Mercado",
     "transactions": "Transacciones",
     "assistant": "Scout IA",
     "analytics": "Analítica",
     "settings": "Configuración",
+    "product": "PRODUCTO",
+    "roadmap": "Hoja de ruta",
+    "changelog": "Registro de cambios",
     "system": "Sistema activo",
     "api": "API conectada",
     "account": "Cuenta sincronizada",
@@ -105,16 +121,21 @@
   },
 
   "portfolio": {
-  "title": "Portfolio",
-  "subtitle": "Resumen de tu inversión.",
-  "galleryValue": "Valor galería",
-  "profit": "Beneficio",
-  "performance": "Rendimiento",
-  "positive": "Positivo",
-  "review": "Revisar"
-},
+    "title": "Portfolio",
+    "subtitle": "Resumen de tu inversión.",
+    "galleryValue": "Valor galería",
+    "profit": "Beneficio",
+    "performance": "Rendimiento",
+    "positive": "Positivo",
+    "review": "Revisar"
+  },
 
-"sort": {
+  "portfolioChart": {
+    "title": "Evolución del portfolio",
+    "subtitle": "Histórico de evolución."
+  },
+
+  "sort": {
     "label": "Ordenar",
     "value": "Valor",
     "score": "AA",
@@ -137,6 +158,14 @@
     "dashboard": "Dashboard",
     "scout": "Scout IA",
     "betaMessage": "Sistema en fase beta"
+  },
+
+  "marketSummary": {
+    "title": "Mercado",
+    "subtitle": "Seguimiento de movimientos económicos.",
+    "bought": "Comprado",
+    "sold": "Vendido",
+    "balance": "Balance mercado"
   },
 
   "scoutCard": {
@@ -176,8 +205,8 @@
   },
 
   "transactions": {
-    "title": "Transacciones",
-    "subtitle": "Gestiona todas tus compras y ventas.",
+    "title": "Últimas transacciones",
+    "subtitle": "Historial de movimientos de tu portfolio.",
     "buy": "Compra",
     "sell": "Venta",
     "player": "Jugador",
@@ -187,7 +216,8 @@
     "type": "Tipo",
     "rarity": "Rareza",
     "purchase": "🟢 Compra",
-    "sale": "🔴 Venta"
+    "sale": "🔴 Venta",
+    "empty": "No hay transacciones todavía."
   },
 
   "analytics": {
@@ -224,26 +254,35 @@
   "rewards": {
     "title": "Rewards",
     "subtitle": "Aquí aparecerán todos tus premios."
-  },  "connect": {
+  },
+
+  "connect": {
     "title": "Conectar Sorare",
     "subtitle": "Conecta tu cuenta de Sorare directamente para sincronizar automáticamente tu colección.",
     "connecting": "Conectando con Sorare...",
-    "button": "🔗 Conectar con Sorare"
+    "button": "🔗 Conectar Sorare"
   },
 
   "settings": {
     "title": "Configuración",
     "subtitle": "Conecta tu cuenta de Sorare.",
-    "account": "Cuenta Sorare",
+    "badge": "CONFIGURACIÓN",
+    "description": "Gestiona tu cuenta y la conexión con Sorare desde un único lugar.",
+    "account": "Cuenta de Sorare",
+    "connectedAccount": "Cuenta conectada:",
     "placeholder": "Ejemplo: lightenn1",
     "button": "Conectar cuenta",
+    "connecting": "Conectando...",
     "error": "Error al conectar la cuenta",
     "success": "Cuenta conectada correctamente"
   },
 
   "topPlayers": {
-    "title": "Mejores cartas",
-    "empty": "Sin datos disponibles."
+    "title": "Top cartas",
+    "subtitle": "Tus activos con mayor valor de mercado.",
+    "card": "Carta",
+    "estimatedValue": "Valor estimado",
+    "empty": "No hay datos disponibles."
   },
 
   "card": {
@@ -263,12 +302,17 @@
     "l10": "L10",
     "l15": "L15",
     "l40": "L40",
-    "addTransaction": "Añadir transacción"
-  },
-
-  "portfolioChart": {
-    "title": "Evolución del portfolio",
-    "subtitle": "Histórico de evolución."
+    "addTransaction": "Añadir transacción",
+    "addPurchase": "Añadir compra",
+    "editPurchase": "Editar compra",
+    "newPurchase": "Nueva compra",
+    "purchaseSaved": "Compra guardada ✓",
+    "purchasePricePlaceholder": "Precio de compra (€)",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "invalidPrice": "Introduce un precio válido",
+    "saveError": "Error guardando compra"
   },
 
   "notFound": {
@@ -281,5 +325,131 @@
     "title": "Ha ocurrido un error",
     "description": "Por favor inténtalo de nuevo.",
     "button": "Reintentar"
+  },
+
+  "home": {
+    "badge": "Sorare Manager Pro Beta",
+    "heroTitle": "Gestiona tu colección Sorare",
+    "heroTitleHighlight": "como un profesional",
+    "heroDescription": "Analiza tu portfolio, controla tus cartas, descubre oportunidades de mercado y toma mejores decisiones con inteligencia.",
+    "login": "Entrar con Sorare",
+    "demo": "Ver demo",
+    "controlCenter": "Tu centro de control Sorare",
+    "betaTitle": "Únete a la beta pública",
+    "betaDescription": "Ayuda a construir la herramienta definitiva para managers Sorare.",
+    "features": {
+      "dashboard": {
+        "title": "Dashboard",
+        "text": "Toda tu colección controlada desde un solo lugar."
+      },
+      "portfolio": {
+        "title": "Portfolio",
+        "text": "Analiza valor, ROI y rendimiento."
+      },
+      "market": {
+        "title": "Market",
+        "text": "Encuentra oportunidades en el mercado."
+      },
+      "scout": {
+        "title": "Scout IA",
+        "text": "Recomendaciones inteligentes para tu colección."
+      }
+    },
+    "stats": {
+      "cards": "Cartas",
+      "value": "Valor colección",
+      "roi": "ROI"
+    }
+  },
+
+  "roadmapPage": {
+    "badge": "Roadmap de Sorare Manager Pro",
+    "title": "Construyendo el futuro",
+    "titleHighlight": "de la gestión de Sorare",
+    "description": "Descubre lo que estamos construyendo y sigue la evolución de Sorare Manager Pro.",
+    "items": {
+      "dashboard": {
+        "title": "Dashboard avanzado",
+        "description": "Una visión completa de tu colección Sorare, portfolio y rendimiento.",
+        "status": "Completado"
+      },
+      "portfolio": {
+        "title": "Portfolio",
+        "description": "Herramientas detalladas para analizar tu inversión, ROI y rentabilidad.",
+        "status": "En desarrollo"
+      },
+      "scout": {
+        "title": "Scout IA",
+        "description": "Recomendaciones inteligentes para ayudarte a encontrar las mejores oportunidades de tu colección.",
+        "status": "En desarrollo"
+      },
+      "market": {
+        "title": "Market Scanner",
+        "description": "Identifica automáticamente oportunidades interesantes de compra en el mercado de Sorare.",
+        "status": "En desarrollo"
+      },
+      "watchlist": {
+        "title": "Lista de seguimiento",
+        "description": "Sigue a tus jugadores favoritos y recibe información útil sobre mercado y rendimiento.",
+        "status": "Planificado"
+      },
+      "squad": {
+        "title": "Constructor de equipos",
+        "description": "Crea y optimiza tus alineaciones de Sorare con recomendaciones inteligentes.",
+        "status": "Planificado"
+      }
+    },
+    "status": {
+      "completed": "Completado"
+    },
+    "feedback": {
+      "title": "Tu opinión importa",
+      "description": "Sorare Manager Pro se está construyendo junto a la comunidad. Dinos qué te gustaría ver próximamente."
+    }
+  },
+
+  "changelogPage": {
+    "badge": "NOVEDADES",
+    "title": "Evolución de",
+    "titleHighlight": "Sorare Manager Pro",
+    "description": "Descubre las últimas mejoras, funciones y novedades de Sorare Manager Pro.",
+    "updates": {
+      "release": {
+        "title": "Nueva versión de Sorare Manager Pro",
+        "description": "Una nueva versión con mejoras importantes para la gestión de tu colección.",
+        "date": "Agosto 2026",
+        "items": [
+          "Nuevo sistema de gestión de colección",
+          "Mejoras en el dashboard",
+          "Análisis avanzado de cartas",
+          "Mejoras de rendimiento",
+          "Sistema de traducciones ES, EN y FR"
+        ]
+      },
+      "portfolio": {
+        "title": "Mejoras del portfolio",
+        "description": "Nuevas herramientas para analizar el rendimiento de tu colección.",
+        "date": "Agosto 2026",
+        "items": [
+          "Nuevas métricas de portfolio",
+          "Cálculo de ROI",
+          "Seguimiento de beneficios",
+          "Mejoras en las estadísticas",
+          "Nueva distribución de colección"
+        ]
+      },
+      "dashboard": {
+        "title": "Nuevo dashboard",
+        "description": "El dashboard recibe una renovación completa para ofrecer una mejor visión de tu colección.",
+        "date": "Julio 2026",
+        "items": [
+          "Nuevo diseño del dashboard",
+          "Estadísticas rápidas",
+          "Top de cartas",
+          "Resumen del mercado",
+          "Sistema de actividad reciente"
+        ]
+      }
+    }
   }
 }

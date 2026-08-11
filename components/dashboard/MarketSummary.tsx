@@ -1,8 +1,12 @@
+"use client";
+
 import {
   ShoppingCart,
   WalletCards,
   ArrowRightLeft,
 } from "lucide-react";
+
+import { useTranslations } from "next-intl";
 
 type Props = {
   bought: number;
@@ -14,9 +18,12 @@ export default function MarketSummary({
   sold,
 }: Props) {
 
+  const t = useTranslations("marketSummary");
+
   const balance = sold - bought;
 
   return (
+
     <div
       className="
       rounded-3xl
@@ -36,11 +43,11 @@ export default function MarketSummary({
         <div>
 
           <h2 className="text-2xl font-black text-white">
-            Mercado
+            {t("title")}
           </h2>
 
           <p className="mt-2 text-sm text-zinc-400">
-            Seguimiento de movimientos económicos.
+            {t("subtitle")}
           </p>
 
         </div>
@@ -57,14 +64,15 @@ export default function MarketSummary({
           bg-violet-500/20
           "
         >
+
           <ArrowRightLeft
             className="text-violet-300"
             size={24}
           />
+
         </div>
 
       </div>
-
 
 
       <div
@@ -94,7 +102,7 @@ export default function MarketSummary({
             />
 
             <p className="text-sm text-zinc-400">
-              Comprado
+              {t("bought")}
             </p>
 
           </div>
@@ -112,7 +120,6 @@ export default function MarketSummary({
           </p>
 
         </div>
-
 
 
         <div
@@ -133,7 +140,7 @@ export default function MarketSummary({
             />
 
             <p className="text-sm text-zinc-400">
-              Vendido
+              {t("sold")}
             </p>
 
           </div>
@@ -155,7 +162,6 @@ export default function MarketSummary({
       </div>
 
 
-
       <div
         className="
         mt-6
@@ -168,7 +174,7 @@ export default function MarketSummary({
       >
 
         <p className="text-sm text-zinc-400">
-          Balance mercado
+          {t("balance")}
         </p>
 
 
@@ -184,14 +190,15 @@ export default function MarketSummary({
           }
           `}
         >
+
           {balance >= 0 ? "+" : ""}
           €{balance.toFixed(2)}
-        </p>
 
+        </p>
 
       </div>
 
-
     </div>
+
   );
 }

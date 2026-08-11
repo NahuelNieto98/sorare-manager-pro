@@ -6,8 +6,12 @@ import {
   WalletCards,
 } from "lucide-react";
 
+import { useTranslations } from "next-intl";
+
 
 export default function ConnectPage() {
+
+  const t = useTranslations("connectPage");
 
 
   function connectSorare() {
@@ -63,7 +67,7 @@ export default function ConnectPage() {
 
           <Sparkles size={16}/>
 
-          Sorare Manager Pro Beta
+          {t("badge")}
 
         </div>
 
@@ -78,7 +82,7 @@ export default function ConnectPage() {
           "
         >
 
-          Conecta tu cuenta
+          {t("title")}
 
           <span
             className="
@@ -111,9 +115,7 @@ export default function ConnectPage() {
           "
         >
 
-          Autoriza el acceso con Sorare para importar
-          automáticamente tu colección, valores y
-          estadísticas.
+          {t("description")}
 
         </p>
 
@@ -153,7 +155,7 @@ export default function ConnectPage() {
               text-violet-300
               "
             >
-              🔐 Conexión segura
+              🔐 {t("secure.title")}
             </p>
 
 
@@ -164,8 +166,7 @@ export default function ConnectPage() {
               text-zinc-400
               "
             >
-              Utilizamos OAuth oficial de Sorare.
-              Nunca necesitamos tu contraseña.
+              {t("secure.description")}
             </p>
 
 
@@ -200,7 +201,7 @@ export default function ConnectPage() {
             "
           >
 
-            🔗 Conecta tu cuenta de Sorare
+            🔗 {t("button")}
 
 
           </button>
@@ -208,8 +209,6 @@ export default function ConnectPage() {
 
 
         </div>
-
-
 
 
 
@@ -227,22 +226,22 @@ export default function ConnectPage() {
 
           <InfoCard
             icon={<ShieldCheck />}
-            title="Seguro"
-            text="Solo guardamos la conexión OAuth de tu cuenta."
+            title={t("cards.security.title")}
+            text={t("cards.security.text")}
           />
 
 
           <InfoCard
             icon={<WalletCards />}
-            title="Colección"
-            text="Importamos tus cartas automáticamente."
+            title={t("cards.collection.title")}
+            text={t("cards.collection.text")}
           />
 
 
           <InfoCard
             icon={<Sparkles />}
-            title="Analytics"
-            text="Controla valor y rendimiento."
+            title={t("cards.analytics.title")}
+            text={t("cards.analytics.text")}
           />
 
 
@@ -291,7 +290,7 @@ return (
   p-5
   "
 >
-
+ 
 
   <div className="text-violet-400">
 

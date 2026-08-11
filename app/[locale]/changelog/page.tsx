@@ -4,55 +4,29 @@ import {
   Wrench,
 } from "lucide-react";
 
-
-const updates = [
-  {
-    version: "v0.9.0",
-    date: "Agosto 2026",
-    title: "Beta Pública",
-    description:
-      "Primera versión disponible para la comunidad.",
-    items: [
-      "Dashboard completo",
-      "Gestión de colección Sorare",
-      "Portfolio inicial",
-      "Analytics de colección",
-    ],
-    type: "release",
-  },
-
-  {
-    version: "v0.8.5",
-    date: "Agosto 2026",
-    title: "Nuevo sistema Portfolio",
-    description:
-      "Mejoras visuales y nuevas métricas para controlar tu colección.",
-    items: [
-      "Valor total de colección",
-      "ROI",
-      "Top Holdings",
-      "Distribución de cartas",
-    ],
-    type: "update",
-  },
-
-  {
-    version: "v0.8.0",
-    date: "Julio 2026",
-    title: "Nuevo Dashboard",
-    description:
-      "Rediseño completo del panel principal.",
-    items: [
-      "Nuevo diseño premium",
-      "Gráficos mejorados",
-      "Estado del sistema",
-    ],
-    type: "update",
-  },
-];
-
+import { useTranslations } from "next-intl";
 
 export default function ChangelogPage() {
+
+  const t = useTranslations("changelogPage");
+
+  const updates = [
+    {
+      key: "release",
+      version: "v0.9.0",
+      type: "release",
+    },
+    {
+      key: "portfolio",
+      version: "v0.8.5",
+      type: "update",
+    },
+    {
+      key: "dashboard",
+      version: "v0.8.0",
+      type: "update",
+    },
+  ];
 
   return (
 
@@ -72,7 +46,6 @@ export default function ChangelogPage() {
         max-w-5xl
         "
       >
-
 
         <div
           className="
@@ -97,12 +70,11 @@ export default function ChangelogPage() {
             "
           >
 
-            <Sparkles size={16}/>
+            <Sparkles size={16} />
 
-            Actualizaciones
+            {t("badge")}
 
           </div>
-
 
           <h1
             className="
@@ -111,7 +83,9 @@ export default function ChangelogPage() {
             font-black
             "
           >
-            Novedades de
+
+            {t("title")}
+
             <span
               className="
               block
@@ -122,11 +96,12 @@ export default function ChangelogPage() {
               text-transparent
               "
             >
-              Sorare Manager Pro
+
+              {t("titleHighlight")}
+
             </span>
 
           </h1>
-
 
           <p
             className="
@@ -135,14 +110,12 @@ export default function ChangelogPage() {
             text-zinc-400
             "
           >
-            Todas las mejoras y nuevas funcionalidades del proyecto.
+
+            {t("description")}
+
           </p>
 
-
         </div>
-
-
-
 
         <div
           className="
@@ -151,7 +124,7 @@ export default function ChangelogPage() {
           "
         >
 
-          {updates.map((update)=> (
+          {updates.map((update) => (
 
             <article
               key={update.version}
@@ -185,16 +158,19 @@ export default function ChangelogPage() {
                     "
                   >
 
-                    {update.type === "release" ? (
-                      <CheckCircle2
-                        className="text-green-400"
-                      />
-                    ) : (
-                      <Wrench
-                        className="text-violet-400"
-                      />
-                    )}
-
+                    {
+                      update.type === "release"
+                        ? (
+                          <CheckCircle2
+                            className="text-green-400"
+                          />
+                        )
+                        : (
+                          <Wrench
+                            className="text-violet-400"
+                          />
+                        )
+                    }
 
                     <h2
                       className="
@@ -202,12 +178,12 @@ export default function ChangelogPage() {
                       font-black
                       "
                     >
-                      {update.title}
+
+                      {t(`updates.${update.key}.title`)}
+
                     </h2>
 
-
                   </div>
-
 
                   <p
                     className="
@@ -215,11 +191,12 @@ export default function ChangelogPage() {
                     text-zinc-400
                     "
                   >
-                    {update.description}
+
+                    {t(`updates.${update.key}.description`)}
+
                   </p>
 
                 </div>
-
 
                 <div
                   className="
@@ -233,9 +210,10 @@ export default function ChangelogPage() {
                     text-violet-300
                     "
                   >
-                    {update.version}
-                  </p>
 
+                    {update.version}
+
+                  </p>
 
                   <p
                     className="
@@ -243,16 +221,14 @@ export default function ChangelogPage() {
                     text-zinc-500
                     "
                   >
-                    {update.date}
-                  </p>
 
+                    {t(`updates.${update.key}.date`)}
+
+                  </p>
 
                 </div>
 
-
               </div>
-
-
 
               <ul
                 className="
@@ -261,7 +237,11 @@ export default function ChangelogPage() {
                 "
               >
 
-                {update.items.map((item)=> (
+                {(
+                  t.raw(
+                    `updates.${update.key}.items`
+                  ) as string[]
+                ).map((item) => (
 
                   <li
                     key={item}
@@ -284,24 +264,17 @@ export default function ChangelogPage() {
 
                 ))}
 
-
               </ul>
-
 
             </article>
 
-
           ))}
-
 
         </div>
 
-
       </div>
-
 
     </main>
 
   );
-
 }

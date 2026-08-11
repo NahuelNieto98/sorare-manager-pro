@@ -13,7 +13,6 @@ export default function ConnectSorarePage(){
 const t =
 useTranslations("connect");
 
-
 const [loading,setLoading] =
 useState(false);
 
@@ -63,14 +62,14 @@ p-8
 
 <h2 className="text-2xl font-black text-white">
 
-Conectar cuenta
+{t("connectAccount")}
 
 </h2>
 
 
 <p className="mt-3 text-zinc-400">
 
-Autoriza la conexión para sincronizar tu colección de Sorare.
+{t("connectDescription")}
 
 </p>
 

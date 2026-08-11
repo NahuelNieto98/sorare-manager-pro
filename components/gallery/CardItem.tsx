@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type Props = {
   id: string;
@@ -18,16 +18,6 @@ type Props = {
   l15Score: number | null;
   l40Score: number | null;
 };
-
-function rarityLabel(scarcity: string) {
-  return scarcity.replace("_", " ").toUpperCase();
-}
-
-function positionLabel(position: string | null) {
-  if (!position) return "—";
-
-  return position.replace("_", " ").toUpperCase();
-}
 
 function scoreColor(value: number | null) {
   if (value === null) return "text-white/50";
@@ -52,39 +42,35 @@ export default function CardItem({
   l15Score,
   l40Score,
 }: Props) {
-
   const locale = useLocale();
-
+  const t = useTranslations("card");
 
   return (
-
     <div
       className="
-      overflow-hidden
-      rounded-3xl
-      border
-      border-white/10
-      bg-[#17112F]
+        overflow-hidden
+        rounded-3xl
+        border
+        border-white/10
+        bg-[#17112F]
       "
     >
-
       <div
         className="
-        relative
-        h-64
-        overflow-hidden
+          relative
+          h-64
+          overflow-hidden
         "
       >
-
         <div
           className="
-          absolute
-          inset-x-10
-          top-8
-          h-32
-          rounded-full
-          bg-violet-500/20
-          blur-3xl
+            absolute
+            inset-x-10
+            top-8
+            h-32
+            rounded-full
+            bg-violet-500/20
+            blur-3xl
           "
         />
 
@@ -93,218 +79,196 @@ export default function CardItem({
             src={pictureUrl}
             alt={playerName}
             className="
-            relative
-            z-10
-            h-full
-            w-full
-            object-contain
-            scale-[1.04]
-            transition
-            duration-500
-            group-hover:scale-110
+              relative
+              z-10
+              h-full
+              w-full
+              object-contain
+              scale-[1.04]
+              transition
+              duration-500
+              group-hover:scale-110
             "
           />
         ) : (
           <div className="flex h-full items-center justify-center text-white/40">
-            Sin imagen
+            {t("noImage")}
           </div>
         )}
 
-
         <div
           className="
-          absolute
-          inset-0
-          bg-gradient-to-t
-          from-[#100c22]
-          via-transparent
-          to-transparent
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-[#100c22]
+            via-transparent
+            to-transparent
           "
         />
 
-
         <div
           className="
-          absolute
-          right-3
-          top-3
-          z-20
-          rounded-2xl
-          border
-          border-white/10
-          bg-black/50
-          px-3
-          py-2
-          text-center
-          backdrop-blur
+            absolute
+            right-3
+            top-3
+            z-20
+            rounded-2xl
+            border
+            border-white/10
+            bg-black/50
+            px-3
+            py-2
+            text-center
+            backdrop-blur
           "
         >
-
           <p className="text-[9px] font-bold tracking-[0.2em] text-white/40">
             AA15
           </p>
 
           <p className="font-mono text-2xl font-black text-white">
-            {averageScore !== null ? Math.round(averageScore) : "-"}
+            {averageScore !== null
+              ? Math.round(averageScore)
+              : "-"}
           </p>
-
         </div>
-
       </div>
 
-
-
       <div className="p-4">
-
         <h2
           className="
-          truncate
-          text-lg
-          font-bold
-          tracking-tight
-          text-white
+            truncate
+            text-lg
+            font-bold
+            tracking-tight
+            text-white
           "
         >
           {playerName}
         </h2>
 
-
         <p
           className="
-          mt-1
-          truncate
-          text-xs
-          font-medium
-          uppercase
-          tracking-wide
-          text-white/40
+            mt-1
+            truncate
+            text-xs
+            font-medium
+            uppercase
+            tracking-wide
+            text-white/40
           "
         >
-          {club ?? "Sin club"}
+          {club ?? t("noClub")}
         </p>
 
-
         <div className="mt-3 flex flex-wrap gap-2">
+          <span
+            className="
+              rounded-full
+              bg-violet-500/20
+              px-3
+              py-1
+              text-xs
+              font-bold
+              text-violet-300
+            "
+          >
+            {position
+              ? t(`positions.${position.toLowerCase()}`)
+              : "—"}
+          </span>
 
           <span
             className="
-            rounded-full
-            bg-violet-500/20
-            px-3
-            py-1
-            text-xs
-            font-bold
-            text-violet-300
+              rounded-full
+              bg-white/10
+              px-3
+              py-1
+              text-xs
+              font-bold
+              text-white/60
             "
           >
-            {positionLabel(position)}
+            {t(
+              scarcity === "super_rare"
+                ? "rarities.superRare"
+                : `rarities.${scarcity}`
+            )}{" "}
+            · {season}
           </span>
-
-
-          <span
-            className="
-            rounded-full
-            bg-white/10
-            px-3
-            py-1
-            text-xs
-            font-bold
-            text-white/60
-            "
-          >
-            {rarityLabel(scarcity)} · {season}
-          </span>
-
         </div>
-
 
         <div
           className="
-          mt-4
-          grid
-          grid-cols-4
-          gap-2
-          rounded-2xl
-          bg-black/20
-          p-3
-          text-center
+            mt-4
+            grid
+            grid-cols-4
+            gap-2
+            rounded-2xl
+            bg-black/20
+            p-3
+            text-center
           "
         >
-
           {[
             ["L5", l5Score],
             ["L10", l10Score],
             ["L15", l15Score],
             ["L40", l40Score],
           ].map(([label, value]) => (
-
             <div key={label}>
-
               <p className="text-[9px] font-bold uppercase tracking-widest text-white/30">
                 {label}
               </p>
 
-
               <p
                 className={`
-                mt-1
-                font-mono
-                text-base
-                font-black
-                ${scoreColor(value as number | null)}
+                  mt-1
+                  font-mono
+                  text-base
+                  font-black
+                  ${scoreColor(value as number | null)}
                 `}
               >
                 {value ?? "-"}
               </p>
-
             </div>
-
           ))}
-
         </div>
 
-
         <div className="mt-5 flex items-center justify-between">
-
           <div>
-
             <p className="text-xs font-bold text-white/40">
-              VALOR
+              {t("marketValue")}
             </p>
 
             <p className="text-xl font-black text-emerald-400">
               €{marketValue?.toFixed(2) ?? "0.00"}
             </p>
-
           </div>
-
 
           <Link
             href={`/${locale}/gallery/${id}`}
             className="
-            rounded-xl
-            bg-violet-600
-            px-4
-            py-2
-            text-xs
-            font-bold
-            text-white
-            transition
-            hover:bg-violet-500
-            md:px-5
-            md:py-2.5
-            md:text-sm
+              rounded-xl
+              bg-violet-600
+              px-4
+              py-2
+              text-xs
+              font-bold
+              text-white
+              transition
+              hover:bg-violet-500
+              md:px-5
+              md:py-2.5
+              md:text-sm
             "
           >
-            Ver carta
+            {t("viewCard")}
           </Link>
-
         </div>
-
       </div>
-
     </div>
-
   );
-
 }
