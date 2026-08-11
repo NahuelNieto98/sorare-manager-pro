@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import AddTransactionButton from "@/components/gallery/AddTransactionButton";
+import AddTransactionButton from "./AddTransactionButton";
 
 
 export default async function CardDetailPage({
@@ -24,19 +24,19 @@ export default async function CardDetailPage({
 
   const card = await prisma.card.findUnique({
 
-    where:{
+    where: {
       id,
     },
 
-    include:{
-      MarketTransaction:true,
+    include: {
+      MarketTransaction: true,
     },
 
   });
 
 
 
-  if(!card){
+  if (!card) {
 
     notFound();
 
@@ -48,16 +48,15 @@ export default async function CardDetailPage({
   const purchase =
     card.MarketTransaction
       .filter(
-        (tx)=>
+        (tx) =>
           tx.type.includes("BUY") ||
           tx.type.includes("PURCHASE") ||
           tx.type.includes("AUCTION")
       )
       .sort(
-        (a,b)=>
+        (a, b) =>
+          new Date(a.date).getTime() -
           new Date(b.date).getTime()
-          -
-          new Date(a.date).getTime()
       )[0];
 
 
@@ -73,25 +72,21 @@ export default async function CardDetailPage({
 
 
 
+
   const roi =
     purchasePrice && card.marketValue
 
-    ?
+      ? (
+          (
+            card.marketValue - purchasePrice
+          )
+          /
+          purchasePrice
+          *
+          100
+        ).toFixed(1)
 
-    (
-      (
-        card.marketValue - purchasePrice
-      )
-      /
-      purchasePrice
-      *
-      100
-
-    ).toFixed(1)
-
-    :
-
-    null;
+      : null;
 
 
 
@@ -119,6 +114,7 @@ export default async function CardDetailPage({
         bg-zinc-900
         px-5
         py-3
+        text-white
         "
 
       >
@@ -131,33 +127,35 @@ export default async function CardDetailPage({
 
 
 
+
       <div
 
-      className="
-      mt-8
-      grid
-      gap-8
-      lg:grid-cols-2
-      "
+        className="
+        mt-8
+        grid
+        gap-8
+        lg:grid-cols-2
+        "
 
       >
 
 
 
-
         <div
 
-        className="
-        rounded-2xl
-        bg-zinc-900
-        p-6
-        "
+          className="
+          rounded-2xl
+          bg-zinc-900
+          p-6
+          "
 
         >
 
 
           {
-            card.pictureUrl ?
+            card.pictureUrl
+
+            ?
 
             <img
 
@@ -175,7 +173,7 @@ export default async function CardDetailPage({
 
             :
 
-            <div>
+            <div className="text-white">
 
               {t("noImage")}
 
@@ -192,11 +190,12 @@ export default async function CardDetailPage({
 
         <div
 
-        className="
-        rounded-2xl
-        bg-zinc-900
-        p-8
-        "
+          className="
+          rounded-2xl
+          bg-zinc-900
+          p-8
+          text-white
+          "
 
         >
 
@@ -204,17 +203,16 @@ export default async function CardDetailPage({
 
           <h1
 
-          className="
-          text-4xl
-          font-bold
-          "
+            className="
+            text-4xl
+            font-bold
+            "
 
           >
 
             {card.playerName}
 
           </h1>
-
 
 
 
@@ -228,56 +226,71 @@ export default async function CardDetailPage({
 
 
 
+
           <div
 
-          className="
-          mt-8
-          grid
-          grid-cols-1
-          gap-4
-          md:grid-cols-2
-          "
+            className="
+            mt-8
+            grid
+            grid-cols-1
+            gap-4
+            md:grid-cols-2
+            "
 
           >
 
 
 
             <Info
+
               title={t("rarity")}
+
               value={card.scarcity}
+
             />
 
 
 
             <Info
+
               title={t("position")}
+
               value={card.position ?? "-"}
+
             />
 
 
 
             <Info
+
               title={t("aa")}
+
               value={
                 card.averageScore?.toString()
                 ??
                 "-"
               }
+
             />
 
 
 
             <Info
+
               title={t("marketValue")}
+
               value={
                 `€${card.marketValue?.toFixed(2) ?? "0.00"}`
               }
+
             />
 
 
 
             <Info
+
               title={t("purchasePrice")}
+
               value={
                 purchasePrice
                 ?
@@ -285,26 +298,36 @@ export default async function CardDetailPage({
                 :
                 "-"
               }
+
             />
 
 
 
             <Info
+
               title={t("purchaseDate")}
+
               value={
                 purchaseDate
+
                 ?
+
                 new Date(purchaseDate)
                 .toLocaleDateString("es-ES")
+
                 :
+
                 "-"
               }
+
             />
 
 
 
             <Info
+
               title={t("roi")}
+
               value={
                 roi
                 ?
@@ -312,15 +335,19 @@ export default async function CardDetailPage({
                 :
                 "-"
               }
+
             />
 
 
 
             <Info
+
               title={t("season")}
+
               value={
                 card.season.toString()
               }
+
             />
 
 
@@ -330,22 +357,20 @@ export default async function CardDetailPage({
 
 
 
+
           <AddTransactionButton
 
             cardId={card.id}
 
-            price={card.marketValue ?? 0}
-
           />
+
 
 
 
         </div>
 
 
-
       </div>
-
 
 
     </main>
@@ -360,11 +385,17 @@ export default async function CardDetailPage({
 
 
 function Info({
+
   title,
+
   value,
-}:{
+
+}: {
+
   title:string;
+
   value:string;
+
 }) {
 
 
@@ -372,20 +403,20 @@ function Info({
 
     <div
 
-    className="
-    rounded-xl
-    bg-zinc-800
-    p-4
-    "
+      className="
+      rounded-xl
+      bg-zinc-800
+      p-4
+      "
 
     >
 
       <p
 
-      className="
-      text-sm
-      text-gray-400
-      "
+        className="
+        text-sm
+        text-gray-400
+        "
 
       >
 
@@ -397,11 +428,11 @@ function Info({
 
       <p
 
-      className="
-      mt-2
-      text-xl
-      font-bold
-      "
+        className="
+        mt-2
+        text-xl
+        font-bold
+        "
 
       >
 

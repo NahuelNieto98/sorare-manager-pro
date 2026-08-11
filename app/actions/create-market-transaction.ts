@@ -3,134 +3,83 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-
 export async function createMarketTransaction(
-  cardId:string,
-  price:number
+  cardId: string,
+  price: number
 ) {
-
-
-  console.log(
-    "INICIO CREAR TRANSACTION",
-    {
-      cardId,
-      price,
-    }
-  );
-
-
 
   const session = await auth();
 
-
-
-  if(!session?.user?.email){
-
-    throw new Error(
-      "No autorizado"
-    );
-
+  if (!session?.user?.email) {
+    throw new Error("No autorizado");
   }
 
 
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+  });
 
 
-  const user =
-    await prisma.user.findUnique({
-
-      where:{
-        email:session.user.email,
-      },
-
-    });
-
-
-
-  if(!user){
-
-    throw new Error(
-      "Usuario no encontrado"
-    );
-
+  if (!user) {
+    throw new Error("Usuario no encontrado");
   }
 
 
+  const card = await prisma.card.findUnique({
+    where: {
+      id: cardId,
+    },
+    include: {
+      MarketTransaction: true,
+    },
+  });
 
 
-
-  const card =
-    await prisma.card.findUnique({
-
-      where:{
-        id:cardId,
-      },
-
-    });
-
-
-
-
-
-  if(!card){
-
-    throw new Error(
-      "Carta no encontrada"
-    );
-
+  if (!card) {
+    throw new Error("Carta no encontrada");
   }
 
 
+  // Evitar duplicar compras de la misma carta
+  const existingPurchase =
+    card.MarketTransaction.find(
+      (tx) =>
+        tx.type === "BUY"
+    );
 
 
-
-  console.log(
-    "CREANDO TRANSACTION",
-    {
-      player:card.playerName,
-      price,
-    }
-  );
-
-
-
-
+  if (existingPurchase) {
+    throw new Error(
+      "Esta carta ya tiene una compra registrada"
+    );
+  }
 
 
   const transaction =
     await prisma.marketTransaction.create({
 
-      data:{
+      data: {
 
-        playerName:card.playerName,
+        playerName: card.playerName,
 
-        rarity:card.scarcity,
+        rarity: card.scarcity,
 
-        price,
+        price: Number(price),
 
-        type:"BUY",
+        type: "BUY",
 
-        cardId:card.id,
+        cardId: card.id,
 
-        userId:user.id,
+        userId: user.id,
+
+        date: new Date(),
 
       },
 
     });
 
 
-
-
-
-  console.log(
-    "TRANSACTION CREADA",
-    transaction.id
-  );
-
-
-
-
-
   return transaction;
-
-
 }
