@@ -80,8 +80,12 @@ export async function GET(
 
 
   const safeClientId: string = clientId;
-  const safeClientSecret: string = clientSecret;
-  const safeRedirectUri: string = redirectUri;
+
+  const safeClientSecret: string =
+    clientSecret;
+
+  const safeRedirectUri: string =
+    redirectUri;
 
 
   async function requestToken() {
@@ -96,7 +100,6 @@ export async function GET(
           "Content-Type":
             "application/x-www-form-urlencoded",
         },
-
 
         body:
           new URLSearchParams({
@@ -200,6 +203,16 @@ export async function GET(
   }
 
 
+  console.log(
+    "🔐 OAuth APP USER:",
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    }
+  );
+
+
   const meQuery = `
     query {
       currentUser {
@@ -227,7 +240,6 @@ export async function GET(
 
         },
 
-
         body:
           JSON.stringify({
 
@@ -246,6 +258,14 @@ export async function GET(
 
   const slug =
     meData.data?.currentUser?.slug;
+
+
+  console.log(
+    "⚽ OAuth SORARE USER:",
+    {
+      slug,
+    }
+  );
 
 
   if (!slug) {
@@ -275,7 +295,6 @@ export async function GET(
           user.id,
       },
 
-
       update: {
 
         slug,
@@ -285,7 +304,6 @@ export async function GET(
         refreshToken,
 
       },
-
 
       create: {
 
