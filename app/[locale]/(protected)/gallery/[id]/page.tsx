@@ -8,11 +8,14 @@ import AddTransactionButton from "@/components/gallery/AddTransactionButton";
 export default async function CardDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{
+    id: string;
+    locale: string;
+  }>;
 }) {
 
 
-  const { id } = await params;
+  const { id, locale } = await params;
 
 
   const t = await getTranslations("card");
@@ -38,6 +41,7 @@ export default async function CardDetailPage({
     notFound();
 
   }
+
 
 
 
@@ -92,14 +96,23 @@ export default async function CardDetailPage({
 
 
 
-
   return (
 
-    <main className="mx-auto w-full max-w-6xl p-6">
+    <main
+      className="
+      mx-auto
+      w-full
+      max-w-6xl
+      p-6
+      "
+    >
+
 
 
       <Link
-        href="../"
+
+        href={`/${locale}/gallery`}
+
         className="
         inline-block
         rounded-xl
@@ -107,9 +120,11 @@ export default async function CardDetailPage({
         px-5
         py-3
         "
+
       >
 
         {t("back")}
+
 
       </Link>
 
@@ -117,23 +132,29 @@ export default async function CardDetailPage({
 
 
       <div
-        className="
-        mt-8
-        grid
-        gap-8
-        lg:grid-cols-2
-        "
+
+      className="
+      mt-8
+      grid
+      gap-8
+      lg:grid-cols-2
+      "
+
       >
 
 
 
+
         <div
-          className="
-          rounded-2xl
-          bg-zinc-900
-          p-6
-          "
+
+        className="
+        rounded-2xl
+        bg-zinc-900
+        p-6
+        "
+
         >
+
 
           {
             card.pictureUrl ?
@@ -170,25 +191,30 @@ export default async function CardDetailPage({
 
 
         <div
-          className="
-          rounded-2xl
-          bg-zinc-900
-          p-8
-          "
+
+        className="
+        rounded-2xl
+        bg-zinc-900
+        p-8
+        "
+
         >
 
 
 
           <h1
+
           className="
           text-4xl
           font-bold
           "
+
           >
 
             {card.playerName}
 
           </h1>
+
 
 
 
@@ -203,6 +229,7 @@ export default async function CardDetailPage({
 
 
           <div
+
           className="
           mt-8
           grid
@@ -210,6 +237,7 @@ export default async function CardDetailPage({
           gap-4
           md:grid-cols-2
           "
+
           >
 
 
@@ -302,7 +330,6 @@ export default async function CardDetailPage({
 
 
 
-
           <AddTransactionButton
 
             cardId={card.id}
@@ -318,6 +345,7 @@ export default async function CardDetailPage({
 
 
       </div>
+
 
 
     </main>
@@ -343,18 +371,22 @@ function Info({
   return (
 
     <div
+
     className="
     rounded-xl
     bg-zinc-800
     p-4
     "
+
     >
 
       <p
+
       className="
       text-sm
       text-gray-400
       "
+
       >
 
         {title}
@@ -364,11 +396,13 @@ function Info({
 
 
       <p
+
       className="
       mt-2
       text-xl
       font-bold
       "
+
       >
 
         {value}
