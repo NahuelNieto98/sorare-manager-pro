@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 
 import {
   BarChart3,
@@ -13,6 +14,7 @@ import {
   ShieldCheck,
   Sparkles,
   TrendingUp,
+  X,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -21,8 +23,33 @@ export default function HomePage() {
 
   const locale = params.locale as string;
 
+  const [showBrowserWarning, setShowBrowserWarning] =
+    useState(false);
+
+  function isInAppBrowser() {
+    const userAgent =
+      navigator.userAgent ||
+      navigator.vendor ||
+      "";
+
+    return /Twitter|Instagram|FBAN|FBAV|FBIOS|TikTok|Line\/|Snapchat|Pinterest|LinkedInApp|Threads/i.test(
+      userAgent
+    );
+  }
+
+  function handleLogin() {
+    if (isInAppBrowser()) {
+      setShowBrowserWarning(true);
+      return;
+    }
+
+    signIn("sorare", {
+      callbackUrl: `/${locale}/dashboard`,
+    });
+  }
+
   return (
-    <main>
+    <main className="relative min-h-screen overflow-hidden">
       <section
         className="
           relative
@@ -134,11 +161,8 @@ export default function HomePage() {
             "
           >
             <button
-              onClick={() =>
-                signIn("sorare", {
-                  callbackUrl: `/${locale}/dashboard`,
-                })
-              }
+              type="button"
+              onClick={handleLogin}
               className="
                 rounded-2xl
                 bg-gradient-to-r
@@ -298,6 +322,136 @@ export default function HomePage() {
           {t("betaDescription")}
         </p>
       </section>
+
+      {showBrowserWarning && (
+        <div
+          className="
+            fixed
+            inset-0
+            z-[100]
+            flex
+            items-center
+            justify-center
+            bg-black/70
+            px-5
+            backdrop-blur-md
+          "
+        >
+          <div
+            className="
+              relative
+              w-full
+              max-w-md
+              rounded-3xl
+              border
+              border-white/10
+              bg-[#17112F]
+              p-7
+              shadow-2xl
+            "
+          >
+            <button
+              type="button"
+              onClick={() => setShowBrowserWarning(false)}
+              aria-label="Close"
+              className="
+                absolute
+                right-5
+                top-5
+                rounded-xl
+                p-2
+                text-zinc-500
+                transition
+                hover:bg-white/5
+                hover:text-white
+              "
+            >
+              <X size={20} />
+            </button>
+
+            <div
+              className="
+                flex
+                h-14
+                w-14
+                items-center
+                justify-center
+                rounded-2xl
+                bg-violet-500/10
+                text-2xl
+              "
+            >
+              🌐
+            </div>
+
+            <h2
+              className="
+                mt-6
+                pr-8
+                text-2xl
+                font-black
+                text-white
+              "
+            >
+              {t("mobileBrowser.title")}
+            </h2>
+
+            <p
+              className="
+                mt-4
+                text-sm
+                leading-6
+                text-zinc-400
+              "
+            >
+              {t("mobileBrowser.description")}
+            </p>
+
+            <div
+              className="
+                mt-5
+                rounded-2xl
+                border
+                border-violet-500/20
+                bg-violet-500/10
+                p-4
+              "
+            >
+              <p
+                className="
+                  text-sm
+                  font-bold
+                  leading-6
+                  text-violet-200
+              "
+              >
+                💡 {t("mobileBrowser.steps")}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowBrowserWarning(false)}
+              className="
+                mt-6
+                w-full
+                rounded-2xl
+                bg-gradient-to-r
+                from-violet-600
+                to-blue-600
+                px-6
+                py-4
+                font-black
+                text-white
+                transition
+                hover:scale-[1.01]
+              "
+            >
+              {t("mobileBrowser.back")}
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

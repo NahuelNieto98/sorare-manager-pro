@@ -334,6 +334,12 @@
       "cards": "Cartas",
       "value": "Valor colección",
       "roi": "ROI"
+    },
+    "mobileBrowser": {
+      "title": "Abre la web en tu navegador",
+      "description": "Para conectar tu cuenta de Sorare de forma segura, abre Sorare Manager Pro en Safari o Chrome en lugar del navegador integrado de la aplicación.",
+      "steps": "Usa el menú del navegador y elige «Abrir en Safari» o «Abrir en Chrome».",
+      "back": "Entendido"
     }
   },
   "roadmapPage": {
