@@ -1,29 +1,29 @@
 {
   "market": {
-  "title": "Scanner du marché Sorare",
-  "subtitle": "Analysez automatiquement les opportunités du marché",
-  "intelligence": "INTELLIGENCE DU MARCHÉ",
-  "top": "MEILLEURES OPPORTUNITÉS DU JOUR",
-  "complete": "Marché complet",
-  "completeDescription": "Toutes les opportunités détectées sur le marché.",
-  "buy": "ACHETER",
-  "watch": "SURVEILLER",
-  "expensive": "TROP CHER",
-  "price": "Prix",
-  "value": "Valeur estimée",
-  "score": "Score",
-  "opportunity": "Opportunité",
-  "rarity": "Rareté",
-  "club": "Club",
-  "player": "Joueur",
-  "analyzed": "Cartes analysées",
-  "opportunities": "Opportunités",
-  "bestScore": "Meilleur score",
-  "loading": "Chargement du marché...",
-  "emptyTitle": "Marché sans données",
-  "emptyDescription": "Connectez et synchronisez votre compte Sorare pour analyser les opportunités du marché et trouver des achats intéressants.",
-  "connect": "🔗 Connecter Sorare"
-},
+    "title": "Scanner du marché Sorare",
+    "subtitle": "Analysez automatiquement les opportunités du marché",
+    "intelligence": "INTELLIGENCE DU MARCHÉ",
+    "top": "MEILLEURES OPPORTUNITÉS DU JOUR",
+    "complete": "Marché complet",
+    "completeDescription": "Toutes les opportunités détectées sur le marché.",
+    "buy": "ACHETER",
+    "watch": "SURVEILLER",
+    "expensive": "TROP CHER",
+    "price": "Prix",
+    "value": "Valeur estimée",
+    "score": "Score",
+    "opportunity": "Opportunité",
+    "rarity": "Rareté",
+    "club": "Club",
+    "player": "Joueur",
+    "analyzed": "Cartes analysées",
+    "opportunities": "Opportunités",
+    "bestScore": "Meilleur score",
+    "loading": "Chargement du marché...",
+    "emptyTitle": "Marché sans données",
+    "emptyDescription": "Connectez et synchronisez votre compte Sorare pour analyser les opportunités du marché et trouver des achats intéressants.",
+    "connect": "🔗 Connecter Sorare"
+  },
   "marketFilters": {
     "search": "Rechercher un joueur...",
     "allRarities": "Toutes les raretés",
@@ -55,8 +55,9 @@
   },
   "dashboard": {
     "loading": "Chargement du tableau de bord...",
-    "heroTitle": "Votre portfolio Sorare,\nsous contrôle 🚀",
-    "heroDescription": "Analysez votre collection, suivez la valeur de vos cartes et prenez de meilleures décisions.",
+    "beta": "Sorare Manager Pro Beta",
+    "heroTitle": "Votre centre de gestion Sorare",
+    "heroDescription": "Gérez votre collection, analysez vos cartes et prenez de meilleures décisions sur le marché Sorare.",
     "collectionValue": "Valeur de la collection",
     "cards": "Cartes",
     "galleryValue": "Valeur de la galerie",
@@ -65,7 +66,9 @@
     "essence": "Essence",
     "average": "AA moyen",
     "profitability": "Rentabilité",
-    "currentResult": "Résultat actuel"
+    "currentResult": "Résultat actuel",
+    "topCard": "Meilleure carte",
+    "noData": "Aucune donnée"
   },
   "dashboardQuickStats": {
     "bought": "Achetées",
@@ -377,5 +380,13 @@
       "title": "Votre avis compte",
       "description": "Sorare Manager Pro est construit avec la communauté. Dites-nous ce que vous aimeriez voir ensuite."
     }
+  },
+  "header": {
+    "subtitle": "Votre centre de gestion Sorare",
+    "connectedAccount": "Compte connecté",
+    "user": "Utilisateur",
+    "notifications": "Notifications",
+    "settings": "Paramètres",
+    "logout": "Se déconnecter"
   }
 }

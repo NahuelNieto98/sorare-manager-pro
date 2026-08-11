@@ -1,109 +1,108 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-
+import { Globe2 } from "lucide-react";
 
 const languages = [
   {
     code: "es",
-    label: "🇪🇸 ES",
+    short: "ES",
+    flag: "🇪🇸",
   },
   {
     code: "en",
-    label: "🇬🇧 EN",
+    short: "EN",
+    flag: "🇬🇧",
   },
   {
     code: "fr",
-    label: "🇫🇷 FR",
+    short: "FR",
+    flag: "🇫🇷",
   },
 ];
 
-
 export default function LanguageSwitcher() {
-
   const pathname = usePathname();
-
   const router = useRouter();
 
+  const currentLocale = pathname.split("/")[1] || "es";
 
-  const currentLocale =
-    pathname.split("/")[1] || "es";
-
-
-
-  function changeLanguage(
-    locale: string
-  ) {
-
-
-    const parts =
-      pathname.split("/");
-
+  function changeLanguage(locale: string) {
+    const parts = pathname.split("/");
 
     parts[1] = locale;
 
-
-    router.push(
-      parts.join("/")
-    );
-
+    router.push(parts.join("/"));
   }
 
-
-
   return (
-
     <div
       className="
         flex
         items-center
         gap-1
-        rounded-xl
+        rounded-2xl
         border
         border-white/10
-        bg-white/5
-        p-1
+        bg-[#17112F]/90
+        p-1.5
+        shadow-lg
+        shadow-black/20
+        backdrop-blur-xl
       "
     >
+      <div
+        className="
+          flex
+          h-8
+          w-8
+          items-center
+          justify-center
+          rounded-xl
+          text-zinc-500
+        "
+      >
+        <Globe2 size={16} />
+      </div>
 
-      {
-        languages.map((language)=>(
+      {languages.map((language) => {
+        const active = currentLocale === language.code;
 
+        return (
           <button
-
             key={language.code}
-
-            onClick={() =>
-              changeLanguage(language.code)
-            }
-
+            type="button"
+            onClick={() => changeLanguage(language.code)}
+            aria-label={`Switch to ${language.short}`}
             className={`
-              rounded-lg
-              px-2
-              py-1
+              flex
+              items-center
+              gap-1.5
+              rounded-xl
+              px-2.5
+              py-1.5
               text-xs
-              font-bold
-              transition
+              font-black
+              transition-all
+              duration-200
 
               ${
-                currentLocale === language.code
-                  ? "bg-violet-600 text-white"
-                  : "text-zinc-400 hover:text-white"
+                active
+                  ? "bg-violet-600 text-white shadow-md shadow-violet-900/30"
+                  : "text-zinc-500 hover:bg-white/5 hover:text-white"
               }
             `}
-
           >
+            <span className="text-sm">
+              {language.flag}
+            </span>
 
-            {language.label}
-
+            <span>
+              {language.short}
+            </span>
           </button>
-
-        ))
-      }
-
-
+        );
+      })}
     </div>
-
   );
-
 }
