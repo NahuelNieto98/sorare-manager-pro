@@ -4,10 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createMarketTransaction } from "@/app/actions/create-market-transaction";
 
+
 export default function AddTransactionButton({
   cardId,
+  currentPrice,
 }: {
   cardId: string;
+  currentPrice?: number | null;
 }) {
 
 
@@ -15,25 +18,50 @@ export default function AddTransactionButton({
 
 
   const [open, setOpen] = useState(false);
-  const [price, setPrice] = useState("");
+
+  const [price, setPrice] = useState(
+    currentPrice
+      ? currentPrice.toString()
+      : ""
+  );
+
   const [loading, setLoading] = useState(false);
+
   const [success, setSuccess] = useState(false);
 
 
 
-  async function saveTransaction() {
+  function openModal(){
+
+    setPrice(
+      currentPrice
+        ? currentPrice.toString()
+        : ""
+    );
+
+    setOpen(true);
+
+  }
 
 
-    if (loading) return;
+
+
+  async function saveTransaction(){
+
+
+    if(loading) return;
+
 
 
     const value = Number(price);
 
 
 
-    if (!value || value <= 0) {
+    if(!value || value <= 0){
 
-      alert("Introduce un precio válido");
+      alert(
+        "Introduce un precio válido"
+      );
 
       return;
 
@@ -41,7 +69,8 @@ export default function AddTransactionButton({
 
 
 
-    try {
+
+    try{
 
 
       setLoading(true);
@@ -63,7 +92,7 @@ export default function AddTransactionButton({
 
 
         setOpen(false);
-        setPrice("");
+
         setSuccess(false);
 
 
@@ -75,18 +104,17 @@ export default function AddTransactionButton({
 
 
 
-    } catch(error){
+    }catch(error){
 
 
       alert(
         error instanceof Error
-          ? error.message
-          : "Error creando transacción"
+        ? error.message
+        : "Error guardando compra"
       );
 
 
-
-    } finally {
+    }finally{
 
 
       setLoading(false);
@@ -94,7 +122,10 @@ export default function AddTransactionButton({
 
     }
 
+
   }
+
+
 
 
 
@@ -105,7 +136,7 @@ export default function AddTransactionButton({
 
       <button
 
-        onClick={()=>setOpen(true)}
+        onClick={openModal}
 
         className="
           mt-10
@@ -120,7 +151,11 @@ export default function AddTransactionButton({
 
       >
 
-        Añadir transacción
+        {
+          currentPrice
+          ? "Editar compra"
+          : "Añadir compra"
+        }
 
 
       </button>
@@ -128,9 +163,9 @@ export default function AddTransactionButton({
 
 
 
+
       {
         open && (
-
 
           <div
 
@@ -145,7 +180,6 @@ export default function AddTransactionButton({
             "
 
           >
-
 
 
             <div
@@ -172,7 +206,11 @@ export default function AddTransactionButton({
 
               >
 
-                Nueva compra
+                {
+                  currentPrice
+                  ? "Editar compra"
+                  : "Nueva compra"
+                }
 
 
               </h2>
@@ -204,123 +242,119 @@ export default function AddTransactionButton({
                   </div>
 
 
-                ) : (
+                )
+
+                :
+
+                (
+
+                <>
+
+
+                  <input
+
+
+                    type="number"
+
+
+                    placeholder="Precio de compra (€)"
+
+
+                    value={price}
+
+
+                    onChange={(e)=>
+                      setPrice(e.target.value)
+                    }
+
+
+                    className="
+                      mb-5
+                      w-full
+                      rounded-xl
+                      bg-[#252231]
+                      p-3
+                      text-white
+                      outline-none
+                    "
+
+
+                  />
 
 
 
-                  <>
 
 
-                    <input
+                  <div className="flex gap-3">
 
 
-                      type="number"
+                    <button
 
 
-                      placeholder="Precio de compra (€)"
+                      onClick={()=>setOpen(false)}
 
 
-                      value={price}
-
-
-                      onChange={(e)=>
-                        setPrice(e.target.value)
-                      }
+                      disabled={loading}
 
 
                       className="
-                        mb-5
-                        w-full
+                        flex-1
                         rounded-xl
-                        bg-[#252231]
-                        p-3
+                        bg-gray-700
+                        py-3
                         text-white
-                        outline-none
                       "
 
+                    >
 
-                    />
-
-
-
-
-                    <div className="flex gap-3">
+                      Cancelar
 
 
-
-                      <button
-
-
-                        onClick={()=>{
-                          setOpen(false);
-                          setPrice("");
-                        }}
-
-
-                        disabled={loading}
-
-
-                        className="
-                          flex-1
-                          rounded-xl
-                          bg-gray-700
-                          py-3
-                          text-white
-                        "
-
-                      >
-
-                        Cancelar
-
-
-                      </button>
+                    </button>
 
 
 
 
 
-                      <button
+                    <button
 
 
-                        onClick={saveTransaction}
+                      onClick={saveTransaction}
 
 
-                        disabled={loading}
+                      disabled={loading}
 
 
-                        className="
-                          flex-1
-                          rounded-xl
-                          bg-violet-600
-                          py-3
-                          font-bold
-                          text-white
-                          disabled:opacity-50
-                        "
+                      className="
+                        flex-1
+                        rounded-xl
+                        bg-violet-600
+                        py-3
+                        font-bold
+                        text-white
+                        disabled:opacity-50
+                      "
 
-                      >
+                    >
 
-                        {
-                          loading
-                          ? "Guardando..."
-                          : "Guardar"
-                        }
-
-
-                      </button>
+                      {
+                        loading
+                        ? "Guardando..."
+                        : "Guardar"
+                      }
 
 
+                    </button>
 
-                    </div>
 
 
-                  </>
+                  </div>
 
+
+                </>
 
                 )
               }
-
-
 
 
 
@@ -329,7 +363,6 @@ export default function AddTransactionButton({
 
           </div>
 
-
         )
       }
 
@@ -337,6 +370,5 @@ export default function AddTransactionButton({
     </>
 
   );
-
 
 }

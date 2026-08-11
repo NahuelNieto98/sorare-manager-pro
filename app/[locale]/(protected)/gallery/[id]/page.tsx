@@ -359,10 +359,9 @@ export default async function CardDetailPage({
 
 
           <AddTransactionButton
-
-            cardId={card.id}
-
-          />
+  cardId={card.id}
+  currentPrice={purchasePrice}
+/>
 
 
 
