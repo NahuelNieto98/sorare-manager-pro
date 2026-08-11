@@ -31,9 +31,6 @@ export async function createMarketTransaction(
     where: {
       id: cardId,
     },
-    include: {
-      MarketTransaction: true,
-    },
   });
 
 
@@ -42,44 +39,70 @@ export async function createMarketTransaction(
   }
 
 
-  // Evitar duplicar compras de la misma carta
-  const existingPurchase =
-    card.MarketTransaction.find(
-      (tx) =>
-        tx.type === "BUY"
-    );
+
+  // Buscar si ya existe una compra para esta carta
+  const existingTransaction =
+    await prisma.marketTransaction.findFirst({
+      where: {
+        cardId: card.id,
+        type: "BUY",
+      },
+    });
 
 
-  if (existingPurchase) {
-    throw new Error(
-      "Esta carta ya tiene una compra registrada"
-    );
+
+  // Si existe actualizamos
+  if (existingTransaction) {
+
+
+    const updated =
+      await prisma.marketTransaction.update({
+
+        where:{
+          id: existingTransaction.id,
+        },
+
+        data:{
+          price,
+          date:new Date(),
+        },
+
+      });
+
+
+    return updated;
+
   }
 
 
+
+
+  // Si no existe creamos
   const transaction =
     await prisma.marketTransaction.create({
 
-      data: {
+      data:{
 
         playerName: card.playerName,
 
         rarity: card.scarcity,
 
-        price: Number(price),
+        price,
 
-        type: "BUY",
+        type:"BUY",
 
-        cardId: card.id,
+        cardId:card.id,
 
-        userId: user.id,
+        userId:user.id,
 
-        date: new Date(),
+        date:new Date(),
 
       },
 
     });
 
 
+
   return transaction;
+
 }
