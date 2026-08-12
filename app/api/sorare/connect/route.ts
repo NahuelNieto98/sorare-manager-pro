@@ -44,6 +44,17 @@ crypto
 .randomBytes(32)
 .toString("hex");
 
+const { searchParams } =
+new URL(request.url);
+
+const locale =
+searchParams.get("locale") || "es";
+
+const safeLocale =
+["es", "en", "fr"].includes(locale)
+  ? locale
+  : "es";
+
 
 
 
@@ -122,6 +133,18 @@ url.toString()
 response.cookies.set(
 "sorare_oauth_state",
 state,
+{
+httpOnly:true,
+secure:process.env.NODE_ENV==="production",
+sameSite:"lax",
+maxAge:600,
+path:"/",
+}
+);
+
+response.cookies.set(
+"sorare_oauth_locale",
+safeLocale,
 {
 httpOnly:true,
 secure:process.env.NODE_ENV==="production",

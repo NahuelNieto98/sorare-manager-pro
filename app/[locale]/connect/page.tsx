@@ -7,17 +7,22 @@ import {
 } from "lucide-react";
 
 import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 
 
 export default function ConnectPage() {
 
-  const t = useTranslations("connectPage");
+const t = useTranslations("connectPage");
+const params = useParams<{ locale: string }>();
+
+
+  
 
 
   function connectSorare() {
 
     window.location.href =
-      "/api/sorare/connect";
+      `/api/sorare/connect?locale=${params.locale}`;
 
   }
 

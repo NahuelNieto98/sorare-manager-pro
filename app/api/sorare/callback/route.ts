@@ -29,6 +29,47 @@ export async function GET(
   const { searchParams } =
     new URL(request.url);
 
+const returnedState =
+  searchParams.get("state");
+
+const cookieHeader =
+  request.headers.get("cookie") || "";
+
+const cookieState =
+  cookieHeader
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith("sorare_oauth_state="))
+    ?.split("=")[1];
+
+const locale =
+  cookieHeader
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith("sorare_oauth_locale="))
+    ?.split("=")[1] || "es";
+
+const safeLocale =
+  ["es", "en", "fr"].includes(locale)
+    ? locale
+    : "es";
+
+if (
+!returnedState ||
+!cookieState ||
+returnedState !== cookieState
+) {
+  return NextResponse.json(
+    {
+      error: "OAuth state inválido",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+
 
   const code =
     searchParams.get("code");
@@ -362,7 +403,7 @@ export async function GET(
 
   return NextResponse.redirect(
     new URL(
-      "/es/dashboard",
+      `/${safeLocale}/dashboard`,
       request.url
     )
   );
