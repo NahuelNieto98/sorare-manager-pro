@@ -299,31 +299,41 @@
     "button": "Retry"
   },
   "home": {
-    "badge": "Sorare Manager Pro Beta",
+    "badge": "SORARE MANAGER PRO · PUBLIC BETA",
     "heroTitle": "Manage your Sorare collection",
-    "heroTitleHighlight": "like a professional",
-    "heroDescription": "Analyze your portfolio, track your cards, discover market opportunities and make smarter decisions.",
+    "heroTitleHighlight": "like a professional.",
+    "heroDescription": "Everything you need to analyze your collection, track its value and make better decisions in Sorare, all in one platform.",
     "login": "Sign in with Sorare",
-    "demo": "View demo",
+    "demo": "Discover the platform",
     "controlCenter": "Your Sorare control center",
     "betaTitle": "Join the public beta",
-    "betaDescription": "Help build the ultimate tool for Sorare managers.",
+    "betaDescription": "Help build Sorare Manager Pro together with the community.",
+    "featuresTitle": "All your Sorare. In one place.",
+    "featuresDescription": "Tools designed to help you better understand your collection and get the most out of your cards.",
     "features": {
       "dashboard": {
         "title": "Dashboard",
-        "text": "Your entire collection managed from one place."
+        "text": "A complete overview of your collection, value and performance."
+      },
+      "gallery": {
+        "title": "Gallery",
+        "text": "Browse and analyze every card in your collection."
       },
       "portfolio": {
         "title": "Portfolio",
-        "text": "Analyze value, ROI and performance."
+        "text": "Track the value, ROI and evolution of your investments."
       },
       "market": {
         "title": "Market",
-        "text": "Find opportunities in the market."
+        "text": "Discover interesting opportunities in the market."
       },
       "scout": {
         "title": "AI Scout",
-        "text": "Smart recommendations for your collection."
+        "text": "Use intelligent analysis to find opportunities."
+      },
+      "analytics": {
+        "title": "Analytics",
+        "text": "Turn your data into useful insights to make better decisions."
       }
     },
     "stats": {
@@ -331,12 +341,57 @@
       "value": "Collection value",
       "roi": "ROI"
     },
+    "howItWorks": {
+      "title": "Get started in a few steps",
+      "description": "Connect your account and start understanding your collection better.",
+      "step1": {
+        "title": "Connect",
+        "text": "Connect your Sorare account securely."
+      },
+      "step2": {
+        "title": "Sync",
+        "text": "Import your collection and keep your data up to date."
+      },
+      "step3": {
+        "title": "Analyze",
+        "text": "Explore the value, performance and statistics of your cards."
+      },
+      "step4": {
+        "title": "Decide",
+        "text": "Use all that information to manage your collection more effectively."
+      }
+    },
+    "creator": {
+      "badge": "ABOUT THE CREATOR",
+      "title": "Behind Sorare Manager Pro",
+      "hello": "Hi, I'm Nahuel 👋",
+      "description": "Sorare Manager Pro was born from a real need: having the tools a manager needs to analyze and manage their collection in one place.",
+      "community": "I'm building this platform together with the Sorare community, adding new tools and improvements based on your feedback."
+    },
+    "roadmap": {
+      "badge": "ROADMAP",
+      "title": "This is just the beginning.",
+      "description": "Sorare Manager Pro is constantly evolving. Here are some of the tools we are building.",
+      "view": "View full roadmap"
+    },
+    "changelog": {
+      "badge": "LATEST UPDATES",
+      "title": "Latest updates",
+      "description": "We keep improving Sorare Manager Pro with new tools, analytics and improvements.",
+      "view": "View changelog"
+    },
+    "finalCta": {
+      "title": "Ready to manage your collection differently?",
+      "description": "Join the public beta of Sorare Manager Pro and start analyzing your collection.",
+      "button": "Sign in with Sorare"
+    },
     "mobileBrowser": {
       "title": "Open in your browser",
       "description": "To connect your Sorare account securely, open Sorare Manager Pro in Safari or Chrome instead of the app's built-in browser.",
       "steps": "Use the browser menu and choose “Open in Safari” or “Open in Chrome”.",
       "back": "Got it"
-    }
+    },
+    "exploreTool": "Explore tool"
   },
   "roadmapPage": {
     "badge": "Sorare Manager Pro Roadmap",
