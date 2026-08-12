@@ -37,6 +37,7 @@ export default function LanguageSwitcher() {
     <div
       className="
         flex
+        shrink-0
         items-center
         rounded-2xl
         border
@@ -49,13 +50,14 @@ export default function LanguageSwitcher() {
     >
       <div
         className="
-          flex
+          hidden
           h-8
           w-8
           items-center
           justify-center
           rounded-xl
           text-zinc-500
+          md:flex
         "
       >
         <Globe2 size={15} />
@@ -74,15 +76,19 @@ export default function LanguageSwitcher() {
                 changeLanguage(language.code)
               }
               className={`
-                min-w-[38px]
+                min-w-[30px]
                 rounded-xl
-                px-2.5
+                px-1.5
                 py-2
-                text-[11px]
+                text-[10px]
                 font-black
                 tracking-wide
                 transition-all
                 duration-200
+
+                md:min-w-[38px]
+                md:px-2.5
+                md:text-[11px]
 
                 ${
                   active
