@@ -178,7 +178,14 @@
     "errorPrices": "Error actualizando precios",
     "updated": "Actualizadas",
     "skipped": "Omitidas",
-    "failed": "Fallidas"
+    "failed": "Fallidas",
+    "syncStatusTitle": "Sincronizando tu colección",
+    "syncStatusDescription": "Estamos conectando con Sorare y actualizando tus cartas. Esto puede tardar unos segundos.",
+    "syncStatusSuccess": "Colección sincronizada",
+    "syncStatusSuccessDescription": "Tu colección se ha actualizado correctamente.",
+    "syncStatusError": "No se pudo sincronizar",
+    "syncStatusRetry": "Reintentar",
+    "cardsUpdated": "cartas actualizadas correctamente"
   },
   "notifications": {
     "title": "Notificaciones",

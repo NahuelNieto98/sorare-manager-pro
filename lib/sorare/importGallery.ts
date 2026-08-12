@@ -71,7 +71,8 @@ export async function importGallery(
 
 
 
-    for(const card of batch){
+      await Promise.all(
+        batch.map(async (card) => {
 
 
       await prisma.card.upsert({
@@ -280,7 +281,8 @@ export async function importGallery(
       });
 
 
-    }
+        })
+      );
 
 
   }

@@ -26,6 +26,9 @@ useState(false);
 const [message,setMessage] =
 useState("");
 
+const [syncError,setSyncError] =
+useState(false);
+
 
 
 
@@ -34,6 +37,8 @@ async function syncGallery(){
 
 
 setSyncLoading(true);
+
+setSyncError(false);
 
 setMessage("");
 
@@ -67,10 +72,10 @@ data.error
 
 
 
+setSyncError(false);
+
 setMessage(
-
-`✅ ${t("successSync")}: ${data.cards ?? 0} cartas`
-
+`${data.cards ?? 0} ${t("cardsUpdated")}`
 );
 
 
@@ -93,10 +98,10 @@ error
 
 
 
+setSyncError(true);
+
 setMessage(
-
-`❌ ${error.message ?? t("errorSync")}`
-
+error.message ?? t("errorSync")
 );
 
 
@@ -328,40 +333,85 @@ t("pricesButton")
 
 
 
-{
+{syncLoading && (
 
-message && (
+<div className="mt-2 rounded-2xl border border-violet-500/20 bg-violet-500/10 p-5">
 
-<div
+<div className="flex items-center gap-3">
 
-className="
-flex
-items-center
-gap-2
-text-sm
-text-zinc-300
-"
-
->
-
-
-<CheckCircle
-
-size={18}
-
-className="text-green-400"
-
+<RefreshCw
+size={20}
+className="animate-spin text-violet-300"
 />
 
+<div>
 
-{message}
+<p className="font-black text-white">
+{t("syncStatusTitle")}
+</p>
 
+<p className="mt-1 text-sm leading-6 text-zinc-400">
+{t("syncStatusDescription")}
+</p>
 
 </div>
 
-)
+</div>
 
-}
+<div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
+
+<div className="h-full w-2/3 animate-pulse rounded-full bg-violet-500" />
+
+</div>
+
+</div>
+
+)}
+
+{message && !syncLoading && (
+
+<div
+className={`mt-2 flex items-start gap-3 rounded-2xl border p-4 text-sm ${
+syncError
+? "border-red-500/20 bg-red-500/10 text-red-200"
+: "border-green-500/20 bg-green-500/10 text-green-200"
+}`}
+>
+
+<CheckCircle
+size={18}
+className={syncError ? "text-red-400" : "text-green-400"}
+/>
+
+<div>
+
+<p className="font-bold">
+{syncError
+? t("syncStatusError")
+: t("syncStatusSuccess")}
+</p>
+
+<p className="mt-1 text-xs leading-5 opacity-80">
+{message}
+</p>
+
+{syncError && (
+
+<button
+type="button"
+onClick={syncGallery}
+className="mt-3 font-bold underline"
+>
+{t("syncStatusRetry")}
+</button>
+
+)}
+
+</div>
+
+</div>
+
+)}
 
 
 
