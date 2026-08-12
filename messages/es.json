@@ -243,6 +243,30 @@
     "connecting": "Conectando con Sorare...",
     "button": "🔗 Conectar Sorare"
   },
+  "connectPage": {
+    "badge": "CONEXIÓN SEGURA",
+    "title": "Conecta tu cuenta de",
+    "description": "Conecta tu cuenta de Sorare para importar tu colección y acceder a todas las herramientas de Sorare Manager Pro.",
+    "secure": {
+      "title": "Conexión segura",
+      "description": "Nunca almacenamos tu contraseña. La conexión se realiza directamente mediante la autenticación oficial de Sorare."
+    },
+    "button": "Conectar con Sorare",
+    "cards": {
+      "security": {
+        "title": "100% seguro",
+        "text": "Tu cuenta se conecta mediante el sistema oficial de autenticación de Sorare."
+      },
+      "collection": {
+        "title": "Tu colección",
+        "text": "Accede a tus cartas y gestiona tu colección desde un único lugar."
+      },
+      "analytics": {
+        "title": "Análisis avanzado",
+        "text": "Analiza el rendimiento y el valor de tus cartas con nuestras herramientas."
+      }
+    }
+  },
   "settings": {
     "title": "Configuración",
     "subtitle": "Conecta tu cuenta de Sorare.",
