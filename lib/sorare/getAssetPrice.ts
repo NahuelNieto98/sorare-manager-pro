@@ -36,19 +36,6 @@ query GetAssetPrice(
       }
     }
 
-    lowestPriceCardAnySeason {
-      assetId
-      slug
-
-      liveSingleSaleOffer {
-        receiverSide {
-          amounts {
-            eurCents
-          }
-        }
-      }
-    }
-
   }
 
   anyPlayer(
@@ -57,6 +44,18 @@ query GetAssetPrice(
 
     slug
     displayName
+
+    lowestPriceAnyCard(
+      rarity:$rarity
+    ) {
+      assetId
+      slug
+
+      priceRange {
+        min
+        max
+      }
+    }
 
     tokenPrices(
       first:10
@@ -79,6 +78,16 @@ query GetAssetPrice(
         }
 
       }
+
+    }
+
+  }
+
+  config {
+
+    exchangeRate {
+
+      rates
 
     }
 
@@ -133,18 +142,16 @@ export async function getAssetPrice(
         accessToken
       );
 
-    const card =
-      data.data?.anyCards?.[0];
-
     /*
      * =====================================================
      * IN-SEASON
      * =====================================================
-     *
-     * Solo utilizamos el mercado de la carta 2026.
      */
 
     if(isInSeason) {
+
+      const card =
+        data.data?.anyCards?.[0];
 
       const directPrice =
         card?.lowestPriceCard
@@ -182,44 +189,81 @@ export async function getAssetPrice(
 
       }
 
-    }
+      /*
+       * Fallback IN-SEASON:
+       * ventas recientes de cartas 2026.
+       */
 
-    /*
-     * =====================================================
-     * CLASSIC
-     * =====================================================
-     *
-     * Todas las temporadas anteriores forman un único
-     * mercado Classic.
-     */
+      const tokenPrices =
+        data.data?.anyPlayer
+          ?.tokenPrices
+          ?.nodes ?? [];
 
-    if(!isInSeason) {
+      const validTokenPrices =
+        tokenPrices
+          .filter(
+            (item:any) =>
+              item?.amounts?.eurCents !== null &&
+              item?.amounts?.eurCents !== undefined
+          )
+          .filter(
+            (item:any) =>
+              (
+                item?.card?.slug ?? ""
+              ).includes("-2026-")
+          );
 
-      const directPrice =
-        card?.lowestPriceCardAnySeason
-          ?.liveSingleSaleOffer
-          ?.receiverSide
-          ?.amounts
-          ?.eurCents
-        ??
-        null;
+      console.log(
+        "📊 VENTAS VÁLIDAS:",
+        validTokenPrices.length,
+        "IN-SEASON"
+      );
 
       if(
-        directPrice !== null &&
-        directPrice !== undefined
+        validTokenPrices.length > 0
       ) {
+
+        const prices =
+          validTokenPrices
+            .map(
+              (item:any) =>
+                Number(
+                  item.amounts.eurCents
+                )
+            )
+            .sort(
+              (a:number,b:number) =>
+                a - b
+            );
+
+        const middle =
+          Math.floor(
+            prices.length / 2
+          );
+
+        const median =
+          prices.length % 2 === 0
+            ?
+            (
+              prices[middle - 1] +
+              prices[middle]
+            ) / 2
+            :
+            prices[middle];
 
         const value =
           Number(
             (
-              Number(directPrice) / 100
+              median / 100
             ).toFixed(2)
           );
 
         console.log(
-          "✅ PRECIO CLASSIC:",
+          "📊 MEDIANA IN-SEASON:",
           value,
-          assetId
+          assetId,
+          "VENTAS:",
+          validTokenPrices.length
         );
 
         return value;
@@ -230,104 +274,80 @@ export async function getAssetPrice(
 
     /*
      * =====================================================
-     * HISTÓRICO
+     * CLASSIC
      * =====================================================
+     *
+     * El precio Classic procede del floor actual:
+     *
+     * lowestPriceAnyCard
+     * → priceRange.min
+     * → WEI
+     * → EUR
      */
 
-    const tokenPrices =
-      data.data?.anyPlayer
-        ?.tokenPrices
-        ?.nodes ?? [];
+    if(!isInSeason) {
 
-    const validTokenPrices =
-      tokenPrices
-        .filter(
-          (item:any) =>
-            item?.amounts?.eurCents !== null &&
-            item?.amounts?.eurCents !== undefined
-        )
-        .filter(
-          (item:any) => {
+      const lowestPrice =
+        data.data?.anyPlayer
+          ?.lowestPriceAnyCard;
 
-            const itemSlug =
-              item?.card?.slug ?? "";
+      const minWei =
+        lowestPrice
+          ?.priceRange
+          ?.min;
 
-            if(isInSeason) {
+      const weiToEur =
+        data.data
+          ?.config
+          ?.exchangeRate
+          ?.rates
+          ?.wei
+          ?.eur;
 
-              return itemSlug.includes(
-                "-2026-"
-              );
+      if(
+        minWei !== null &&
+        minWei !== undefined &&
+        weiToEur !== null &&
+        weiToEur !== undefined
+      ) {
 
-            }
-
-            return !itemSlug.includes(
-              "-2026-"
-            );
-
-          }
-        );
-
-    console.log(
-      "📊 VENTAS VÁLIDAS:",
-      validTokenPrices.length,
-      isInSeason
-        ? "IN-SEASON"
-        : "CLASSIC"
-    );
-
-    if(
-      validTokenPrices.length > 0
-    ) {
-
-      const prices =
-        validTokenPrices
-          .map(
-            (item:any) =>
-              Number(
-                item.amounts.eurCents
-              )
-          )
-          .sort(
-            (a:number,b:number) =>
-              a - b
+        const value =
+          Number(
+            (
+              Number(minWei) *
+              Number(weiToEur)
+            ).toFixed(2)
           );
 
-      const middle =
-        Math.floor(
-          prices.length / 2
+        console.log(
+          "✅ PRECIO CLASSIC:",
+          value,
+          "WEI:",
+          minWei,
+          "EUR/WEI:",
+          weiToEur,
+          "FLOOR:",
+          lowestPrice?.slug
         );
 
-      const median =
-        prices.length % 2 === 0
-          ?
-          (
-            prices[middle - 1] +
-            prices[middle]
-          ) / 2
-          :
-          prices[middle];
+        return value;
 
-      const value =
-        Number(
-          (
-            median / 100
-          ).toFixed(2)
-        );
+      }
 
       console.log(
-        "📊 MEDIANA:",
-        value,
-        isInSeason
-          ? "IN-SEASON"
-          : "CLASSIC",
-        assetId,
-        "VENTAS:",
-        validTokenPrices.length
+        "❌ SIN FLOOR CLASSIC:",
+        assetId
       );
 
-      return value;
+      return null;
 
     }
+
+    /*
+     * =====================================================
+     * SIN PRECIO
+     * =====================================================
+     */
 
     console.log(
       "❌ SIN PRECIO DE MERCADO:",
