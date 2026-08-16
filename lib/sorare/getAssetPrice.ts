@@ -58,7 +58,7 @@ query GetAssetPrice(
     }
 
     tokenPrices(
-      first:10
+      last:20
       rarity:$rarity
       season:$season
       includePrivateSales:false
@@ -277,57 +277,86 @@ export async function getAssetPrice(
      * CLASSIC
      * =====================================================
      *
-     * El precio Classic procede del floor actual:
+     * El precio Classic procede de las últimas ventas.
      *
-     * lowestPriceAnyCard
-     * → priceRange.min
-     * → WEI
-     * → EUR
+     * Se excluyen las cartas 2026 porque pertenecen
+     * al mercado IN-SEASON.
+     *
+     * Se calcula la mediana de las últimas ventas Classic.
      */
 
     if(!isInSeason) {
 
-      const lowestPrice =
+      const tokenPrices =
         data.data?.anyPlayer
-          ?.lowestPriceAnyCard;
+          ?.tokenPrices
+          ?.nodes ?? [];
 
-      const minWei =
-        lowestPrice
-          ?.priceRange
-          ?.min;
+      const validTokenPrices =
+        tokenPrices
+          .filter(
+            (item:any) =>
+              item?.amounts?.eurCents !== null &&
+              item?.amounts?.eurCents !== undefined
+          )
+          .filter(
+            (item:any) =>
+              !(
+                item?.card?.slug ?? ""
+              ).includes("-2026-")
+          );
 
-      const weiToEur =
-        data.data
-          ?.config
-          ?.exchangeRate
-          ?.rates
-          ?.wei
-          ?.eur;
+      console.log(
+        "📊 VENTAS VÁLIDAS:",
+        validTokenPrices.length,
+        "CLASSIC"
+      );
 
       if(
-        minWei !== null &&
-        minWei !== undefined &&
-        weiToEur !== null &&
-        weiToEur !== undefined
+        validTokenPrices.length > 0
       ) {
+
+        const prices =
+          validTokenPrices
+            .map(
+              (item:any) =>
+                Number(
+                  item.amounts.eurCents
+                )
+            )
+            .sort(
+              (a:number,b:number) =>
+                a - b
+            );
+
+        const middle =
+          Math.floor(
+            prices.length / 2
+          );
+
+        const median =
+          prices.length % 2 === 0
+            ?
+            (
+              prices[middle - 1] +
+              prices[middle]
+            ) / 2
+            :
+            prices[middle];
 
         const value =
           Number(
             (
-              Number(minWei) *
-              Number(weiToEur)
+              median / 100
             ).toFixed(2)
           );
 
         console.log(
-          "✅ PRECIO CLASSIC:",
+          "📊 MEDIANA CLASSIC:",
           value,
-          "WEI:",
-          minWei,
-          "EUR/WEI:",
-          weiToEur,
-          "FLOOR:",
-          lowestPrice?.slug
+          assetId,
+          "VENTAS:",
+          validTokenPrices.length
         );
 
         return value;
@@ -335,7 +364,7 @@ export async function getAssetPrice(
       }
 
       console.log(
-        "❌ SIN FLOOR CLASSIC:",
+        "❌ SIN VENTAS CLASSIC:",
         assetId
       );
 
