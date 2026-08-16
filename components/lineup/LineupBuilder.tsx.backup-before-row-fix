@@ -1,0 +1,1707 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import {
+  Search,
+  X,
+  Plus,
+  RefreshCw,
+  Trophy,
+  Check,
+  Crown,
+  SlidersHorizontal,
+  ChevronDown,
+  CalendarDays,
+  Sparkles,
+} from "lucide-react";
+
+type Card = {
+  id: string;
+  sorareId: string;
+  playerName: string;
+  playerSlug?: string | null;
+  pictureUrl?: string | null;
+  position?: string | null;
+  scarcity: string;
+  season: number;
+  club?: string | null;
+  l5Score?: number | null;
+  l10Score?: number | null;
+  l15Score?: number | null;
+  averageScore?: number | null;
+  nextMatch?: {
+    opponent: string;
+    opponentAbbreviation?: string;
+    opponentLogo?: string | null;
+    teamAbbreviation?: string;
+    teamLogo?: string | null;
+    isHome: boolean;
+    date: string;
+    time: string;
+    probabilities?: {
+      home: number;
+      draw: number;
+      away: number;
+    };
+  } | null;
+};
+
+type SlotKey = "GK" | "DEF" | "MID" | "FWD" | "EXTRA";
+type SortOption = "average" | "nextMatch" | "l5" | "l10" | "l15";
+
+const SELECTION_ORDER: SlotKey[] = [
+  "GK",
+  "DEF",
+  "MID",
+  "FWD",
+  "EXTRA",
+];
+
+const SLOT_NAMES: Record<SlotKey, string> = {
+  GK: "Goalkeeper",
+  DEF: "Defender",
+  MID: "Midfielder",
+  FWD: "Forward",
+  EXTRA: "Extra",
+};
+
+function normalizePosition(
+  position?: string | null
+): SlotKey | null {
+  if (!position) return null;
+
+  const value = position.toLowerCase();
+
+  if (
+    value.includes("goalkeeper") ||
+    value === "gk" ||
+    value.includes("keeper") ||
+    value.includes("goalie")
+  ) {
+    return "GK";
+  }
+
+  if (
+    value.includes("defender") ||
+    value === "def" ||
+    value.includes("defense") ||
+    value.includes("defence")
+  ) {
+    return "DEF";
+  }
+
+  if (
+    value.includes("midfielder") ||
+    value === "mid" ||
+    value.includes("middle")
+  ) {
+    return "MID";
+  }
+
+  if (
+    value.includes("forward") ||
+    value === "fwd" ||
+    value.includes("attacker") ||
+    value.includes("striker")
+  ) {
+    return "FWD";
+  }
+
+  return null;
+}
+
+function getScore(card: Card) {
+  return (
+    card.averageScore ??
+    card.l15Score ??
+    card.l10Score ??
+    card.l5Score ??
+    0
+  );
+}
+
+function getRarityStyle(scarcity?: string) {
+  const rarity = scarcity?.toLowerCase() ?? "";
+
+  if (rarity.includes("unique")) {
+    return {
+      border: "border-orange-400",
+      glow: "shadow-orange-500/40",
+      badge: "bg-orange-500/20 text-orange-200",
+    };
+  }
+
+  if (rarity.includes("super")) {
+    return {
+      border: "border-red-400",
+      glow: "shadow-red-500/40",
+      badge: "bg-red-500/20 text-red-200",
+    };
+  }
+
+  if (rarity.includes("rare")) {
+    return {
+      border: "border-yellow-400",
+      glow: "shadow-yellow-500/40",
+      badge: "bg-yellow-500/20 text-yellow-200",
+    };
+  }
+
+  return {
+    border: "border-violet-400",
+    glow: "shadow-violet-500/40",
+    badge: "bg-violet-500/20 text-violet-200",
+  };
+}
+
+function getStepLabel(
+  step:
+    | SlotKey
+    | "CAPTAIN"
+    | "COMPLETE"
+    | null
+) {
+  if (!step) return "Posición";
+  if (step === "CAPTAIN") return "Capitán";
+  if (step === "COMPLETE") return "Completa";
+  return SLOT_NAMES[step];
+}
+
+export default function LineupBuilder() {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [selected, setSelected] = useState<
+    Partial<Record<SlotKey, Card>>
+  >({});
+  const [captainId, setCaptainId] = useState<string | null>(null);
+  const [activePosition, setActivePosition] =
+    useState<SlotKey | null>(null);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [sortOption, setSortOption] = useState<SortOption>("average");
+  const [sortOpen, setSortOpen] = useState(false);
+
+  async function loadCards() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/cards");
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ?? "No se pudieron cargar las cartas"
+        );
+      }
+
+      const clubs = Array.from(
+        new Set(
+          data
+            .map((card: Card) => card.club)
+            .filter(Boolean)
+        )
+      );
+
+      let fixtureMap: Record<string, Card["nextMatch"]> = {};
+
+      if (clubs.length > 0) {
+        try {
+          const fixtureResponse = await fetch(
+            `/api/lineup-fixtures?clubs=${encodeURIComponent(clubs.join("|"))}`
+          );
+
+          if (fixtureResponse.ok) {
+            fixtureMap = await fixtureResponse.json();
+          }
+        } catch (fixtureError) {
+          console.warn("Could not load upcoming fixtures:", fixtureError);
+        }
+      }
+
+      setCards(
+        data.map((card: Card) => ({
+          ...card,
+          nextMatch: card.club
+            ? fixtureMap[card.club] ?? null
+            : null,
+        }))
+      );
+    } catch (err: any) {
+      console.error("Error al cargar las cartas:", err);
+
+      setError(
+        err.message ?? "Error cargando las cartas"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCards();
+  }, []);
+
+  const selectedCards = useMemo(
+    () =>
+      SELECTION_ORDER.map(
+        (slot) => selected[slot]
+      ).filter(Boolean) as Card[],
+    [selected]
+  );
+
+  const selectedIds = useMemo(
+    () =>
+      new Set(
+        selectedCards.map((card) => card.id)
+      ),
+    [selectedCards]
+  );
+
+  const currentSeason = useMemo(
+    () =>
+      cards.length > 0
+        ? Math.max(...cards.map((card) => card.season))
+        : null,
+    [cards]
+  );
+
+  const inSeasonCount = useMemo(
+    () =>
+      currentSeason === null
+        ? 0
+        : selectedCards.filter(
+            (card) => card.season === currentSeason
+          ).length,
+    [selectedCards, currentSeason]
+  );
+
+  const classicCount = useMemo(
+    () =>
+      currentSeason === null
+        ? 0
+        : selectedCards.filter(
+            (card) => card.season !== currentSeason
+          ).length,
+    [selectedCards, currentSeason]
+  );
+
+  const activeStep = useMemo<
+    SlotKey | "CAPTAIN" | "COMPLETE" | null
+  >(() => {
+    const lineupComplete =
+      SELECTION_ORDER.every(
+        (slot) => !!selected[slot]
+      );
+
+    if (lineupComplete) {
+      if (!captainId) {
+        return "CAPTAIN";
+      }
+
+      return "COMPLETE";
+    }
+
+    return activePosition;
+  }, [
+    selected,
+    captainId,
+    activePosition,
+  ]);
+
+  const availableCards = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return cards.filter((card) => {
+      if (selectedIds.has(card.id)) {
+        return false;
+      }
+
+      const matchesSearch =
+        !query ||
+        card.playerName.toLowerCase().includes(query) ||
+        card.club?.toLowerCase().includes(query);
+
+      if (!matchesSearch) {
+        return false;
+      }
+
+      if (
+        activeStep === "CAPTAIN" ||
+        activeStep === "COMPLETE"
+      ) {
+        return true;
+      }
+
+      if (!activeStep) {
+        return false;
+      }
+
+      if (currentSeason !== null) {
+        const isInSeason = card.season === currentSeason;
+
+        if (!isInSeason && classicCount >= 1) {
+          return false;
+        }
+      }
+
+      if (activeStep === "EXTRA") {
+        const normalized =
+          normalizePosition(card.position);
+
+        return normalized !== null &&
+          normalized !== "GK";
+      }
+
+      if (
+        activePosition === "GK" ||
+        activePosition === "DEF" ||
+        activePosition === "MID" ||
+        activePosition === "FWD"
+      ) {
+        return normalizePosition(card.position) === activePosition;
+      }
+
+      return true;
+    });
+  }, [
+    cards,
+    search,
+    selectedIds,
+    activeStep,
+    currentSeason,
+    inSeasonCount,
+    classicCount,
+  ]);
+
+  const sortedAvailableCards = useMemo(() => {
+    const result = [...availableCards];
+
+    result.sort((a, b) => {
+      if (sortOption === "nextMatch") {
+        if (a.nextMatch && !b.nextMatch) return -1;
+        if (!a.nextMatch && b.nextMatch) return 1;
+        if (a.nextMatch && b.nextMatch) {
+          const parseMatchTime = (match: NonNullable<Card["nextMatch"]>) => {
+            const [day, month] = match.date.split("/").map(Number);
+            const [hour, minute] = match.time.split(":").map(Number);
+            const now = new Date();
+            let year = now.getFullYear();
+
+            const date = new Date(
+              year,
+              month - 1,
+              day,
+              hour,
+              minute
+            );
+
+            if (date.getTime() < now.getTime() - 7 * 24 * 60 * 60 * 1000) {
+              year += 1;
+              return new Date(
+                year,
+                month - 1,
+                day,
+                hour,
+                minute
+              ).getTime();
+            }
+
+            return date.getTime();
+          };
+
+          const aTime = parseMatchTime(a.nextMatch);
+          const bTime = parseMatchTime(b.nextMatch);
+
+          if (Number.isFinite(aTime) && Number.isFinite(bTime)) {
+            return aTime - bTime;
+          }
+        }
+        return getScore(b) - getScore(a);
+      }
+
+      if (sortOption === "l5") return (b.l5Score ?? 0) - (a.l5Score ?? 0);
+      if (sortOption === "l10") return (b.l10Score ?? 0) - (a.l10Score ?? 0);
+      if (sortOption === "l15") return (b.l15Score ?? 0) - (a.l15Score ?? 0);
+      return getScore(b) - getScore(a);
+    });
+
+    return result;
+  }, [availableCards, sortOption]);
+
+  const captainCards = useMemo(
+    () => selectedCards,
+    [selectedCards]
+  );
+
+  const lineupAverage =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) => sum + getScore(card),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  const l5Average =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) =>
+            sum + (card.l5Score ?? 0),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  const l10Average =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) =>
+            sum + (card.l10Score ?? 0),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  const l15Average =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) =>
+            sum + (card.l15Score ?? 0),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  function selectCard(card: Card) {
+    if (activeStep === "CAPTAIN") {
+      setCaptainId(card.id);
+      setSearch("");
+      return;
+    }
+
+    if (
+      activeStep === "COMPLETE" ||
+      !activeStep
+    ) {
+      return;
+    }
+
+    if (currentSeason !== null) {
+      const isInSeason = card.season === currentSeason;
+
+      if (!isInSeason && classicCount >= 1) {
+        return;
+      }
+    }
+
+    if (activeStep === "EXTRA" && normalizePosition(card.position) === "GK") {
+      return;
+    }
+
+    if (
+      activeStep !== "EXTRA" &&
+      normalizePosition(card.position) !== activeStep
+    ) {
+      return;
+    }
+
+    setSelected((current) => ({
+      ...current,
+      [activeStep]: card,
+    }));
+
+    setSearch("");
+
+    const currentIndex =
+      SELECTION_ORDER.indexOf(activeStep);
+
+    const nextPosition =
+      currentIndex >= 0 &&
+      currentIndex < SELECTION_ORDER.length - 1
+        ? SELECTION_ORDER[currentIndex + 1]
+        : null;
+
+    setActivePosition(nextPosition);
+  }
+
+  function removeCard(slot: SlotKey) {
+    setSelected((current) => {
+      const next = {
+        ...current,
+      };
+
+      delete next[slot];
+
+      return next;
+    });
+
+    setCaptainId(null);
+    setActivePosition(slot);
+    setSearch("");
+  }
+
+  function clearLineup() {
+    setSelected({});
+    setCaptainId(null);
+    setActivePosition(null);
+    setSearch("");
+  }
+
+  function selectCaptain(
+    card: Card
+  ) {
+    setCaptainId(card.id);
+  }
+
+  const stepProgress =
+    activeStep === "CAPTAIN" ||
+    activeStep === "COMPLETE"
+      ? 5
+      : activeStep
+        ? SELECTION_ORDER.indexOf(
+            activeStep
+          )
+        : selectedCards.length;
+
+  return (
+    <div className="space-y-7">
+
+      {/* HEADER */}
+
+      <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.18),transparent_34%),linear-gradient(135deg,#0c101b_0%,#111827_55%,#17112f_100%)] p-6 shadow-2xl md:p-8">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+
+        <div>
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/10 px-3.5 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-violet-200">
+            <Sparkles size={14} />
+            Sorare Manager Pro · Lineup Studio
+          </div>
+
+          <h1 className="text-5xl font-black tracking-[-0.03em] text-white md:text-6xl">
+            Constructor de alineaciones
+          </h1>
+
+          <p className="mt-3 max-w-xl text-base leading-7 text-zinc-300 md:text-lg">
+            Construye tu alineación de 5 jugadores y optimiza cada posición para la Game Week.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+          <ScoreBox
+            label="Media proyectada"
+            value={lineupAverage.toFixed(1)}
+            highlight
+          />
+
+          <ScoreBox
+            label="L5"
+            value={l5Average.toFixed(1)}
+          />
+
+          <ScoreBox
+            label="L10"
+            value={l10Average.toFixed(1)}
+          />
+
+          <ScoreBox
+            label="L15"
+            value={l15Average.toFixed(1)}
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-200">
+          {error}
+        </div>
+      )}
+
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+
+        {/* FIELD */}
+
+        <section className="overflow-hidden rounded-[32px] border border-white/10 bg-[#0d1420] shadow-2xl shadow-black/30">
+
+          <div className="flex items-center justify-between border-b border-white/10 bg-black/20 px-6 py-5">
+
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-violet-300">
+                LaLiga
+              </p>
+
+              <h2 className="mt-1 text-2xl font-black text-white">
+                Alineación
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-black text-zinc-300">
+                {selectedCards.length}/5
+              </div>
+
+              <button
+                type="button"
+                onClick={clearLineup}
+                className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-zinc-300 transition hover:bg-white/10 hover:text-white"
+              >
+                Limpiar
+              </button>
+
+              <button
+                type="button"
+                onClick={loadCards}
+                disabled={loading}
+                className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/10 disabled:opacity-50"
+                title="Actualizar cartas"
+              >
+                <RefreshCw
+                  size={17}
+                  className={
+                    loading
+                      ? "animate-spin"
+                      : ""
+                  }
+                />
+              </button>
+            </div>
+          </div>
+
+          <div className="relative h-[900px] overflow-hidden bg-[radial-gradient(circle_at_50%_15%,rgba(139,92,246,0.08),transparent_30%),#08111d] p-4 sm:p-6">
+
+            <div className="absolute inset-4 overflow-hidden rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,#122f45_0%,#0f293c_48%,#0b2234_100%)] shadow-inner sm:inset-6">
+
+              {/* FIELD LINES */}
+
+              <div className="absolute inset-0 opacity-[0.10]">
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8" />
+              </div>
+
+              <div className="absolute left-0 right-0 top-1/2 border-t border-white/10" />
+
+              <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
+
+              <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20" />
+
+              {/* FWD */}
+
+              <div className="absolute left-[8%] top-[4%]">
+                <LineupSlot
+                  label="FWD"
+                  card={selected.FWD}
+                  captain={
+                    captainId ===
+                    selected.FWD?.id
+                  }
+                  onRemove={() =>
+                    removeCard("FWD")
+                  }
+                  onSelect={() => {
+                    setActivePosition("FWD");
+                    setSearch("");
+                  }}
+                />
+              </div>
+
+              {/* MID + EXTRA */}
+
+              {/* MID - derecha */}
+              <div className="z-20 absolute right-[8%] top-[39%]">
+                <LineupSlot
+                  label="MID"
+                  card={selected.MID}
+                  captain={
+                    captainId ===
+                    selected.MID?.id
+                  }
+                  onRemove={() =>
+                    removeCard("MID")
+                  }
+                  onSelect={() => {
+                    setActivePosition("MID");
+                    setSearch("");
+                  }}
+                />
+              </div>
+
+              {/* EXTRA - arriba derecha */}
+              <div className="absolute right-[8%] top-[4%]">
+                <LineupSlot
+                  label="EXTRA"
+                  card={selected.EXTRA}
+                  captain={
+                    captainId ===
+                    selected.EXTRA?.id
+                  }
+                  onRemove={() =>
+                    removeCard("EXTRA")
+                  }
+                  onSelect={() => {
+                    setActivePosition("EXTRA");
+                    setSearch("");
+                  }}
+                />
+              </div>
+
+              {/* DEF */}
+
+              <div className="z-20 absolute left-[8%] top-[39%]">
+                <LineupSlot
+                  label="DEF"
+                  card={selected.DEF}
+                  captain={
+                    captainId ===
+                    selected.DEF?.id
+                  }
+                  onRemove={() =>
+                    removeCard("DEF")
+                  }
+                  onSelect={() => {
+                    setActivePosition("DEF");
+                    setSearch("");
+                  }}
+                />
+              </div>
+
+              {/* GK */}
+
+              <div className="absolute left-1/2 top-[78%] -translate-x-1/2">
+                <LineupSlot
+                  label="GK"
+                  card={selected.GK}
+                  captain={
+                    captainId ===
+                    selected.GK?.id
+                  }
+                  onRemove={() =>
+                    removeCard("GK")
+                  }
+                  onSelect={() => {
+                    setActivePosition("GK");
+                    setSearch("");
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* RIGHT PANEL */}
+
+        <section className="flex min-h-[760px] flex-col overflow-hidden rounded-[32px] border border-violet-400/10 bg-[linear-gradient(180deg,#18132f_0%,#120f24_100%)] shadow-2xl shadow-black/30">
+
+          <div className="border-b border-white/10 bg-white/[0.015] p-6 md:p-7">
+
+            <div className="flex items-start justify-between gap-4">
+
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+                  {activeStep === "CAPTAIN"
+                    ? "Final step"
+                    : activeStep === "COMPLETE"
+                      ? "Completa"
+                      : `Elige una posición · ${selectedCards.length}/5`}
+                </p>
+
+                <h2 className="mt-1 text-3xl font-black tracking-tight text-white">
+                  {activeStep === "CAPTAIN"
+                    ? "Elige tu capitán"
+                    : activeStep === "COMPLETE"
+                      ? "Alineación completa"
+                      : !activeStep
+                        ? "Elige una posición"
+                        : `Choose your ${getStepLabel(
+                            activeStep === "GK" ||
+                            activeStep === "DEF" ||
+                            activeStep === "MID" ||
+                            activeStep === "FWD" ||
+                            activeStep === "EXTRA"
+                              ? activeStep
+                              : null
+                          )}`}
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                  {activeStep === "CAPTAIN"
+                    ? "Selecciona uno de tus cinco jugadores como capitán."
+                    : activeStep === "COMPLETE"
+                      ? "Tu alineación está lista."
+                      : !activeStep
+                        ? "Elige qué posición quieres completar."
+                        : activeStep === "EXTRA"
+                          ? "Elige cualquier carta excepto un portero."
+                          : `Only ${SLOT_NAMES[
+                              activeStep === "GK" ||
+                              activeStep === "DEF" ||
+                              activeStep === "MID" ||
+                              activeStep === "FWD" ||
+                              activeStep === "EXTRA"
+                                ? activeStep
+                                : "EXTRA"
+                            ].toLowerCase()} cards are shown.`}
+                </p>
+              </div>
+
+              {activeStep === "CAPTAIN" && (
+                <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-3 text-yellow-300">
+                  <Crown size={21} />
+                </div>
+              )}
+
+            </div>
+
+            {/* PROGRESS */}
+
+            <div className="mt-5 flex gap-1.5">
+              {SELECTION_ORDER.map(
+                (slot, index) => {
+                  const complete =
+                    !!selected[slot];
+
+                  const current =
+                    activeStep === slot;
+
+                  return (
+                    <div
+                      key={slot}
+                      className="flex-1"
+                    >
+                      <div
+                        className={`h-1.5 rounded-full transition ${
+                          complete
+                            ? "bg-violet-500"
+                            : current
+                              ? "bg-violet-400/50"
+                              : "bg-white/10"
+                        }`}
+                      />
+
+                      <p
+                        className={`mt-1.5 text-[9px] font-black uppercase ${
+                          complete ||
+                          current
+                            ? "text-violet-300"
+                            : "text-zinc-600"
+                        }`}
+                      >
+                        {slot}
+                      </p>
+                    </div>
+                  );
+                }
+              )}
+
+              <div className="flex-1">
+                <div
+                  className={`h-1.5 rounded-full ${
+                    captainId
+                      ? "bg-yellow-400"
+                      : activeStep ===
+                          "CAPTAIN"
+                        ? "bg-yellow-400/50"
+                        : "bg-white/10"
+                  }`}
+                />
+
+                <p
+                  className={`mt-1.5 text-[9px] font-black uppercase ${
+                    captainId ||
+                    activeStep ===
+                      "CAPTAIN"
+                      ? "text-yellow-300"
+                      : "text-zinc-600"
+                  }`}
+                >
+                  CAPTAIN
+                </p>
+              </div>
+            </div>
+
+            {/* COMPETITION RULE */}
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div
+                className={`rounded-2xl border px-4 py-3 ${
+                  inSeasonCount === 4
+                    ? "border-violet-400/40 bg-violet-500/10"
+                    : "border-white/10 bg-black/20"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+                    Temporada actual
+                  </span>
+                  <span className="text-sm font-black text-violet-300">
+                    {inSeasonCount}/4
+                  </span>
+                </div>
+                <p className="mt-1 text-[10px] text-zinc-600">
+                  Temporada actual
+                </p>
+              </div>
+
+              <div
+                className={`rounded-2xl border px-4 py-3 ${
+                  classicCount === 1
+                    ? "border-yellow-400/40 bg-yellow-400/10"
+                    : "border-white/10 bg-black/20"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+                    Clásico
+                  </span>
+                  <span className="text-sm font-black text-yellow-300">
+                    {classicCount}/1
+                  </span>
+                </div>
+                <p className="mt-1 text-[10px] text-zinc-600">
+                  Temporadas anteriores
+                </p>
+              </div>
+            </div>
+
+            {/* POSITION SELECTOR */}
+
+            {!activeStep && (
+              <div className="mt-5">
+                <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
+                  Elige una posición
+                </p>
+
+                <div className="grid grid-cols-5 gap-2.5">
+                  {SELECTION_ORDER.map((slot) => {
+                    const complete = !!selected[slot];
+
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        disabled={complete}
+                        onClick={() => {
+                          setActivePosition(slot);
+                          setSearch("");
+                        }}
+                        className={`relative rounded-2xl border px-2 py-3.5 text-xs font-black transition ${
+                          complete
+                            ? "cursor-not-allowed border-violet-500/20 bg-violet-500/10 text-violet-300"
+                            : "border-white/10 bg-white/5 text-zinc-300 hover:border-violet-500/40 hover:bg-violet-500/10 hover:text-white"
+                        }`}
+                      >
+                        {slot}
+
+                        {complete && (
+                          <Check
+                            size={13}
+                            className="absolute right-1.5 top-1.5 text-green-400"
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {activeStep &&
+              activeStep !== "CAPTAIN" &&
+              activeStep !== "COMPLETE" && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
+                    Change position
+                  </p>
+
+                  <div className="grid grid-cols-5 gap-2.5">
+                    {SELECTION_ORDER.map((slot) => {
+                      const complete = !!selected[slot];
+                      const current = activeStep === slot;
+
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          disabled={complete && !current}
+                          onClick={() => {
+                            if (complete && !current) return;
+
+                            setActivePosition(slot);
+                            setSearch("");
+                          }}
+                          className={`relative rounded-2xl border px-2 py-3.5 text-xs font-black transition ${
+                            current
+                              ? "border-violet-400 bg-violet-500/20 text-violet-200 shadow-lg shadow-violet-900/20"
+                              : complete
+                                ? "cursor-not-allowed border-violet-500/20 bg-violet-500/10 text-violet-300"
+                                : "border-white/10 bg-white/5 text-zinc-300 hover:border-violet-500/40 hover:bg-violet-500/10 hover:text-white"
+                          }`}
+                        >
+                          {slot}
+
+                          {complete && (
+                            <Check
+                              size={13}
+                              className="absolute right-1.5 top-1.5 text-green-400"
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+            {/* SORT */}
+
+            {activeStep !== "CAPTAIN" && activeStep !== "COMPLETE" && activeStep && (
+              <div className="relative mt-5">
+                <button
+                  type="button"
+                  onClick={() => setSortOpen((value) => !value)}
+                  className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 text-left transition hover:border-violet-400/30 hover:bg-violet-500/[0.06]"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300">
+                      <SlidersHorizontal size={17} />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.18em] text-zinc-600">Ordenar jugadores</p>
+                      <p className="mt-0.5 text-sm font-black text-white">
+                        {sortOption === "average" ? "Puntuación media" : sortOption === "nextMatch" ? "Juega próximamente" : sortOption === "l5" ? "Forma · L5" : sortOption === "l10" ? "Forma · L10" : "Forma · L15"}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronDown size={18} className={`text-zinc-500 transition ${sortOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {sortOpen && (
+                  <div className="absolute left-0 right-0 z-40 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#17112f] p-2 shadow-2xl shadow-black/50">
+                    {[
+                      ["average", "Puntuación media"],
+                      ["nextMatch", "Juega próximamente"],
+                      ["l5", "Forma · L5"],
+                      ["l10", "Forma · L10"],
+                      ["l15", "Forma · L15"],
+                    ].map(([value, label]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => {
+                          setSortOption(value as SortOption);
+                          setSortOpen(false);
+                        }}
+                        className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-sm font-bold transition ${sortOption === value ? "bg-violet-500/15 text-violet-200" : "text-zinc-300 hover:bg-white/5 hover:text-white"}`}
+                      >
+                        <span>{label}</span>
+                        {sortOption === value && <Check size={16} className="text-violet-400" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SEARCH */}
+
+            {activeStep !== "COMPLETE" &&
+              activeStep !== null && (
+              <div className="relative mt-5">
+                <Search
+                  size={18}
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
+                />
+
+                <input
+                  value={search}
+                  onChange={(event) =>
+                    setSearch(
+                      event.target.value
+                    )
+                  }
+                  placeholder={
+                    activeStep ===
+                    "CAPTAIN"
+                      ? "Buscar jugadores seleccionados..."
+                      : "Buscar jugador o club..."
+                  }
+                  className="w-full rounded-2xl border border-white/10 bg-black/20 py-3.5 pl-11 pr-10 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-violet-500/50"
+                />
+
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSearch("")
+                    }
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 transition hover:text-white"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            )}
+
+          </div>
+
+          {/* CARDS */}
+
+          <div className="min-h-0 flex-1 overflow-y-auto p-5">
+
+            {activeStep ===
+              "COMPLETE" ? (
+              <CompleteState
+                captainId={
+                  captainId
+                }
+                selectedCards={
+                  selectedCards
+                }
+              />
+            ) : activeStep ===
+              "CAPTAIN" ? (
+              <div className="grid grid-cols-2 gap-5 lg:grid-cols-3 xl:grid-cols-4">
+                {captainCards
+                  .filter((card) => {
+                    const query =
+                      search
+                        .trim()
+                        .toLowerCase();
+
+                    return (
+                      !query ||
+                      card.playerName
+                        .toLowerCase()
+                        .includes(query) ||
+                      card.club
+                        ?.toLowerCase()
+                        .includes(query)
+                    );
+                  })
+                  .map((card) => (
+                    <CaptainCard
+                      key={card.id}
+                      card={card}
+                      selected={
+                        captainId ===
+                        card.id
+                      }
+                      onSelect={() =>
+                        selectCaptain(
+                          card
+                        )
+                      }
+                    />
+                  ))}
+              </div>
+            ) : loading ? (
+              <div className="flex min-h-[350px] items-center justify-center">
+                <div className="flex flex-col items-center gap-3 text-zinc-500">
+                  <RefreshCw
+                    size={28}
+                    className="animate-spin text-violet-400"
+                  />
+                  <span className="text-sm">
+                    Loading cards...
+                  </span>
+                </div>
+              </div>
+            ) : !activeStep ? (
+              <div className="flex min-h-[350px] items-center justify-center text-center">
+                <div>
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-300">
+                    <Plus size={26} />
+                  </div>
+
+                  <p className="mt-4 font-black text-zinc-300">
+                    Elige una posición
+                  </p>
+
+                  <p className="mt-1 max-w-xs text-sm leading-6 text-zinc-600">
+                    Selecciona GK, DEF, MID, FWD o EXTRA para comenzar tu alineación.
+                  </p>
+                </div>
+              </div>
+            ) : availableCards.length ===
+              0 ? (
+              <div className="flex min-h-[350px] items-center justify-center text-center">
+                <div>
+                  <p className="font-bold text-zinc-300">
+                    No {SLOT_NAMES[
+                      activeStep
+                    ].toLowerCase()} cards found
+                  </p>
+
+                  <p className="mt-1 text-sm text-zinc-600">
+                    Try another search.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-5 lg:grid-cols-3 xl:grid-cols-4">
+                {sortedAvailableCards.map(
+                  (card) => (
+                    <PlayerCard
+                      key={card.id}
+                      card={card}
+                      onSelect={() =>
+                        selectCard(
+                          card
+                        )
+                      }
+                    />
+                  )
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* COMPLETE FOOTER */}
+
+          {activeStep ===
+            "COMPLETE" && (
+            <div className="border-t border-white/10 bg-black/20 p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400/10 text-yellow-300">
+                  <Crown size={20} />
+                </div>
+
+                <div>
+                  <p className="font-black text-white">
+                    Captain selected
+                  </p>
+
+                  <p className="text-xs text-zinc-500">
+                    Your lineup is ready.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </section>
+      </div>
+      </div>
+    </div>
+  );
+}
+
+function ScoreBox({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`min-w-[110px] rounded-2xl border px-4 py-3 ${
+        highlight
+          ? "border-violet-500/30 bg-violet-500/10"
+          : "border-white/10 bg-white/[0.03]"
+      }`}
+    >
+      <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+        {label}
+      </p>
+
+      <p
+        className={`mt-1 text-xl font-black ${
+          highlight
+            ? "text-violet-300"
+            : "text-white"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function PlayerCard({
+  card,
+  onSelect,
+}: {
+  card: Card;
+  onSelect: () => void;
+}) {
+  const rarity = getRarityStyle(card.scarcity);
+
+  return (
+    <div className="group flex min-w-0 flex-col items-center">
+      <button
+        type="button"
+        onClick={onSelect}
+        className="relative w-full overflow-hidden rounded-2xl text-left transition duration-200 hover:-translate-y-1"
+      >
+        <div
+          className={`relative mx-auto aspect-[0.72] w-full max-w-[190px] overflow-hidden rounded-2xl border-2 ${rarity.border} bg-[#090d16] shadow-xl ${rarity.glow}`}
+        >
+          {card.pictureUrl ? (
+            <img
+              src={card.pictureUrl}
+              alt={card.playerName}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-xs text-zinc-600">
+              CARD
+            </div>
+          )}
+
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
+
+          <span
+            className={`absolute left-2 top-2 rounded-md bg-black/75 px-2 py-1 text-[8px] font-black ${rarity.badge}`}
+          >
+            {card.scarcity}
+          </span>
+
+          <span className="absolute right-2 top-2 rounded-lg bg-violet-600 p-2 text-white shadow-lg shadow-violet-900/40 transition group-hover:bg-violet-500">
+            <Plus size={18} />
+          </span>
+        </div>
+      </button>
+
+      <div className="mt-2 w-full max-w-[190px] rounded-xl border border-white/8 bg-black/20 px-3 py-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="rounded-md bg-violet-500/15 px-2 py-1 text-[10px] font-black text-violet-300">
+            L10
+          </span>
+
+          <span className="text-sm font-black text-white">
+            {card.l10Score?.toFixed(1) ?? "—"}
+          </span>
+        </div>
+
+        {card.nextMatch && (
+          <div className="mt-2 flex items-center gap-1.5 text-[9px] font-bold text-zinc-400">
+            <CalendarDays
+              size={12}
+              className="shrink-0 text-violet-300"
+            />
+
+            <span className="truncate">
+              {card.nextMatch.isHome ? "vs" : "@"}{" "}
+              {card.nextMatch.opponent}
+            </span>
+
+            <span className="shrink-0 text-zinc-600">·</span>
+
+            <span className="shrink-0">
+              {card.nextMatch.date} · {card.nextMatch.time}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CaptainCard({
+  card,
+  selected,
+  onSelect,
+}: {
+  card: Card;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const rarity =
+    getRarityStyle(card.scarcity);
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`group flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition ${
+        selected
+          ? "border-yellow-400/50 bg-yellow-400/10"
+          : "border-white/5 bg-black/10 hover:border-yellow-400/30 hover:bg-yellow-400/[0.04]"
+      }`}
+    >
+      <div
+        className={`relative h-[250px] w-[178px] shrink-0 overflow-hidden rounded-xl border ${rarity.border} bg-[#0b1020] shadow-lg ${rarity.glow}`}
+      >
+        {card.pictureUrl ? (
+          <img
+            src={card.pictureUrl}
+            alt={card.playerName}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-[10px] text-zinc-600">
+            CARD
+          </div>
+        )}
+      </div>
+
+      <div className="min-w-0 w-full text-center">
+        <p className="truncate text-base font-black text-white">
+          {card.playerName}
+        </p>
+
+        <p className="mt-0.5 text-xs text-zinc-500">
+          {card.club ?? "Club desconocido"}
+        </p>
+
+        <p className="mt-2 text-xs font-bold text-zinc-400">
+          AA{" "}
+          <span className="text-white">
+            {card.averageScore?.toFixed(
+              1
+            ) ?? "—"}
+          </span>
+        </p>
+      </div>
+
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+          selected
+            ? "bg-yellow-400 text-black"
+            : "bg-white/5 text-zinc-500 group-hover:bg-yellow-400/10 group-hover:text-yellow-300"
+        }`}
+      >
+        {selected ? (
+          <Check size={21} />
+        ) : (
+          <Crown size={20} />
+        )}
+      </div>
+    </button>
+  );
+}
+
+function CompleteState({
+  captainId,
+  selectedCards,
+}: {
+  captainId: string | null;
+  selectedCards: Card[];
+}) {
+  const captain =
+    selectedCards.find(
+      (card) => card.id === captainId
+    );
+
+  return (
+    <div className="flex min-h-[350px] flex-col items-center justify-center text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-green-500/10 text-green-400">
+        <Check size={30} />
+      </div>
+
+      <h3 className="mt-5 text-xl font-black text-white">
+        Lineup ready
+      </h3>
+
+      <p className="mt-2 max-w-xs text-sm leading-6 text-zinc-500">
+        Your 5-player lineup is complete.
+      </p>
+
+      {captain && (
+        <div className="mt-5 inline-flex items-center gap-2 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300">
+          <Crown size={16} />
+          {captain.playerName}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LineupSlot({
+  label,
+  card,
+  captain,
+  onRemove,
+  onSelect,
+}: {
+  label: SlotKey;
+  card?: Card;
+  captain: boolean;
+  onRemove: () => void;
+  onSelect?: () => void;
+}) {
+  if (!card) {
+    return (
+      <button
+        type="button"
+        onClick={onSelect}
+        className="flex flex-col items-center gap-2"
+      >
+        <div className="flex h-[175px] w-[125px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/20 bg-black/10 text-zinc-500 transition hover:border-violet-400/50 hover:bg-violet-500/5 hover:text-violet-300 sm:h-[205px] sm:w-[150px]">
+          <Plus size={28} className="mb-3" />
+
+          <span className="text-[11px] font-black tracking-wider">
+            {label}
+          </span>
+        </div>
+
+        <span className="rounded-lg bg-black/40 px-3 py-1.5 text-[10px] font-black text-zinc-500">
+          {label}
+        </span>
+      </button>
+    );
+  }
+
+  const rarity = getRarityStyle(card.scarcity);
+
+  return (
+    <div
+      className="group relative flex flex-col items-center"
+      onClick={onSelect}
+    >
+      <div
+        className={`relative h-[205px] w-[145px] overflow-hidden rounded-2xl border-2 ${rarity.border} bg-[#090d16] shadow-2xl ${rarity.glow} transition duration-200 group-hover:-translate-y-1 group-hover:scale-[1.02] sm:h-[225px] sm:w-[160px]`}
+      >
+        {card.pictureUrl ? (
+          <img
+            src={card.pictureUrl}
+            alt={card.playerName}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-sm text-zinc-600">
+            CARTA
+          </div>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/95 via-black/55 to-transparent" />
+
+        <span className="absolute left-2.5 top-2.5 rounded-md bg-black/75 px-2.5 py-1.5 text-[9px] font-black uppercase text-white">
+          {card.scarcity}
+        </span>
+
+        {captain && (
+          <div className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-yellow-400 text-black shadow-lg">
+            <Crown size={18} />
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onRemove();
+          }}
+          className="absolute right-2.5 top-14 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-500"
+        >
+          <X size={15} />
+        </button>
+
+        <div className="absolute bottom-3 left-3 right-3">
+          <p className="truncate text-sm font-black text-white sm:text-base">
+            {card.playerName}
+          </p>
+
+          <p className="truncate text-[10px] text-zinc-300 sm:text-[11px]">
+            {card.club ?? "Club desconocido"}
+          </p>
+
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <span className="text-[9px] font-bold text-zinc-300 sm:text-[10px]">
+              L5 {card.l5Score?.toFixed(1) ?? "—"}
+            </span>
+
+            <span className="rounded-md bg-violet-600/90 px-2.5 py-1 text-[9px] font-black text-white sm:text-[10px]">
+              AA {card.averageScore?.toFixed(1) ?? "—"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {card.nextMatch && (
+        <div className="mt-3 w-[190px] overflow-hidden rounded-2xl border border-white/10 bg-[#080c14] shadow-xl">
+
+          {/* EQUIPOS */}
+
+          <div className="flex items-center justify-center gap-2.5 px-3 py-3">
+
+            {/* EQUIPO DEL JUGADOR */}
+
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5">
+
+              {card.nextMatch.teamLogo ? (
+                <img
+                  src={card.nextMatch.teamLogo}
+                  alt={card.nextMatch.teamAbbreviation ?? "Equipo"}
+                  className="h-9 w-9 shrink-0 object-contain"
+                />
+              ) : (
+                <div className="h-9 w-9 shrink-0 rounded-full border border-white/10 bg-white/5" />
+              )}
+
+              <span className="truncate text-[12px] font-black text-white">
+                {card.nextMatch.teamAbbreviation ?? "TEAM"}
+              </span>
+
+            </div>
+
+            {/* LOCAL / VISITANTE */}
+
+            <span className="shrink-0 text-[10px] font-black text-zinc-500">
+              {card.nextMatch.isHome ? "VS" : "@"}
+            </span>
+
+            {/* RIVAL */}
+
+            <div className="flex min-w-0 flex-1 items-center gap-1.5">
+
+              <span className="truncate text-[12px] font-black text-white">
+                {card.nextMatch.opponentAbbreviation ?? "RIVAL"}
+              </span>
+
+              {card.nextMatch.opponentLogo ? (
+                <img
+                  src={card.nextMatch.opponentLogo}
+                  alt={card.nextMatch.opponentAbbreviation ?? "Rival"}
+                  className="h-9 w-9 shrink-0 object-contain"
+                />
+              ) : (
+                <div className="h-9 w-9 shrink-0 rounded-full border border-white/10 bg-white/5" />
+              )}
+
+            </div>
+
+          </div>
+
+          {/* FECHA Y HORA */}
+
+          <div className="border-t border-white/10 bg-white/[0.035] px-3 py-2.5">
+
+            <div className="flex items-center justify-center gap-2">
+
+              <CalendarDays
+                size={14}
+                className="shrink-0 text-violet-300"
+              />
+
+              <span className="text-[12px] font-black text-zinc-300">
+                {card.nextMatch.date}
+              </span>
+
+              <span className="text-zinc-600">
+                ·
+              </span>
+
+              <span className="text-[13px] font-black text-white">
+                {card.nextMatch.time}
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      <span className="mt-2 rounded-lg bg-black/70 px-3 py-1.5 text-[10px] font-black text-zinc-400">
+        {label}
+      </span>
+    </div>
+  );
+}

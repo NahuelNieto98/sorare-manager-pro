@@ -16,6 +16,7 @@ export async function saveCards(userId: string, cards: SorareCard[]) {
         scarcity: card.scarcity,
         averageScore: card.averageScore,
         marketValue: card.marketValue,
+        sealed: card.sealed ?? false,
         ownerId: userId,
       },
       create: {
@@ -29,6 +30,7 @@ export async function saveCards(userId: string, cards: SorareCard[]) {
         scarcity: card.scarcity,
         averageScore: card.averageScore,
         marketValue: card.marketValue,
+        sealed: card.sealed ?? false,
         ownerId: userId,
       },
     });

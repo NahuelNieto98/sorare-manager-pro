@@ -11,6 +11,8 @@ type Props = {
   pictureUrl: string | null;
   scarcity: string;
   marketValue: number | null;
+  purchasePrice?: number | null;
+  purchaseDate?: string | null;
   season: number;
   averageScore: number | null;
   l5Score: number | null;
@@ -35,6 +37,8 @@ export default function CardItem({
   pictureUrl,
   scarcity,
   marketValue,
+  purchasePrice,
+  purchaseDate,
   season,
   averageScore,
   l5Score,
@@ -237,37 +241,58 @@ export default function CardItem({
           ))}
         </div>
 
-        <div className="mt-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-bold text-white/40">
-              {t("marketValue")}
-            </p>
+        <div className="mt-5 space-y-3">
+          <div className="grid grid-cols-2 gap-2">
 
-            <p className="text-xl font-black text-emerald-400">
-              €{marketValue?.toFixed(2) ?? "0.00"}
-            </p>
+            <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-white/40">
+                Precio compra
+              </p>
+
+              <p className="mt-1 text-sm font-black text-white">
+                {purchasePrice != null
+                  ? `€${purchasePrice.toFixed(2)}`
+                  : "—"}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-white/40">
+                Precio actual
+              </p>
+
+              <p className="mt-1 text-sm font-black text-emerald-400">
+                {marketValue !== null
+                  ? `€${marketValue.toFixed(2)}`
+                  : "—"}
+              </p>
+            </div>
+
           </div>
 
           <Link
             href={`/${locale}/gallery/${id}`}
             className="
+              block
+              w-full
               rounded-xl
               bg-violet-600
               px-4
-              py-2
+              py-2.5
+              text-center
               text-xs
               font-bold
               text-white
               transition
               hover:bg-violet-500
-              md:px-5
-              md:py-2.5
+              md:py-3
               md:text-sm
             "
           >
             {t("viewCard")}
           </Link>
         </div>
+
       </div>
     </div>
   );

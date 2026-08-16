@@ -1,0 +1,1183 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import {
+  Search,
+  X,
+  Plus,
+  RefreshCw,
+  Trophy,
+  Check,
+  Crown,
+} from "lucide-react";
+
+type Card = {
+  id: string;
+  sorareId: string;
+  playerName: string;
+  playerSlug?: string | null;
+  pictureUrl?: string | null;
+  position?: string | null;
+  scarcity: string;
+  club?: string | null;
+  l5Score?: number | null;
+  l10Score?: number | null;
+  l15Score?: number | null;
+  averageScore?: number | null;
+};
+
+type SlotKey = "GK" | "DEF" | "MID" | "FWD" | "EXTRA";
+
+const SELECTION_ORDER: SlotKey[] = [
+  "GK",
+  "DEF",
+  "MID",
+  "FWD",
+  "EXTRA",
+];
+
+const SLOT_NAMES: Record<SlotKey, string> = {
+  GK: "Goalkeeper",
+  DEF: "Defender",
+  MID: "Midfielder",
+  FWD: "Forward",
+  EXTRA: "Extra",
+};
+
+function normalizePosition(
+  position?: string | null
+): SlotKey | null {
+  if (!position) return null;
+
+  const value = position.toLowerCase();
+
+  if (
+    value.includes("goalkeeper") ||
+    value === "gk" ||
+    value.includes("keeper") ||
+    value.includes("goalie")
+  ) {
+    return "GK";
+  }
+
+  if (
+    value.includes("defender") ||
+    value === "def" ||
+    value.includes("defense") ||
+    value.includes("defence")
+  ) {
+    return "DEF";
+  }
+
+  if (
+    value.includes("midfielder") ||
+    value === "mid" ||
+    value.includes("middle")
+  ) {
+    return "MID";
+  }
+
+  if (
+    value.includes("forward") ||
+    value === "fwd" ||
+    value.includes("attacker") ||
+    value.includes("striker")
+  ) {
+    return "FWD";
+  }
+
+  return null;
+}
+
+function getScore(card: Card) {
+  return (
+    card.averageScore ??
+    card.l15Score ??
+    card.l10Score ??
+    card.l5Score ??
+    0
+  );
+}
+
+function getRarityStyle(scarcity?: string) {
+  const rarity = scarcity?.toLowerCase() ?? "";
+
+  if (rarity.includes("unique")) {
+    return {
+      border: "border-orange-400",
+      glow: "shadow-orange-500/40",
+      badge: "bg-orange-500/20 text-orange-200",
+    };
+  }
+
+  if (rarity.includes("super")) {
+    return {
+      border: "border-red-400",
+      glow: "shadow-red-500/40",
+      badge: "bg-red-500/20 text-red-200",
+    };
+  }
+
+  if (rarity.includes("rare")) {
+    return {
+      border: "border-yellow-400",
+      glow: "shadow-yellow-500/40",
+      badge: "bg-yellow-500/20 text-yellow-200",
+    };
+  }
+
+  return {
+    border: "border-violet-400",
+    glow: "shadow-violet-500/40",
+    badge: "bg-violet-500/20 text-violet-200",
+  };
+}
+
+function getStepLabel(
+  step: SlotKey | "CAPTAIN" | "COMPLETE" | null
+) {
+  if (!step) return "Position";
+  if (step === "CAPTAIN") return "Captain";
+  if (step === "COMPLETE") return "Complete";
+  return SLOT_NAMES[step];
+}
+
+export default function LineupBuilder() {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [selected, setSelected] = useState<
+    Partial<Record<SlotKey, Card>>
+  >({});
+  const [captainId, setCaptainId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadCards() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/cards");
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ?? "No se pudieron cargar las cartas"
+        );
+      }
+
+      setCards(data);
+    } catch (err: any) {
+      console.error("Lineup cards error:", err);
+
+      setError(
+        err.message ?? "Error cargando las cartas"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCards();
+  }, []);
+
+  const selectedCards = useMemo(
+    () =>
+      SELECTION_ORDER.map(
+        (slot) => selected[slot]
+      ).filter(Boolean) as Card[],
+    [selected]
+  );
+
+  const selectedIds = useMemo(
+    () =>
+      new Set(
+        selectedCards.map((card) => card.id)
+      ),
+    [selectedCards]
+  );
+
+  const activeStep = useMemo<
+    SlotKey | "CAPTAIN" | "COMPLETE"
+  >(() => {
+    for (const slot of SELECTION_ORDER) {
+      if (!selected[slot]) {
+        return slot;
+      }
+    }
+
+    if (!captainId) {
+      return "CAPTAIN";
+    }
+
+    return "COMPLETE";
+  }, [selected, captainId]);
+
+  const availableCards = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return cards.filter((card) => {
+      if (selectedIds.has(card.id)) {
+        return false;
+      }
+
+      const matchesSearch =
+        !query ||
+        card.playerName.toLowerCase().includes(query) ||
+        card.club?.toLowerCase().includes(query);
+
+      if (!matchesSearch) {
+        return false;
+      }
+
+      if (
+        activeStep === "CAPTAIN" ||
+        activeStep === "COMPLETE"
+      ) {
+        return true;
+      }
+
+      if (activeStep === "EXTRA") {
+        return true;
+      }
+
+      return (
+        normalizePosition(card.position) ===
+        activeStep
+      );
+    });
+  }, [
+    cards,
+    search,
+    selectedIds,
+    activeStep,
+  ]);
+
+  const captainCards = useMemo(
+    () => selectedCards,
+    [selectedCards]
+  );
+
+  const lineupAverage =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) => sum + getScore(card),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  const l5Average =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) =>
+            sum + (card.l5Score ?? 0),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  const l10Average =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) =>
+            sum + (card.l10Score ?? 0),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  const l15Average =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) =>
+            sum + (card.l15Score ?? 0),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  function selectCard(card: Card) {
+    if (
+      activeStep === "CAPTAIN"
+    ) {
+      setCaptainId(card.id);
+      setSearch("");
+      return;
+    }
+
+    if (
+      activeStep === "COMPLETE"
+    ) {
+      return;
+    }
+
+    setSelected((current) => ({
+      ...current,
+      [activeStep]: card,
+    }));
+
+    setSearch("");
+  }
+
+  function removeCard(
+    slot: SlotKey
+  ) {
+    setSelected((current) => {
+      const next = {
+        ...current,
+      };
+
+      delete next[slot];
+
+      const index =
+        SELECTION_ORDER.indexOf(slot);
+
+      for (
+        let i = index + 1;
+        i < SELECTION_ORDER.length;
+        i++
+      ) {
+        delete next[SELECTION_ORDER[i]];
+      }
+
+      return next;
+    });
+
+    setCaptainId(null);
+  }
+
+  function clearLineup() {
+    setSelected({});
+    setCaptainId(null);
+    setSearch("");
+  }
+
+  function selectCaptain(
+    card: Card
+  ) {
+    setCaptainId(card.id);
+  }
+
+  const stepProgress =
+    activeStep === "CAPTAIN" ||
+    activeStep === "COMPLETE"
+      ? 5
+      : SELECTION_ORDER.indexOf(
+          activeStep
+        );
+
+  return (
+    <div className="space-y-6">
+
+      {/* HEADER */}
+
+      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+
+        <div>
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-sm font-bold text-violet-300">
+            <Trophy size={16} />
+            Sorare Manager Pro
+          </div>
+
+          <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
+            Line Up Builder
+          </h1>
+
+          <p className="mt-2 text-zinc-400">
+            Construye tu alineación de 5 jugadores.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <ScoreBox
+            label="Projected Average"
+            value={lineupAverage.toFixed(1)}
+            highlight
+          />
+
+          <ScoreBox
+            label="L5"
+            value={l5Average.toFixed(1)}
+          />
+
+          <ScoreBox
+            label="L10"
+            value={l10Average.toFixed(1)}
+          />
+
+          <ScoreBox
+            label="L15"
+            value={l15Average.toFixed(1)}
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-200">
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(380px,0.75fr)]">
+
+        {/* FIELD */}
+
+        <section className="overflow-hidden rounded-[30px] border border-white/10 bg-[#111827] shadow-2xl">
+
+          <div className="flex items-center justify-between border-b border-white/10 bg-black/20 px-6 py-5">
+
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-violet-300">
+                LaLiga
+              </p>
+
+              <h2 className="mt-1 text-xl font-black text-white">
+                Match Lineup
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-black text-zinc-300">
+                {selectedCards.length}/5
+              </div>
+
+              <button
+                type="button"
+                onClick={clearLineup}
+                className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-zinc-300 transition hover:bg-white/10 hover:text-white"
+              >
+                Clear
+              </button>
+
+              <button
+                type="button"
+                onClick={loadCards}
+                disabled={loading}
+                className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white transition hover:bg-white/10 disabled:opacity-50"
+                title="Refresh cards"
+              >
+                <RefreshCw
+                  size={17}
+                  className={
+                    loading
+                      ? "animate-spin"
+                      : ""
+                  }
+                />
+              </button>
+            </div>
+          </div>
+
+          <div className="relative h-[820px] overflow-hidden bg-[#0b1725] p-5 sm:p-7">
+
+            <div className="absolute inset-5 overflow-hidden rounded-[32px] border border-white/15 bg-[linear-gradient(180deg,#123149_0%,#102b40_48%,#0d2437_100%)] sm:inset-7">
+
+              {/* FIELD LINES */}
+
+              <div className="absolute inset-0 opacity-[0.10]">
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8 border-b border-white/30" />
+                <div className="h-1/8" />
+              </div>
+
+              <div className="absolute left-0 right-0 top-1/2 border-t border-white/10" />
+
+              <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
+
+              <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20" />
+
+              {/* FWD */}
+
+              <div className="absolute left-1/2 top-[5%] -translate-x-1/2">
+                <LineupSlot
+                  label="FWD"
+                  card={selected.FWD}
+                  captain={
+                    captainId ===
+                    selected.FWD?.id
+                  }
+                  onRemove={() =>
+                    removeCard("FWD")
+                  }
+                />
+              </div>
+
+              {/* MID + EXTRA */}
+
+              <div className="absolute left-1/2 top-[30%] flex -translate-x-1/2 items-center gap-14 sm:gap-24">
+
+                <LineupSlot
+                  label="MID"
+                  card={selected.MID}
+                  captain={
+                    captainId ===
+                    selected.MID?.id
+                  }
+                  onRemove={() =>
+                    removeCard("MID")
+                  }
+                />
+
+                <LineupSlot
+                  label="EXTRA"
+                  card={selected.EXTRA}
+                  captain={
+                    captainId ===
+                    selected.EXTRA?.id
+                  }
+                  onRemove={() =>
+                    removeCard("EXTRA")
+                  }
+                />
+              </div>
+
+              {/* DEF */}
+
+              <div className="absolute left-1/2 top-[57%] -translate-x-1/2">
+                <LineupSlot
+                  label="DEF"
+                  card={selected.DEF}
+                  captain={
+                    captainId ===
+                    selected.DEF?.id
+                  }
+                  onRemove={() =>
+                    removeCard("DEF")
+                  }
+                />
+              </div>
+
+              {/* GK */}
+
+              <div className="absolute bottom-[4%] left-1/2 -translate-x-1/2">
+                <LineupSlot
+                  label="GK"
+                  card={selected.GK}
+                  captain={
+                    captainId ===
+                    selected.GK?.id
+                  }
+                  onRemove={() =>
+                    removeCard("GK")
+                  }
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* RIGHT PANEL */}
+
+        <section className="flex min-h-[820px] flex-col overflow-hidden rounded-[30px] border border-white/10 bg-[#17112F]">
+
+          <div className="border-b border-white/10 p-6">
+
+            <div className="flex items-start justify-between gap-4">
+
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
+                  {activeStep === "CAPTAIN"
+                    ? "Final step"
+                    : `Step ${Math.min(
+                        stepProgress + 1,
+                        5
+                      )} of 5`}
+                </p>
+
+                <h2 className="mt-1 text-2xl font-black text-white">
+                  {activeStep === "CAPTAIN"
+                    ? "Choose your captain"
+                    : `Choose your ${getStepLabel(
+                        activeStep
+                      )}`}
+                </h2>
+
+                <p className="mt-1 text-sm leading-6 text-zinc-500">
+                  {activeStep === "CAPTAIN"
+                    ? "Select one of your five players as captain."
+                    : activeStep === "EXTRA"
+                      ? "Choose any card from your collection."
+                      : `Only ${
+                          activeStep === "COMPLETE"
+                            ? "your selected"
+                            : SLOT_NAMES[activeStep]
+                        } cards are shown.`}
+                </p>
+              </div>
+
+              {activeStep === "CAPTAIN" && (
+                <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-3 text-yellow-300">
+                  <Crown size={21} />
+                </div>
+              )}
+
+            </div>
+
+            {/* PROGRESS */}
+
+            <div className="mt-5 flex gap-1.5">
+              {SELECTION_ORDER.map(
+                (slot, index) => {
+                  const complete =
+                    !!selected[slot];
+
+                  const current =
+                    activeStep === slot;
+
+                  return (
+                    <div
+                      key={slot}
+                      className="flex-1"
+                    >
+                      <div
+                        className={`h-1.5 rounded-full transition ${
+                          complete
+                            ? "bg-violet-500"
+                            : current
+                              ? "bg-violet-400/50"
+                              : "bg-white/10"
+                        }`}
+                      />
+
+                      <p
+                        className={`mt-1.5 text-[9px] font-black uppercase ${
+                          complete ||
+                          current
+                            ? "text-violet-300"
+                            : "text-zinc-600"
+                        }`}
+                      >
+                        {slot}
+                      </p>
+                    </div>
+                  );
+                }
+              )}
+
+              <div className="flex-1">
+                <div
+                  className={`h-1.5 rounded-full ${
+                    captainId
+                      ? "bg-yellow-400"
+                      : activeStep ===
+                          "CAPTAIN"
+                        ? "bg-yellow-400/50"
+                        : "bg-white/10"
+                  }`}
+                />
+
+                <p
+                  className={`mt-1.5 text-[9px] font-black uppercase ${
+                    captainId ||
+                    activeStep ===
+                      "CAPTAIN"
+                      ? "text-yellow-300"
+                      : "text-zinc-600"
+                  }`}
+                >
+                  CAPTAIN
+                </p>
+              </div>
+            </div>
+
+            {/* SEARCH */}
+
+            {activeStep !==
+              "COMPLETE" && (
+              <div className="relative mt-5">
+                <Search
+                  size={18}
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
+                />
+
+                <input
+                  value={search}
+                  onChange={(event) =>
+                    setSearch(
+                      event.target.value
+                    )
+                  }
+                  placeholder={
+                    activeStep ===
+                    "CAPTAIN"
+                      ? "Search selected players..."
+                      : "Search player or club..."
+                  }
+                  className="w-full rounded-2xl border border-white/10 bg-black/20 py-3.5 pl-11 pr-10 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-violet-500/50"
+                />
+
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSearch("")
+                    }
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 transition hover:text-white"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            )}
+
+          </div>
+
+          {/* CARDS */}
+
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+
+            {activeStep ===
+              "COMPLETE" ? (
+              <CompleteState
+                captainId={
+                  captainId
+                }
+                selectedCards={
+                  selectedCards
+                }
+              />
+            ) : activeStep ===
+              "CAPTAIN" ? (
+              <div className="space-y-3">
+                {captainCards
+                  .filter((card) => {
+                    const query =
+                      search
+                        .trim()
+                        .toLowerCase();
+
+                    return (
+                      !query ||
+                      card.playerName
+                        .toLowerCase()
+                        .includes(query) ||
+                      card.club
+                        ?.toLowerCase()
+                        .includes(query)
+                    );
+                  })
+                  .map((card) => (
+                    <CaptainCard
+                      key={card.id}
+                      card={card}
+                      selected={
+                        captainId ===
+                        card.id
+                      }
+                      onSelect={() =>
+                        selectCaptain(
+                          card
+                        )
+                      }
+                    />
+                  ))}
+              </div>
+            ) : loading ? (
+              <div className="flex min-h-[350px] items-center justify-center">
+                <div className="flex flex-col items-center gap-3 text-zinc-500">
+                  <RefreshCw
+                    size={28}
+                    className="animate-spin text-violet-400"
+                  />
+                  <span className="text-sm">
+                    Loading cards...
+                  </span>
+                </div>
+              </div>
+            ) : availableCards.length ===
+              0 ? (
+              <div className="flex min-h-[350px] items-center justify-center text-center">
+                <div>
+                  <p className="font-bold text-zinc-300">
+                    No {SLOT_NAMES[
+                      activeStep
+                    ].toLowerCase()} cards found
+                  </p>
+
+                  <p className="mt-1 text-sm text-zinc-600">
+                    Try another search.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {availableCards.map(
+                  (card) => (
+                    <PlayerCard
+                      key={card.id}
+                      card={card}
+                      onSelect={() =>
+                        selectCard(
+                          card
+                        )
+                      }
+                    />
+                  )
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* COMPLETE FOOTER */}
+
+          {activeStep ===
+            "COMPLETE" && (
+            <div className="border-t border-white/10 bg-black/20 p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400/10 text-yellow-300">
+                  <Crown size={20} />
+                </div>
+
+                <div>
+                  <p className="font-black text-white">
+                    Captain selected
+                  </p>
+
+                  <p className="text-xs text-zinc-500">
+                    Your lineup is ready.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function ScoreBox({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`min-w-[110px] rounded-2xl border px-4 py-3 ${
+        highlight
+          ? "border-violet-500/30 bg-violet-500/10"
+          : "border-white/10 bg-white/[0.03]"
+      }`}
+    >
+      <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+        {label}
+      </p>
+
+      <p
+        className={`mt-1 text-xl font-black ${
+          highlight
+            ? "text-violet-300"
+            : "text-white"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function PlayerCard({
+  card,
+  onSelect,
+}: {
+  card: Card;
+  onSelect: () => void;
+}) {
+  const rarity =
+    getRarityStyle(card.scarcity);
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className="group flex w-full items-center gap-4 rounded-2xl border border-white/5 bg-black/10 p-3 text-left transition hover:border-violet-500/40 hover:bg-violet-500/[0.06]"
+    >
+      <div
+        className={`relative h-[86px] w-[62px] shrink-0 overflow-hidden rounded-xl border ${rarity.border} bg-[#0b1020] shadow-lg ${rarity.glow}`}
+      >
+        {card.pictureUrl ? (
+          <img
+            src={card.pictureUrl}
+            alt={card.playerName}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-[10px] text-zinc-600">
+            CARD
+          </div>
+        )}
+
+        <span
+          className={`absolute bottom-0 left-0 right-0 truncate bg-black/80 px-1 py-1 text-center text-[7px] font-black ${rarity.badge}`}
+        >
+          {card.scarcity}
+        </span>
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-base font-black text-white">
+          {card.playerName}
+        </p>
+
+        <p className="mt-0.5 truncate text-xs text-zinc-500">
+          {card.club ?? "Unknown club"}
+        </p>
+
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-zinc-500">
+          <span>
+            L5{" "}
+            <b className="text-zinc-300">
+              {card.l5Score?.toFixed(1) ??
+                "—"}
+            </b>
+          </span>
+
+          <span>
+            L10{" "}
+            <b className="text-zinc-300">
+              {card.l10Score?.toFixed(1) ??
+                "—"}
+            </b>
+          </span>
+
+          <span>
+            AA{" "}
+            <b className="text-zinc-300">
+              {card.averageScore?.toFixed(
+                1
+              ) ?? "—"}
+            </b>
+          </span>
+        </div>
+      </div>
+
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-lg shadow-violet-900/20 transition group-hover:bg-violet-500">
+        <Plus size={21} />
+      </span>
+    </button>
+  );
+}
+
+function CaptainCard({
+  card,
+  selected,
+  onSelect,
+}: {
+  card: Card;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const rarity =
+    getRarityStyle(card.scarcity);
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`group flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition ${
+        selected
+          ? "border-yellow-400/50 bg-yellow-400/10"
+          : "border-white/5 bg-black/10 hover:border-yellow-400/30 hover:bg-yellow-400/[0.04]"
+      }`}
+    >
+      <div
+        className={`relative h-[86px] w-[62px] shrink-0 overflow-hidden rounded-xl border ${rarity.border} bg-[#0b1020] shadow-lg ${rarity.glow}`}
+      >
+        {card.pictureUrl ? (
+          <img
+            src={card.pictureUrl}
+            alt={card.playerName}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-[10px] text-zinc-600">
+            CARD
+          </div>
+        )}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-base font-black text-white">
+          {card.playerName}
+        </p>
+
+        <p className="mt-0.5 text-xs text-zinc-500">
+          {card.club ?? "Unknown club"}
+        </p>
+
+        <p className="mt-2 text-xs font-bold text-zinc-400">
+          AA{" "}
+          <span className="text-white">
+            {card.averageScore?.toFixed(
+              1
+            ) ?? "—"}
+          </span>
+        </p>
+      </div>
+
+      <div
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition ${
+          selected
+            ? "bg-yellow-400 text-black"
+            : "bg-white/5 text-zinc-500 group-hover:bg-yellow-400/10 group-hover:text-yellow-300"
+        }`}
+      >
+        {selected ? (
+          <Check size={21} />
+        ) : (
+          <Crown size={20} />
+        )}
+      </div>
+    </button>
+  );
+}
+
+function CompleteState({
+  captainId,
+  selectedCards,
+}: {
+  captainId: string | null;
+  selectedCards: Card[];
+}) {
+  const captain =
+    selectedCards.find(
+      (card) => card.id === captainId
+    );
+
+  return (
+    <div className="flex min-h-[350px] flex-col items-center justify-center text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-green-500/10 text-green-400">
+        <Check size={30} />
+      </div>
+
+      <h3 className="mt-5 text-xl font-black text-white">
+        Lineup ready
+      </h3>
+
+      <p className="mt-2 max-w-xs text-sm leading-6 text-zinc-500">
+        Your 5-player lineup is complete.
+      </p>
+
+      {captain && (
+        <div className="mt-5 inline-flex items-center gap-2 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-2 text-sm font-black text-yellow-300">
+          <Crown size={16} />
+          {captain.playerName}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LineupSlot({
+  label,
+  card,
+  captain,
+  onRemove,
+}: {
+  label: SlotKey;
+  card?: Card;
+  captain: boolean;
+  onRemove: () => void;
+}) {
+  if (!card) {
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex h-[145px] w-[105px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/20 bg-black/10 text-zinc-500 sm:h-[170px] sm:w-[122px]">
+          <Plus
+            size={24}
+            className="mb-2"
+          />
+
+          <span className="text-[10px] font-black tracking-wider">
+            {label}
+          </span>
+        </div>
+
+        <span className="rounded-lg bg-black/40 px-2.5 py-1 text-[9px] font-black text-zinc-500">
+          {label}
+        </span>
+      </div>
+    );
+  }
+
+  const rarity =
+    getRarityStyle(card.scarcity);
+
+  return (
+    <div className="group relative flex flex-col items-center">
+      <div
+        className={`relative h-[170px] w-[122px] overflow-hidden rounded-2xl border-2 ${rarity.border} bg-[#090d16] shadow-2xl ${rarity.glow} transition duration-200 group-hover:-translate-y-1 group-hover:scale-[1.025] sm:h-[195px] sm:w-[140px]`}
+      >
+        {card.pictureUrl ? (
+          <img
+            src={card.pictureUrl}
+            alt={card.playerName}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-xs text-zinc-600">
+            CARD
+          </div>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/95 via-black/55 to-transparent" />
+
+        <span className="absolute left-2 top-2 rounded-md bg-black/70 px-2 py-1 text-[8px] font-black uppercase text-white">
+          {card.scarcity}
+        </span>
+
+        {captain && (
+          <div className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-400 text-black shadow-lg">
+            <Crown size={16} />
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={onRemove}
+          className="absolute right-2 top-12 flex h-7 w-7 items-center justify-center rounded-full bg-black/70 text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-500"
+        >
+          <X size={14} />
+        </button>
+
+        <div className="absolute bottom-3 left-3 right-3">
+          <p className="truncate text-xs font-black text-white sm:text-sm">
+            {card.playerName}
+          </p>
+
+          <p className="truncate text-[9px] text-zinc-400 sm:text-[10px]">
+            {card.club ?? "Unknown club"}
+          </p>
+
+          <div className="mt-2 flex items-center justify-between gap-1">
+            <span className="text-[8px] font-bold text-zinc-400">
+              L5{" "}
+              {card.l5Score?.toFixed(1) ??
+                "—"}
+            </span>
+
+            <span className="rounded-md bg-violet-600/80 px-2 py-1 text-[8px] font-black text-white">
+              AA{" "}
+              {card.averageScore?.toFixed(
+                1
+              ) ?? "—"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <span className="mt-2 rounded-lg bg-black/60 px-3 py-1 text-[9px] font-black text-zinc-500">
+        {label}
+      </span>
+    </div>
+  );
+}

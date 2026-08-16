@@ -13,6 +13,8 @@ export type SorareCard = {
 
   scarcity: string;
 
+  sealed: boolean;
+
   averageScore: number | null;
 
   marketValue: number | null;

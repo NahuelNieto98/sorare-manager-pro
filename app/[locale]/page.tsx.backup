@@ -1,0 +1,830 @@
+"use client";
+
+import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+
+import {
+  ArrowRight,
+  BarChart3,
+  Bot,
+  ChartCandlestick,
+  Check,
+  ChevronRight,
+  CircleDollarSign,
+  Layers3,
+  LineChart,
+  Rocket,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  Users,
+  X,
+} from "lucide-react";
+
+export default function HomePage() {
+  const t = useTranslations("home");
+  const params = useParams();
+
+  const locale = params.locale as string;
+
+  const [showBrowserWarning, setShowBrowserWarning] = useState(false);
+
+  function isInAppBrowser() {
+    const userAgent = navigator.userAgent || navigator.vendor || "";
+
+    return /Twitter|Instagram|FBAN|FBAV|FBIOS|TikTok|Line\/|Snapchat|Pinterest|LinkedInApp|Threads/i.test(
+      userAgent
+    );
+  }
+
+  function handleLogin() {
+    if (isInAppBrowser()) {
+      setShowBrowserWarning(true);
+      return;
+    }
+
+    signIn("sorare", {
+      callbackUrl: `/${locale}/dashboard`,
+    });
+  }
+
+  const scrollToFeatures = () => {
+    document
+      .getElementById("features")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <main className="min-h-screen overflow-hidden bg-[#090714] text-white">
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#090714]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
+          <Link
+            href={`/${locale}`}
+            className="flex items-center gap-4"
+          >
+            <LogoMark />
+
+            <div className="hidden sm:block">
+              <p className="text-lg font-black tracking-tight leading-tight">
+                Sorare Manager
+                <span className="text-violet-400"> Pro</span>
+              </p>
+
+              <p className="mt-0.5 text-xs font-bold uppercase tracking-[0.2em] text-zinc-400">
+                Sorare tools
+              </p>
+            </div>
+          </Link>
+
+          <nav className="hidden items-center gap-7 lg:flex">
+            <button
+              type="button"
+              onClick={scrollToFeatures}
+              className="text-sm font-bold text-zinc-400 transition hover:text-white"
+            >
+              {t("featuresTitle")}
+            </button>
+
+            <a
+              href="#how-it-works"
+              className="text-sm font-bold text-zinc-400 transition hover:text-white"
+            >
+              {t("howItWorks.title")}
+            </a>
+
+            <a
+              href="#creator"
+              className="text-sm font-bold text-zinc-400 transition hover:text-white"
+            >
+              {t("creator.title")}
+            </a>
+
+            <Link
+              href={`/${locale}/roadmap`}
+              className="text-sm font-bold text-zinc-400 transition hover:text-white"
+            >
+              {t("roadmap.badge")}
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher locale={locale} />
+
+            <button
+              type="button"
+              onClick={handleLogin}
+              className="hidden rounded-xl bg-white px-4 py-2.5 text-sm font-black text-black transition hover:scale-[1.02] hover:bg-zinc-200 sm:block"
+            >
+              {t("login")}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* HERO */}
+      <section className="relative px-5 pb-24 pt-16 md:px-8 md:pb-32 md:pt-24">
+        <div className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-violet-600/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-40 top-40 h-[30rem] w-[30rem] rounded-full bg-blue-600/15 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl">
+          <div className="grid items-center gap-14 xl:grid-cols-[1.05fr_0.95fr]">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-xs font-black uppercase tracking-wider text-violet-300">
+                <Sparkles size={14} />
+                {t("badge")}
+              </div>
+
+              <h1 className="mt-7 max-w-4xl text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl md:text-7xl">
+                {t("heroTitle")}
+
+                <span className="mt-2 block bg-gradient-to-r from-violet-400 via-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
+                  {t("heroTitleHighlight")}
+                </span>
+              </h1>
+
+              <p className="mt-7 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg md:text-xl">
+                {t("heroDescription")}
+              </p>
+
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handleLogin}
+                  className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 px-7 py-4 font-black shadow-xl shadow-violet-950/30 transition hover:scale-[1.02]"
+                >
+                  {t("login")}
+                  <ArrowRight
+                    size={18}
+                    className="transition group-hover:translate-x-1"
+                  />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={scrollToFeatures}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-7 py-4 font-black text-white transition hover:bg-white/10"
+                >
+                  {t("demo")}
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-bold text-zinc-500">
+                <span className="inline-flex items-center gap-2">
+                  <Check size={15} className="text-emerald-400" />
+                  {t("betaDescription")}
+                </span>
+
+                <span className="inline-flex items-center gap-2">
+                  <ShieldCheck size={15} className="text-violet-400" />
+                  Sorare OAuth
+                </span>
+              </div>
+            </div>
+
+            {/* PRODUCT PREVIEW */}
+            <div className="relative">
+              <div className="absolute -inset-5 rounded-[2.5rem] bg-gradient-to-r from-violet-600/20 to-blue-600/20 blur-2xl" />
+
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#120d25] p-3 shadow-2xl shadow-black/50">
+                <div className="rounded-[1.5rem] border border-white/10 bg-[#0c0919] p-4 md:p-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <LogoMark small />
+
+                      <div>
+                        <p className="text-base font-black leading-tight text-white md:text-lg">
+                          {t("controlCenter")}
+                        </p>
+
+                        <p className="mt-0.5 text-[11px] text-zinc-500 md:text-xs">
+                          Sorare Manager Pro
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-red-400/70" />
+                      <span className="h-2 w-2 rounded-full bg-yellow-400/70" />
+                      <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    <MiniStat
+                      icon={<Layers3 size={15} />}
+                      title={t("stats.cards")}
+                      value="250+"
+                    />
+
+                    <MiniStat
+                      icon={<CircleDollarSign size={15} />}
+                      title={t("stats.value")}
+                      value="€12.450"
+                    />
+
+                    <MiniStat
+                      icon={<TrendingUp size={15} />}
+                      title={t("stats.roi")}
+                      value="+24.8%"
+                    />
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                          Portfolio
+                        </p>
+
+                        <p className="mt-1 text-lg font-black">
+                          €12.450
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl bg-emerald-400/10 px-3 py-2 text-xs font-black text-emerald-400">
+                        +24.8%
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex h-28 items-end gap-2">
+                      {[32, 42, 37, 55, 49, 64, 59, 73, 69, 86, 78, 96].map(
+                        (height, index) => (
+                          <div
+                            key={index}
+                            className="flex-1 rounded-t-md bg-gradient-to-t from-violet-700/70 to-blue-400/70"
+                            style={{ height: `${height}%` }}
+                          />
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <PreviewRow
+                      icon={<BarChart3 size={16} />}
+                      title={t("features.dashboard.title")}
+                      text={t("features.dashboard.text")}
+                    />
+
+                    <PreviewRow
+                      icon={<Bot size={16} />}
+                      title={t("features.scout.title")}
+                      text={t("features.scout.text")}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section
+        id="features"
+        className="scroll-mt-24 border-y border-white/5 bg-white/[0.015] px-5 py-24 md:px-8 md:py-32"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-4xl">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-violet-400">
+              SORARE MANAGER PRO
+            </p>
+
+            <h2 className="mt-4 text-4xl font-black leading-tight tracking-tight md:text-6xl">
+              {t("featuresTitle")}
+            </h2>
+
+            <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-400 md:text-xl md:leading-9">
+              {t("featuresDescription")}
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <Feature
+              featured
+              href={`/${locale}/dashboard`}
+              icon={<BarChart3 size={28} />}
+              title={t("features.dashboard.title")}
+              text={t("features.dashboard.text")}
+            />
+
+            <Feature
+              href={`/${locale}/gallery`}
+              icon={<Layers3 size={28} />}
+              title={t("features.gallery.title")}
+              text={t("features.gallery.text")}
+            />
+
+            <Feature
+              href={`/${locale}/portfolio`}
+              icon={<TrendingUp size={28} />}
+              title={t("features.portfolio.title")}
+              text={t("features.portfolio.text")}
+            />
+
+            <Feature
+              href={`/${locale}/market`}
+              icon={<ChartCandlestick size={28} />}
+              title={t("features.market.title")}
+              text={t("features.market.text")}
+            />
+
+            <Feature
+              href={`/${locale}/assistant`}
+              icon={<Bot size={28} />}
+              title={t("features.scout.title")}
+              text={t("features.scout.text")}
+            />
+
+            <Feature
+              href={`/${locale}/analytics`}
+              icon={<LineChart size={28} />}
+              title={t("features.analytics.title")}
+              text={t("features.analytics.text")}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section
+        id="how-it-works"
+        className="scroll-mt-24 px-5 py-24 md:px-8 md:py-28"
+      >
+        <div className="mx-auto max-w-7xl">
+          <SectionHeading
+            eyebrow="4 PASOS"
+            title={t("howItWorks.title")}
+            description={t("howItWorks.description")}
+          />
+
+          <div className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <Step
+              number="01"
+              title={t("howItWorks.step1.title")}
+              text={t("howItWorks.step1.text")}
+              icon={<ShieldCheck />}
+            />
+
+            <Step
+              number="02"
+              title={t("howItWorks.step2.title")}
+              text={t("howItWorks.step2.text")}
+              icon={<Layers3 />}
+            />
+
+            <Step
+              number="03"
+              title={t("howItWorks.step3.title")}
+              text={t("howItWorks.step3.text")}
+              icon={<BarChart3 />}
+            />
+
+            <Step
+              number="04"
+              title={t("howItWorks.step4.title")}
+              text={t("howItWorks.step4.text")}
+              icon={<Rocket />}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* CREATOR */}
+      <section
+        id="creator"
+        className="scroll-mt-24 px-5 pb-24 md:px-8 md:pb-28"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#201544] via-[#17112f] to-[#0f0b1f] p-7 md:p-12">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet-600/15 blur-3xl" />
+
+            <div className="relative grid items-center gap-10 md:grid-cols-[260px_1fr] md:gap-14">
+              <div className="mx-auto flex h-44 w-44 items-center justify-center overflow-hidden rounded-[2rem] border border-violet-400/20 bg-[#090714] shadow-2xl shadow-violet-950/30 md:mx-0 md:h-56 md:w-56">
+                <img
+                  src="/sorare-manager-pro-mark.png"
+                  alt="Sorare Manager Pro"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+              <div>
+                <div className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.2em] text-violet-300">
+                  <Users size={14} />
+                  {t("creator.badge")}
+                </div>
+
+                <h2 className="mt-3 text-4xl font-black leading-tight md:text-5xl">
+                  {t("creator.title")}
+                </h2>
+
+                <p className="mt-5 text-2xl font-black text-white md:text-3xl">
+                  {t("creator.hello")}
+                </p>
+
+                <p className="mt-4 max-w-4xl text-lg leading-8 text-zinc-300 md:text-xl md:leading-9">
+                  {t("creator.description")}
+                </p>
+
+                <p className="mt-4 max-w-4xl text-lg leading-8 text-zinc-300 md:text-xl md:leading-9">
+                  {t("creator.community")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ROADMAP + CHANGELOG */}
+      <section className="border-y border-white/5 bg-white/[0.015] px-5 py-24 md:px-8">
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
+          <InfoPanel
+            icon={<Rocket />}
+            badge={t("roadmap.badge")}
+            title={t("roadmap.title")}
+            description={t("roadmap.description")}
+            href={`/${locale}/roadmap`}
+            button={t("roadmap.view")}
+          />
+
+          <InfoPanel
+            icon={<Sparkles />}
+            badge={t("changelog.badge")}
+            title={t("changelog.title")}
+            description={t("changelog.description")}
+            href={`/${locale}/changelog`}
+            button={t("changelog.view")}
+          />
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="px-5 py-24 text-center md:px-8 md:py-32">
+        <div className="mx-auto max-w-4xl">
+          <div className="mx-auto h-20 w-20 overflow-hidden rounded-2xl border border-white/10 bg-[#090714] shadow-xl shadow-violet-950/30">
+            <img
+              src="/sorare-manager-pro-mark.png"
+              alt="Sorare Manager Pro"
+              className="h-full w-full object-cover"
+            />
+          </div>
+
+          <h2 className="mt-7 text-4xl font-black tracking-tight md:text-6xl">
+            {t("finalCta.title")}
+          </h2>
+
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-zinc-400">
+            {t("finalCta.description")}
+          </p>
+
+          <button
+            type="button"
+            onClick={handleLogin}
+            className="mt-9 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 px-8 py-4 font-black shadow-xl shadow-violet-950/30 transition hover:scale-[1.02]"
+          >
+            {t("finalCta.button")}
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 px-5 py-8 md:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+          <div className="flex items-center gap-3">
+            <LogoMark small />
+
+            <div>
+              <p className="text-sm font-black">
+                Sorare Manager <span className="text-violet-400">Pro</span>
+              </p>
+
+              <p className="text-[10px] uppercase tracking-wider text-zinc-600">
+                Built for the Sorare community
+              </p>
+            </div>
+          </div>
+
+          <p className="text-xs text-zinc-600">
+            Sorare Manager Pro · Public Beta · 2026
+          </p>
+        </div>
+      </footer>
+
+      {/* MOBILE BROWSER WARNING */}
+      {showBrowserWarning && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-5 backdrop-blur-md">
+          <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#17112F] p-7 shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setShowBrowserWarning(false)}
+              aria-label="Close"
+              className="absolute right-5 top-5 rounded-xl p-2 text-zinc-500 transition hover:bg-white/5 hover:text-white"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-2xl">
+              🌐
+            </div>
+
+            <h2 className="mt-6 pr-8 text-2xl font-black text-white">
+              {t("mobileBrowser.title")}
+            </h2>
+
+            <p className="mt-4 text-sm leading-6 text-zinc-400">
+              {t("mobileBrowser.description")}
+            </p>
+
+            <div className="mt-5 rounded-2xl border border-violet-500/20 bg-violet-500/10 p-4">
+              <p className="text-sm font-bold leading-6 text-violet-200">
+                💡 {t("mobileBrowser.steps")}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowBrowserWarning(false)}
+              className="mt-6 w-full rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 px-6 py-4 font-black text-white transition hover:scale-[1.01]"
+            >
+              {t("mobileBrowser.back")}
+            </button>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}
+
+function LogoMark({ small = false }: { small?: boolean }) {
+  return (
+    <div
+      className={`relative shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#090714] shadow-lg shadow-violet-950/30 ${
+        small ? "h-9 w-9" : "h-12 w-12"
+      }`}
+    >
+      <img
+        src="/sorare-manager-pro-mark.png"
+        alt="Sorare Manager Pro"
+        className="h-full w-full object-cover"
+      />
+    </div>
+  );
+}
+
+function LanguageSwitcher({ locale }: { locale: string }) {
+  const languages = [
+    { code: "es", label: "ES" },
+    { code: "en", label: "EN" },
+    { code: "fr", label: "FR" },
+  ];
+
+  return (
+    <div className="flex items-center rounded-xl border border-white/10 bg-white/5 p-1">
+      {languages.map((language) => (
+        <Link
+          key={language.code}
+          href={`/${language.code}`}
+          className={`rounded-lg px-2.5 py-1.5 text-[10px] font-black transition ${
+            locale === language.code
+              ? "bg-violet-600 text-white"
+              : "text-zinc-500 hover:text-white"
+          }`}
+        >
+          {language.label}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="max-w-3xl">
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-400">
+        {eyebrow}
+      </p>
+
+      <h2 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">
+        {title}
+      </h2>
+
+      <p className="mt-4 text-base leading-7 text-zinc-400 md:text-lg">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function Feature({
+  href,
+  icon,
+  title,
+  text,
+  featured = false,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+  featured?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`group relative block overflow-hidden rounded-[2rem] border p-7 transition duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 md:p-8 ${
+        featured
+          ? "border-violet-500/30 bg-gradient-to-br from-[#21154a] via-[#17112f] to-[#111022] shadow-2xl shadow-violet-950/20"
+          : "border-white/10 bg-[#111022] hover:border-violet-500/30 hover:bg-[#17132f]"
+      }`}
+    >
+      {featured && (
+        <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-violet-500/15 blur-3xl" />
+      )}
+
+      <div className="relative">
+        <div
+          className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
+            featured
+              ? "bg-violet-500/20 text-violet-300"
+              : "bg-violet-500/10 text-violet-400"
+          } transition duration-300 group-hover:scale-105`}
+        >
+          {icon}
+        </div>
+
+        <h3 className="mt-7 text-2xl font-black tracking-tight md:text-3xl">
+          {title}
+        </h3>
+
+        <p className="mt-4 text-base leading-7 text-zinc-400 md:text-lg md:leading-8">
+          {text}
+        </p>
+
+        <div className="mt-7 inline-flex items-center gap-2 text-sm font-black text-violet-300">
+          <span>Explorar herramienta</span>
+          <ArrowRight
+            size={16}
+            className="transition group-hover:translate-x-1"
+          />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function Step({
+  number,
+  title,
+  text,
+  icon,
+}: {
+  number: string;
+  title: string;
+  text: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="group relative min-h-[250px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-[#151126] via-[#100d1e] to-[#0d0a18] p-7 shadow-xl shadow-black/10 transition duration-300 hover:-translate-y-1 hover:border-violet-500/30 hover:shadow-violet-950/20 md:p-8">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-violet-600/10 blur-3xl transition duration-500 group-hover:bg-violet-600/20" />
+
+      <div className="relative flex items-start justify-between">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-400/10 bg-violet-500/10 text-violet-300 shadow-lg shadow-violet-950/20 transition duration-300 group-hover:scale-105 group-hover:bg-violet-500/15">
+          {icon}
+        </div>
+
+        <span className="select-none text-5xl font-black leading-none tracking-tight text-white/[0.055]">
+          {number}
+        </span>
+      </div>
+
+      <div className="relative mt-8">
+        <h3 className="text-2xl font-black tracking-tight text-white md:text-[1.65rem]">
+          {title}
+        </h3>
+
+        <p className="mt-4 max-w-sm text-base leading-7 text-zinc-400 md:text-lg md:leading-8">
+          {text}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MiniStat({
+  icon,
+  title,
+  value,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+      <div className="flex items-center gap-2 text-violet-400">
+        {icon}
+
+        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+          {title}
+        </span>
+      </div>
+
+      <p className="mt-2 text-xl font-black">{value}</p>
+    </div>
+  );
+}
+
+function PreviewRow({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+      <div className="flex items-center gap-2 text-violet-400">
+        {icon}
+
+        <span className="text-xs font-black text-white">
+          {title}
+        </span>
+      </div>      <p className="mt-2 text-xs leading-5 text-zinc-500">
+        {text}
+      </p>
+    </div>
+  );
+}
+function InfoPanel({
+  icon,
+  badge,
+  title,
+  description,
+  href,
+  button,
+}: {
+  icon: React.ReactNode;
+  badge: string;
+  title: string;
+  description: string;
+  href: string;
+  button: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#17122f] via-[#111022] to-[#0d0a18] p-7 transition duration-300 hover:-translate-y-1 hover:border-violet-500/30 hover:shadow-2xl hover:shadow-violet-950/20 md:p-9"
+    >
+      <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl transition duration-500 group-hover:bg-violet-500/15" />
+
+      <div className="relative">
+        <div className="flex items-start justify-between gap-6">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-300 transition duration-300 group-hover:scale-105 group-hover:bg-violet-500/15">
+            {icon}
+          </div>
+
+          <ArrowRight
+            size={22}
+            className="mt-2 text-white/30 transition duration-300 group-hover:translate-x-1 group-hover:text-violet-300"
+          />
+        </div>
+
+        <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-violet-400">
+          {badge}
+        </p>
+
+        <h2 className="mt-3 text-2xl font-black tracking-tight text-white md:text-3xl">
+          {title}
+        </h2>
+
+        <p className="mt-4 max-w-xl text-base leading-7 text-zinc-400 md:text-lg md:leading-8">
+          {description}
+        </p>
+
+        <div className="mt-7 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-black text-white transition group-hover:border-violet-500/20 group-hover:bg-violet-500/10">
+          {button}
+          <ArrowRight
+            size={16}
+            className="transition group-hover:translate-x-1"
+          />
+        </div>
+      </div>
+    </Link>
+  );
+}

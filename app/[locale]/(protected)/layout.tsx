@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
-import Sidebar from "@/components/layout/Sidebar";
+import ProtectedShell from "@/components/layout/ProtectedShell";
 import Header from "@/components/common/Header";
 import { prisma } from "@/lib/prisma";
 
@@ -41,79 +41,11 @@ export default async function ProtectedLayout({
 
 
   return (
-
-    <main
-      className="
-      flex
-      min-h-screen
-      flex-col
-      bg-[#0F0B1F]
-      text-white
-      md:flex-row
-      "
+    <ProtectedShell
+      sorareSlug={sorareSlug}
+      totalCards={totalCards}
+      galleryValue={galleryValue}
     >
-
-      <Sidebar
-        sorareSlug={sorareSlug}
-      />
-
-
-      <div
-        className="
-        flex
-        min-h-screen
-        w-full
-        flex-1
-        flex-col
-        "
-      >
-
-        <div
-          className="
-          sticky
-          top-0
-          z-50
-          "
-        >
-
-          <Header
-            sorareSlug={sorareSlug}
-            avatarUrl={null}
-            totalCards={totalCards}
-            galleryValue={galleryValue}
-          />
-
-        </div>
-
-
-        <section
-  className="
-  flex-1
-  overflow-y-auto
-  bg-[#0F0B1F]
-  p-4
-  md:p-8
-  "
->
-
-          <div
-  className="
-  mx-auto
-  w-full
-  max-w-[1600px]
-  "
->
-
-            {children}
-
-          </div>
-
-        </section>
-
-
-      </div>
-
-    </main>
-
-  );
-}
+      {children}
+    </ProtectedShell>
+  );}

@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { getAssetPrice } from "@/lib/sorare/getAssetPrice";
 
-
 export async function GET() {
-
 
   const price =
     await getAssetPrice(
-      "0x0400f2f911965148ce8c2e7d7add45dd48a34cd9db628a48b67ef06b0ad41061"
+      "0x04006d23c9ea5bd73961e76b41d1bbf4e0ced3187b284f355d9c470a5d955b1f",
+      undefined,
+      "jorge-resurreccion-merodio",
+      2026
     );
-
 
   return NextResponse.json({
     price,

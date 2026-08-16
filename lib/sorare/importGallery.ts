@@ -169,6 +169,11 @@ export async function importGallery(
             ??
             null,
 
+          sealed:
+            card.sealed
+            ??
+            false,
+
 
         },
 
@@ -264,6 +269,13 @@ export async function importGallery(
             card.pictureUrl
             ??
             null,
+
+
+
+          sealed:
+            card.sealed
+            ??
+            false,
 
 
 

@@ -1,0 +1,538 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import {
+  Search,
+  X,
+  Plus,
+  RefreshCw,
+  Trophy,
+} from "lucide-react";
+
+type Card = {
+  id: string;
+  sorareId: string;
+  playerName: string;
+  playerSlug?: string | null;
+  pictureUrl?: string | null;
+  position?: string | null;
+  scarcity: string;
+  club?: string | null;
+  l5Score?: number | null;
+  l10Score?: number | null;
+  l15Score?: number | null;
+  averageScore?: number | null;
+};
+
+type SlotKey = "GK" | "DEF" | "MID" | "FWD" | "EXTRA";
+
+const SLOT_LABELS: Record<SlotKey, string> = {
+  GK: "GK",
+  DEF: "DEF",
+  MID: "MID",
+  FWD: "FWD",
+  EXTRA: "EXTRA",
+};
+
+function normalizePosition(position?: string | null): SlotKey | null {
+  if (!position) return null;
+
+  const value = position.toLowerCase();
+
+  if (
+    value.includes("goalkeeper") ||
+    value === "gk" ||
+    value.includes("keeper")
+  ) {
+    return "GK";
+  }
+
+  if (
+    value.includes("defender") ||
+    value === "def" ||
+    value.includes("defense") ||
+    value.includes("defence")
+  ) {
+    return "DEF";
+  }
+
+  if (
+    value.includes("midfielder") ||
+    value === "mid" ||
+    value.includes("middle")
+  ) {
+    return "MID";
+  }
+
+  if (
+    value.includes("forward") ||
+    value === "fwd" ||
+    value.includes("attacker") ||
+    value.includes("striker")
+  ) {
+    return "FWD";
+  }
+
+  return null;
+}
+
+function getScore(card: Card) {
+  return (
+    card.averageScore ??
+    card.l15Score ??
+    card.l10Score ??
+    card.l5Score ??
+    0
+  );
+}
+
+export default function LineupBuilder() {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [selected, setSelected] = useState<
+    Partial<Record<SlotKey, Card>>
+  >({});
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"ALL" | SlotKey>("ALL");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadCards() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/cards");
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "No se pudieron cargar las cartas");
+      }
+
+      setCards(data);
+    } catch (err: any) {
+      console.error("Lineup cards error:", err);
+      setError(err.message ?? "Error cargando las cartas");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCards();
+  }, []);
+
+  const filteredCards = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return cards.filter((card) => {
+      const normalized = normalizePosition(card.position);
+
+      const matchesSearch =
+        !query ||
+        card.playerName.toLowerCase().includes(query) ||
+        card.club?.toLowerCase().includes(query);
+
+      const matchesFilter =
+        filter === "ALL" || normalized === filter;
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [cards, search, filter]);
+
+  const selectedIds = useMemo(
+    () =>
+      new Set(
+        Object.values(selected)
+          .filter(Boolean)
+          .map((card) => card!.id)
+      ),
+    [selected]
+  );
+
+  function addCard(card: Card) {
+    const position = normalizePosition(card.position);
+
+    if (!position) {
+      return;
+    }
+
+    setSelected((current) => ({
+      ...current,
+      [position]: card,
+    }));
+  }
+
+  function removeCard(position: SlotKey) {
+    setSelected((current) => {
+      const next = { ...current };
+      delete next[position];
+      return next;
+    });
+  }
+
+  const selectedCards = Object.values(selected).filter(
+    Boolean
+  ) as Card[];
+
+  const lineupAverage =
+    selectedCards.length > 0
+      ? selectedCards.reduce(
+          (sum, card) => sum + getScore(card),
+          0
+        ) / selectedCards.length
+      : 0;
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-sm font-bold text-violet-300">
+              <Trophy size={16} />
+              Line Up Builder
+            </div>
+
+            <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
+              Build your lineup
+            </h1>
+
+            <p className="mt-3 max-w-2xl text-zinc-400">
+              Create your Sorare lineup using the cards in your collection.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={loadCards}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:opacity-50"
+          >
+            <RefreshCw
+              size={17}
+              className={loading ? "animate-spin" : ""}
+            />
+            Refresh cards
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-200">
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(380px,0.8fr)]">
+        <section className="overflow-hidden rounded-3xl border border-white/10 bg-[#17112F]">
+          <div className="border-b border-white/10 p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-black text-white">
+                  Your lineup
+                </h2>
+
+                <p className="mt-1 text-sm text-zinc-400">
+                  {selectedCards.length}/5 players selected
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-violet-500/10 px-4 py-2 text-right">
+                <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+                  Average
+                </p>
+                <p className="text-xl font-black text-violet-300">
+                  {lineupAverage.toFixed(1)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative min-h-[620px] overflow-hidden bg-gradient-to-b from-emerald-950/40 to-emerald-900/20 p-6">
+            <div className="pointer-events-none absolute inset-4 rounded-3xl border-2 border-white/10" />
+
+            <div className="relative flex min-h-[560px] flex-col items-center justify-between py-8">
+              <LineupSlot
+                label={SLOT_LABELS.GK}
+                card={selected.GK}
+                onRemove={() => removeCard("GK")}
+              />
+
+              <div className="flex flex-wrap justify-center gap-8">
+                <LineupSlot
+                  label={SLOT_LABELS.DEF}
+                  card={selected.DEF}
+                  onRemove={() => removeCard("DEF")}
+                />
+
+                <LineupSlot
+                  label={SLOT_LABELS.DEF}
+                  card={undefined}
+                  disabled
+                />
+
+                <LineupSlot
+                  label={SLOT_LABELS.DEF}
+                  card={undefined}
+                  disabled
+                />
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-8">
+                <LineupSlot
+                  label={SLOT_LABELS.MID}
+                  card={selected.MID}
+                  onRemove={() => removeCard("MID")}
+                />
+
+                <LineupSlot
+                  label={SLOT_LABELS.EXTRA}
+                  card={selected.EXTRA}
+                  onRemove={() => removeCard("EXTRA")}
+                />
+              </div>
+
+              <LineupSlot
+                label={SLOT_LABELS.FWD}
+                card={selected.FWD}
+                onRemove={() => removeCard("FWD")}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-[#17112F]">
+          <div className="border-b border-white/10 p-5">
+            <h2 className="text-xl font-black text-white">
+              My Cards
+            </h2>
+
+            <p className="mt-1 text-sm text-zinc-400">
+              {cards.length} cards available
+            </p>
+
+            <div className="relative mt-4">
+              <Search
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+              />
+
+              <input
+                value={search}
+                onChange={(event) =>
+                  setSearch(event.target.value)
+                }
+                placeholder="Search player..."
+                className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pl-10 pr-4 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-violet-500/50"
+              />
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(["ALL", "GK", "DEF", "MID", "FWD"] as const).map(
+                (value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setFilter(value)}
+                    className={`rounded-lg px-3 py-2 text-xs font-black transition ${
+                      filter === value
+                        ? "bg-violet-600 text-white"
+                        : "bg-white/5 text-zinc-400 hover:bg-white/10"
+                    }`}
+                  >
+                    {value}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+
+          <div className="max-h-[610px] space-y-2 overflow-y-auto p-4">
+            {loading ? (
+              <div className="flex min-h-[300px] items-center justify-center text-zinc-500">
+                <RefreshCw
+                  size={24}
+                  className="animate-spin"
+                />
+              </div>
+            ) : filteredCards.length === 0 ? (
+              <div className="py-12 text-center text-sm text-zinc-500">
+                No players found.
+              </div>
+            ) : (
+              filteredCards.map((card) => {
+                const position = normalizePosition(card.position);
+                const isSelected = selectedIds.has(card.id);
+
+                return (
+                  <div
+                    key={card.id}
+                    className={`flex items-center gap-3 rounded-2xl border p-3 transition ${
+                      isSelected
+                        ? "border-violet-500/30 bg-violet-500/10"
+                        : "border-white/5 bg-black/10 hover:border-white/10 hover:bg-white/5"
+                    }`}
+                  >
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-black/20">
+                      {card.pictureUrl ? (
+                        <img
+                          src={card.pictureUrl}
+                          alt={card.playerName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-xs text-zinc-600">
+                          —
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-bold text-white">
+                        {card.playerName}
+                      </p>
+
+                      <p className="truncate text-xs text-zinc-500">
+                        {card.club ?? "Unknown club"} ·{" "}
+                        {position ?? "?"}
+                      </p>
+
+                      <div className="mt-1 flex gap-3 text-[11px] text-zinc-500">
+                        <span>
+                          L5{" "}
+                          <b className="text-zinc-300">
+                            {card.l5Score?.toFixed(1) ?? "—"}
+                          </b>
+                        </span>
+
+                        <span>
+                          L10{" "}
+                          <b className="text-zinc-300">
+                            {card.l10Score?.toFixed(1) ?? "—"}
+                          </b>
+                        </span>
+
+                        <span>
+                          AA{" "}
+                          <b className="text-violet-300">
+                            {card.averageScore?.toFixed(1) ?? "—"}
+                          </b>
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!position}
+                      onClick={() => addCard(card)}
+                      className="shrink-0 rounded-xl bg-violet-600 p-2.5 text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-30"
+                      title={
+                        isSelected
+                          ? "Replace selected player"
+                          : "Add player"
+                      }
+                    >
+                      {isSelected ? (
+                        <RefreshCw size={17} />
+                      ) : (
+                        <Plus size={17} />
+                      )}
+                    </button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </section>
+      </div>
+
+      <div className="rounded-3xl border border-violet-500/20 bg-violet-500/5 p-5">
+        <p className="font-black text-white">
+          🚀 Lineup Builder MVP
+        </p>
+
+        <p className="mt-1 text-sm text-zinc-400">
+          Game Weeks, competitions, lineup validation and automatic
+          optimization will be added in the next iterations.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function LineupSlot({
+  label,
+  card,
+  onRemove,
+  disabled = false,
+}: {
+  label: string;
+  card?: Card;
+  onRemove?: () => void;
+  disabled?: boolean;
+}) {
+  if (disabled) {
+    return (
+      <div className="hidden h-28 w-24 opacity-0 md:block" />
+    );
+  }
+
+  return (
+    <div className="relative flex w-28 flex-col items-center">
+      <div
+        className={`relative flex h-32 w-24 items-center justify-center overflow-hidden rounded-2xl border-2 ${
+          card
+            ? "border-violet-400/60 bg-[#17112F]"
+            : "border-dashed border-white/20 bg-black/20"
+        }`}
+      >
+        {card ? (
+          <>
+            {card.pictureUrl && (
+              <img
+                src={card.pictureUrl}
+                alt={card.playerName}
+                className="absolute inset-0 h-full w-full object-cover opacity-70"
+              />
+            )}
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+            <div className="absolute inset-x-2 bottom-2">
+              <p className="truncate text-center text-xs font-black text-white">
+                {card.playerName}
+              </p>
+
+              <p className="text-center text-[10px] font-bold text-violet-300">
+                {getScore(card).toFixed(1)} AA
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={onRemove}
+              className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white hover:bg-red-500"
+            >
+              <X size={13} />
+            </button>
+          </>
+        ) : (
+          <div className="text-center">
+            <Plus
+              size={20}
+              className="mx-auto text-zinc-600"
+            />
+
+            <p className="mt-1 text-[10px] font-black text-zinc-500">
+              {label}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <span className="mt-2 rounded-md bg-black/30 px-2 py-1 text-[10px] font-black text-zinc-400">
+        {label}
+      </span>
+    </div>
+  );
+}

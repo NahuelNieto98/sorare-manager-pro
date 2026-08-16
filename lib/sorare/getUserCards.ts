@@ -23,6 +23,8 @@ pictureUrl
 
 displayRarity
 
+sealed
+
 seasonYear
 
 
@@ -224,6 +226,19 @@ null,
 )
 );
 
+console.log(
+"🔎 CARTAS CON SLUG INSEASON:",
+JSON.stringify(
+cards
+  .filter((c:any) =>
+    String(c.slug ?? "").toLowerCase().includes("inseason")
+  )
+  .slice(0, 5),
+null,
+2
+)
+);
+
 
 
 console.log(
@@ -331,6 +346,9 @@ rarity:
 card.displayRarity?.toLowerCase()
 ??
 "limited",
+
+sealed:
+card.sealed ?? false,
 
 
 marketValue:

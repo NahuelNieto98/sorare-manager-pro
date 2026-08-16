@@ -57,9 +57,8 @@ method:"POST",
 
 
 
-const text = await res.text();
-
-const data = text ? JSON.parse(text) : {};
+const data =
+await res.json();
 
 
 
@@ -334,69 +333,7 @@ t("pricesButton")
 
 
 
-{(syncLoading || priceLoading) && (
-
-<div className={`mt-2 rounded-2xl border p-5 ${
-priceLoading
-? "border-green-500/20 bg-green-500/10"
-: "border-violet-500/20 bg-violet-500/10"
-}`}>
-
-<div className="flex items-center gap-3">
-
-{priceLoading ? (
-
-<DollarSign
-size={20}
-className="animate-spin text-green-300"
-/>
-
-) : (
-
-<RefreshCw
-size={20}
-className="animate-spin text-violet-300"
-/>
-
-)}
-
-<div>
-
-<p className="font-black text-white">
-
-{priceLoading
-? "Actualizando precios"
-: t("syncStatusTitle")}
-
-</p>
-
-<p className="mt-1 text-sm leading-6 text-zinc-400">
-
-{priceLoading
-? "Estamos actualizando los precios de tus cartas en Sorare. Esto puede tardar unos minutos."
-: t("syncStatusDescription")}
-
-</p>
-
-</div>
-
-</div>
-
-<div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
-
-<div className={`h-full w-2/3 animate-pulse rounded-full ${
-priceLoading
-? "bg-green-500"
-: "bg-violet-500"
-}`} />
-
-</div>
-
-</div>
-
-)}
-
-{false && syncLoading && (
+{syncLoading && (
 
 <div className="mt-2 rounded-2xl border border-violet-500/20 bg-violet-500/10 p-5">
 

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-import { getLastTokenPrice } from "@/lib/sorare/getTokenPrice";
+import { getCardPrice } from "@/lib/sorare/getCardPrice";
 
 import { calculateGalleryValue } from "@/lib/gallery";
 import { savePortfolioSnapshot } from "@/lib/portfolio";
@@ -11,27 +11,23 @@ import { savePortfolioSnapshot } from "@/lib/portfolio";
 
 
 async function getPriceSafe(
-  playerSlug:string,
-  rarity:string,
-  season:number
+  slug:string,
+  accessToken:string,
+  scarcity:string
 ) {
 
   try {
 
-    return await getLastTokenPrice(
-      playerSlug,
-      rarity,
-      season
+    return await getCardPrice(
+      slug,
+      accessToken,
+      scarcity
     );
-
 
   } catch(error:any) {
 
-
     const status =
       error?.status;
-
-
 
     if(status === 403){
 
@@ -39,14 +35,11 @@ async function getPriceSafe(
         "🚫 Sorare bloqueó las consultas de precios"
       );
 
-
       throw new Error(
         "SORARE_PRICE_BLOCKED"
       );
 
     }
-
-
 
     if(status === 429){
 
@@ -54,14 +47,11 @@ async function getPriceSafe(
         "⏳ Sorare rate limit precios"
       );
 
-
       throw new Error(
         "SORARE_RATE_LIMIT"
       );
 
     }
-
-
 
     return null;
 
@@ -71,19 +61,13 @@ async function getPriceSafe(
 
 
 
-
-
 export async function POST() {
-
 
   const session =
     await auth();
 
 
-
-
   if(!session?.user?.email){
-
 
     return NextResponse.json(
       {
@@ -98,9 +82,6 @@ export async function POST() {
 
 
 
-
-
-
   const user =
     await prisma.user.findUnique({
 
@@ -111,17 +92,14 @@ export async function POST() {
 
       include:{
         transactions:true,
+        sorareAccount:true,
       },
 
     });
 
 
 
-
-
-
   if(!user){
-
 
     return NextResponse.json(
       {
@@ -136,6 +114,18 @@ export async function POST() {
 
 
 
+  if(!user.sorareAccount?.accessToken){
+
+    return NextResponse.json(
+      {
+        error:"Cuenta de Sorare no conectada",
+      },
+      {
+        status:400,
+      }
+    );
+
+  }
 
 
 
@@ -150,16 +140,10 @@ export async function POST() {
 
 
 
-
-
-
   console.log(
     "💰 Cartas totales:",
     cards.length
   );
-
-
-
 
 
 
@@ -168,19 +152,8 @@ export async function POST() {
 
 
 
-
-
   const cardsToUpdate =
     cards.filter(card=>{
-
-
-      if(!card.playerSlug){
-
-        return false;
-
-      }
-
-
 
       if(!card.priceUpdatedAt){
 
@@ -196,7 +169,6 @@ export async function POST() {
           now.getTime()
           -
           card.priceUpdatedAt.getTime()
-
         )
         /
         (
@@ -207,13 +179,9 @@ export async function POST() {
 
 
 
-      return hoursSinceUpdate > 24;
-
+      return true;
 
     });
-
-
-
 
 
 
@@ -224,177 +192,391 @@ export async function POST() {
 
 
 
-
-
-
   let updated = 0;
 
   let failed = 0;
 
 
 
+  /*
+   * ============================================================
+   * CLASSIC
+   *
+   * Todas las temporadas anteriores a 2026 son CLASSIC.
+   *
+   * Mismo jugador + misma rareza = mismo precio.
+   * ============================================================
+   */
+
+  const classicGroups =
+    new Map<
+      string,
+      typeof cardsToUpdate
+    >();
 
 
 
-  const limit = 3;
+  /*
+   * ============================================================
+   * IN-SEASON
+   *
+   * Cada carta 2026 se consulta individualmente.
+   *
+   * NO agrupamos las cartas 2026 aunque sean del mismo jugador
+   * y tengan la misma rareza.
+   * ============================================================
+   */
+
+  const inSeasonCards =
+    cardsToUpdate.filter(
+      card =>
+        card.season === 2026
+    );
 
 
 
+  const classicCards =
+    cardsToUpdate.filter(
+      card =>
+        card.season !== 2026
+    );
 
 
+
+  /*
+   * ============================
+   * AGRUPAR CLASSIC
+   * ============================
+   */
 
   for(
-    let i = 0;
-    i < cardsToUpdate.length;
-    i += limit
+    const card
+    of classicCards
   ){
 
+    const playerKey =
+      card.playerSlug ??
+      card.playerName
+        .toLowerCase()
+        .trim();
 
 
-    const batch =
-      cardsToUpdate.slice(
-        i,
-        i + limit
+
+    const key =
+      `${playerKey}|${card.scarcity}`;
+
+
+
+    const group =
+      classicGroups.get(key);
+
+
+
+    if(group){
+
+      group.push(card);
+
+    }else{
+
+      classicGroups.set(
+        key,
+        [card]
       );
 
-
-
-
-
-
-    console.log(
-      `🔥 Actualizando ${i + 1}-${i + batch.length}`
-    );
-
-
-
-
-
-
-
-    await Promise.all(
-
-      batch.map(
-
-        async(card)=>{
-
-
-
-          let price:number | null = null;
-
-
-
-
-
-          try {
-
-
-            price =
-              await getPriceSafe(
-
-                card.playerSlug!,
-
-                card.scarcity,
-
-                card.season
-
-              );
-
-
-
-          } catch(error:any){
-
-
-
-            if(
-
-              error.message === "SORARE_PRICE_BLOCKED"
-
-              ||
-
-              error.message === "SORARE_RATE_LIMIT"
-
-            ){
-
-
-
-              throw error;
-
-
-            }
-
-
-
-          }
-
-
-
-
-
-
-          if(price === null){
-
-
-            console.log(
-              "❌ SIN PRECIO:",
-              card.playerName
-            );
-
-
-            failed++;
-
-            return;
-
-          }
-
-
-
-
-
-
-          await prisma.card.update({
-
-            where:{
-              id:card.id,
-            },
-
-
-            data:{
-
-              marketValue:
-                price,
-
-              priceUpdatedAt:
-                new Date(),
-
-            },
-
-          });
-
-
-
-
-
-
-          updated++;
-
-
-
-        }
-
-      )
-
-    );
-
-
-
-
-
+    }
 
   }
 
 
 
+  console.log(
+    "📦 GRUPOS CLASSIC:",
+    classicGroups.size,
+    "para",
+    classicCards.length,
+    "cartas"
+  );
+
+
+
+  console.log(
+    "📦 CARTAS IN-SEASON:",
+    inSeasonCards.length
+  );
+
+
+
+  /*
+   * ============================================================
+   * ACTUALIZAR CLASSIC
+   * ============================================================
+   */
+
+  let groupNumber = 0;
+
+
+
+  for(
+    const [key,group]
+    of classicGroups
+  ){
+
+    groupNumber++;
+
+
+
+    const firstCard =
+      group[0];
+
+
+
+    console.log(
+      `🔥 CLASSIC ${groupNumber}/${classicGroups.size}:`,
+      key,
+      `→ ${group.length} cartas`
+    );
+
+
+
+    let price:number | null =
+      null;
+
+
+
+    try{
+
+      price =
+        await getPriceSafe(
+          firstCard.slug,
+          user.sorareAccount.accessToken,
+          firstCard.scarcity
+        );
+
+
+
+    }catch(error:any){
+
+      if(
+        error.message ===
+          "SORARE_PRICE_BLOCKED"
+        ||
+        error.message ===
+          "SORARE_RATE_LIMIT"
+      ){
+
+        throw error;
+
+      }
+
+
+
+      console.error(
+        "❌ ERROR CLASSIC:",
+        key,
+        error
+      );
+
+    }
+
+
+
+    if(
+      price === null ||
+      price === undefined
+    ){
+
+      console.log(
+        "❌ SIN PRECIO CLASSIC:",
+        key
+      );
+
+
+
+      failed +=
+        group.length;
+
+
+
+      continue;
+
+    }
+
+
+
+    await prisma.card.updateMany({
+
+      where:{
+        id:{
+          in:
+            group.map(
+              card =>
+                card.id
+            )
+        }
+      },
+
+      data:{
+        marketValue:
+          price,
+
+        priceUpdatedAt:
+          new Date(),
+      },
+
+    });
+
+
+
+    updated +=
+      group.length;
+
+
+
+    console.log(
+      "✅ CLASSIC ACTUALIZADO:",
+      key,
+      "| PRECIO:",
+      price,
+      "| CARTAS:",
+      group.length
+    );
+
+  }
+
+
+
+  /*
+   * ============================================================
+   * ACTUALIZAR IN-SEASON
+   * ============================================================
+   *
+   * MUY IMPORTANTE:
+   *
+   * Una carta 2026 = una consulta de Sorare.
+   *
+   * No copiamos el precio entre cartas.
+   * ============================================================
+   */
+
+  let inSeasonNumber = 0;
+
+
+
+  for(
+    const card
+    of inSeasonCards
+  ){
+
+    inSeasonNumber++;
+
+
+
+    console.log(
+      `🔥 IN-SEASON ${inSeasonNumber}/${inSeasonCards.length}:`,
+      card.playerName,
+      "|",
+      card.scarcity,
+      "|",
+      card.slug
+    );
+
+
+
+    let price:number | null =
+      null;
+
+
+
+    try{
+
+      price =
+        await getPriceSafe(
+          card.slug,
+          user.sorareAccount.accessToken,
+          card.scarcity
+        );
+
+
+
+    }catch(error:any){
+
+      if(
+        error.message ===
+          "SORARE_PRICE_BLOCKED"
+        ||
+        error.message ===
+          "SORARE_RATE_LIMIT"
+      ){
+
+        throw error;
+
+      }
+
+
+
+      console.error(
+        "❌ ERROR IN-SEASON:",
+        card.slug,
+        error
+      );
+
+    }
+
+
+
+    if(
+      price === null ||
+      price === undefined
+    ){
+
+      console.log(
+        "❌ SIN PRECIO IN-SEASON:",
+        card.slug
+      );
+
+
+
+      failed++;
+
+
+
+      continue;
+
+    }
+
+
+
+    await prisma.card.update({
+
+      where:{
+        id:
+          card.id
+      },
+
+      data:{
+        marketValue:
+          price,
+
+        priceUpdatedAt:
+          new Date(),
+      },
+
+    });
+
+
+
+    updated++;
+
+
+
+    console.log(
+      "✅ IN-SEASON ACTUALIZADA:",
+      card.slug,
+      "| PRECIO:",
+      price
+    );
+
+  }
 
 
 
@@ -412,8 +594,11 @@ export async function POST() {
 
 
 
-
-
+  /*
+   * ============================================================
+   * RECALCULAR PORTFOLIO
+   * ============================================================
+   */
 
   const updatedCards =
     await prisma.card.findMany({
@@ -426,9 +611,6 @@ export async function POST() {
 
 
 
-
-
-
   const galleryValue =
     calculateGalleryValue(
       updatedCards
@@ -436,23 +618,22 @@ export async function POST() {
 
 
 
-
-
-
   const totalBought =
     user.transactions
 
       .filter(
-        t=>t.type==="BUY"
+        t =>
+          t.type === "BUY"
       )
 
       .reduce(
-        (sum,t)=>sum+t.price,
+        (
+          sum,
+          t
+        ) =>
+          sum + t.price,
         0
       );
-
-
-
 
 
 
@@ -460,43 +641,39 @@ export async function POST() {
     user.transactions
 
       .filter(
-        t=>t.type==="SELL"
+        t =>
+          t.type === "SELL"
       )
 
       .reduce(
-        (sum,t)=>sum+t.price,
+        (
+          sum,
+          t
+        ) =>
+          sum + t.price,
         0
       );
 
 
 
-
-
-
   const profit =
-    galleryValue +
-    totalSold -
+    galleryValue
+    +
+    totalSold
+    -
     totalBought;
-
-
-
 
 
 
   const roi =
     totalBought === 0
-
-    ?
-
-    0
-
-    :
-
-    (profit / totalBought) * 100;
-
-
-
-
+      ?
+      0
+      :
+      (
+        profit /
+        totalBought
+      ) * 100;
 
 
 
@@ -511,9 +688,6 @@ export async function POST() {
     profit
 
   );
-
-
-
 
 
 
@@ -532,6 +706,5 @@ export async function POST() {
     profit,
 
   });
-
 
 }

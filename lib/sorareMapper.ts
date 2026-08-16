@@ -44,6 +44,9 @@ card.player?.averageScore ?? null,
 marketValue:
 card.marketValue ?? null,
 
+sealed:
+card.sealed ?? false,
+
 };
 
 }

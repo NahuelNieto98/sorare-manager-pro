@@ -1,0 +1,222 @@
+import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
+
+const ESPN_URL =
+  "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard";
+
+function normalize(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\b(fc|cf|sad|cd|rc|d\.)\b/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+const aliases: Record<string, string[]> = {
+  "d alaves": ["alaves", "deportivo alaves", "deportivo alavés"],
+  "rc celta": ["celta", "celta vigo", "rc celta"],
+  "athletic club": ["athletic bilbao", "athletic club"],
+  "atletico de madrid": ["atletico madrid", "atletico de madrid"],
+  "real betis": ["real betis", "betis"],
+  "villarreal cf": ["villarreal", "villarreal cf"],
+  "rayo vallecano": ["rayo vallecano"],
+  "rcd espanyol": ["espanyol", "rcd espanyol"],
+  "rcd mallorca": ["mallorca", "rcd mallorca"],
+  "sevilla fc": ["sevilla", "sevilla fc"],
+  "real sociedad": ["real sociedad"],
+  "real madrid": ["real madrid"],
+  barcelona: ["barcelona", "fc barcelona"],
+  "girona fc": ["girona", "girona fc"],
+  "getafe cf": ["getafe", "getafe cf"],
+  osasuna: ["osasuna", "ca osasuna"],
+  "levante ud": ["levante", "levante ud"],
+  "elche cf": ["elche", "elche cf"],
+  "real oviedo": ["real oviedo", "oviedo"],
+  "valencia cf": ["valencia", "valencia cf"],
+};
+
+function matchesClub(club: string, teamName: string) {
+  const c = normalize(club);
+  const t = normalize(teamName);
+  if (c === t || c.includes(t) || t.includes(c)) return true;
+
+  const aliasList = aliases[c] ?? [];
+  return aliasList.some((alias) => {
+    const a = normalize(alias);
+    return a === t || a.includes(t) || t.includes(a);
+  });
+}
+
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+  }).format(new Date(date));
+}
+
+function formatTime(date: string) {
+  return new Intl.DateTimeFormat("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Europe/Madrid",
+  }).format(new Date(date));
+}
+
+function moneylineProbability(
+  moneyline: number
+): number | null {
+  if (!Number.isFinite(moneyline) || moneyline === 0) {
+    return null;
+  }
+
+  if (moneyline > 0) {
+    return 100 / (moneyline / 100 + 1);
+  }
+
+  return Math.abs(moneyline) / (Math.abs(moneyline) + 100) * 100;
+}
+
+function getMatchProbabilities(event: any) {
+  const odds = event.competitions?.[0]?.odds?.[0];
+
+  if (!odds) {
+    return null;
+  }
+
+  const home = moneylineProbability(
+    Number(odds.homeTeamOdds?.moneyLine)
+  );
+
+  const draw = moneylineProbability(
+    Number(odds.drawOdds?.moneyLine)
+  );
+
+  const away = moneylineProbability(
+    Number(odds.awayTeamOdds?.moneyLine)
+  );
+
+  if (
+    home === null ||
+    draw === null ||
+    away === null
+  ) {
+    return null;
+  }
+
+  const total = home + draw + away;
+
+  if (!Number.isFinite(total) || total <= 0) {
+    return null;
+  }
+
+  return {
+    home: Math.round((home / total) * 100),
+    draw: Math.round((draw / total) * 100),
+    away: Math.round((away / total) * 100),
+  };
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const clubs = (searchParams.get("clubs") ?? "")
+    .split("|")
+    .map((club) => club.trim())
+    .filter(Boolean);
+
+  if (!clubs.length) {
+    return NextResponse.json({});
+  }
+
+  try {
+    const now = new Date();
+    const end = new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000);
+    const startDate = now.toISOString().slice(0, 10).replaceAll("-", "");
+    const endDate = end.toISOString().slice(0, 10).replaceAll("-", "");
+
+    const response = await fetch(
+      `${ESPN_URL}?dates=${startDate}-${endDate}&limit=500`,
+      { next: { revalidate: 300 } }
+    );
+
+    if (!response.ok) {
+      return NextResponse.json({});
+    }
+
+    const data = await response.json();
+    const result: Record<string, object | null> = {};
+
+    for (const club of clubs) {
+      const event = (data.events ?? []).find((candidate: any) => {
+        const competition = candidate.competitions?.[0];
+        const competitors = competition?.competitors ?? [];
+        return (
+          new Date(candidate.date).getTime() >= now.getTime() &&
+          competitors.some((team: any) =>
+            matchesClub(
+              club,
+              team.team?.displayName ?? team.team?.name ?? ""
+            )
+          )
+        );
+      });
+
+      if (!event) {
+        result[club] = null;
+        continue;
+      }
+
+      const competitors = event.competitions?.[0]?.competitors ?? [];
+      const mine = competitors.find((team: any) =>
+        matchesClub(
+          club,
+          team.team?.displayName ?? team.team?.name ?? ""
+        )
+      );
+      const opponent = competitors.find((team: any) => team !== mine);
+
+      result[club] = opponent
+        ? {
+            opponent:
+              opponent.team?.displayName ??
+              opponent.team?.shortDisplayName ??
+              opponent.team?.name ??
+              "Próximo rival",
+
+            opponentAbbreviation:
+              opponent.team?.abbreviation ??
+              opponent.team?.shortDisplayName ??
+              opponent.team?.displayName ??
+              "RIVAL",
+
+            teamAbbreviation:
+              mine?.team?.abbreviation ??
+              mine?.team?.shortDisplayName ??
+              mine?.team?.displayName ??
+              "TEAM",
+
+            teamLogo:
+              mine?.team?.logo ??
+              null,
+
+            opponentLogo:
+              opponent.team?.logo ??
+              null,
+
+            isHome: mine?.homeAway === "home",
+            date: formatDate(event.date),
+            time: formatTime(event.date),
+            probabilities: getMatchProbabilities(event),
+          }
+        : null;
+    }
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("Lineup fixtures error:", error);
+    return NextResponse.json({});
+  }
+}

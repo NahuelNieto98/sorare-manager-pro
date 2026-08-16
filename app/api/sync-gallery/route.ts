@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 import { getUserCards } from "@/lib/sorare/getUserCards";
+import { refreshSorareAccessToken } from "@/lib/sorare/refreshAccessToken";
 import { importGallery } from "@/lib/sorare/importGallery";
 
 
@@ -156,12 +157,44 @@ export async function POST() {
     );
 
 
-    const cards =
-      await getUserCards(
+    let cards;
 
-        accessToken
+    try {
+      cards = await getUserCards(accessToken);
+    } catch (error: any) {
+      const message = error?.message ?? "";
 
-      );
+      if (
+        message.includes("Unauthorized") ||
+        message.includes("Invalid token")
+      ) {
+        const refreshToken =
+          user.sorareAccount.refreshToken;
+
+        if (!refreshToken) {
+          throw new Error(
+            "El token Sorare ha caducado y no existe refresh token. Vuelve a conectar Sorare."
+          );
+        }
+
+        console.log(
+          "🔄 Access token inválido. Renovando OAuth..."
+        );
+
+        const newAccessToken =
+          await refreshSorareAccessToken(
+            user.id,
+            refreshToken
+          );
+
+        cards =
+          await getUserCards(
+            newAccessToken
+          );
+      } else {
+        throw error;
+      }
+    }
 
 
     console.timeEnd(
