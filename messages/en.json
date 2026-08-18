@@ -91,10 +91,19 @@
     "superRare": "Super Rare",
     "unique": "Unique",
     "showing": "Showing",
-    "cards": "cards",
+    "cards": "Cards",
     "loading": "Loading collection...",
     "noCards": "No cards",
-    "sync": "Sync your Sorare account to get started."
+    "sync": "Sync your Sorare account to get started.",
+    "collectionValue": "Collection value",
+    "inSeason": "in season",
+    "classic": "classic",
+    "average": "Average",
+    "performance": "Performance based on your current collection.",
+    "starCard": "Star card",
+    "noData": "No data",
+    "of": "of",
+    "distribution": "Distribution"
   },
   "galleryHeader": {
     "cards": "Cards",
@@ -295,7 +304,20 @@
     "save": "Save",
     "saving": "Saving...",
     "invalidPrice": "Enter a valid price",
-    "saveError": "Error saving purchase"
+    "saveError": "Error saving purchase",
+    "viewCard": "View card",
+    "positions": {
+      "gk": "GK",
+      "def": "DEF",
+      "mid": "MID",
+      "fw": "FW"
+    },
+    "rarities": {
+      "limited": "Limited",
+      "rare": "Rare",
+      "superRare": "Super Rare",
+      "unique": "Unique"
+    }
   },
   "notFound": {
     "title": "Page not found",

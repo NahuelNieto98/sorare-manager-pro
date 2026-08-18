@@ -91,10 +91,19 @@
     "superRare": "Super Rare",
     "unique": "Unique",
     "showing": "Affichage de",
-    "cards": "cartes",
+    "cards": "Cartes",
     "loading": "Chargement de la collection...",
     "noCards": "Aucune carte",
-    "sync": "Synchronisez votre compte Sorare pour commencer."
+    "sync": "Synchronisez votre compte Sorare pour commencer.",
+    "collectionValue": "Valeur de la collection",
+    "inSeason": "de la saison",
+    "classic": "classiques",
+    "average": "Moyenne",
+    "performance": "Performance basée sur votre collection actuelle.",
+    "starCard": "Carte vedette",
+    "noData": "Aucune donnée",
+    "of": "sur",
+    "distribution": "Répartition"
   },
   "galleryHeader": {
     "cards": "Cartes",
@@ -274,7 +283,7 @@
   },
   "card": {
     "back": "Retour",
-    "noImage": "Pas d'image",
+    "noImage": "Aucune image",
     "noClub": "Aucun club",
     "rarity": "Rareté",
     "position": "Position",
@@ -299,7 +308,20 @@
     "save": "Enregistrer",
     "saving": "Enregistrement...",
     "invalidPrice": "Entrez un prix valide",
-    "saveError": "Erreur lors de l'enregistrement de l'achat"
+    "saveError": "Erreur lors de l'enregistrement de l'achat",
+    "viewCard": "Voir la carte",
+    "positions": {
+      "gk": "GB",
+      "def": "DEF",
+      "mid": "MIL",
+      "fw": "ATT"
+    },
+    "rarities": {
+      "limited": "Limitée",
+      "rare": "Rare",
+      "superRare": "Super Rare",
+      "unique": "Unique"
+    }
   },
   "notFound": {
     "title": "Page introuvable",

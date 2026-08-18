@@ -86,15 +86,33 @@
     "filters": "Filtros de colección",
     "search": "Buscar jugador o club...",
     "all": "Todas",
-    "limited": "Limited",
-    "rare": "Rare",
-    "superRare": "Super Rare",
-    "unique": "Unique",
+    "limited": "Limitadas",
+    "rare": "Raras",
+    "superRare": "Super Raras",
+    "unique": "Únicas",
     "showing": "Mostrando",
-    "cards": "cartas",
+    "cards": "Cartas",
     "loading": "Cargando colección...",
     "noCards": "No hay cartas",
-    "sync": "Sincroniza tu cuenta de Sorare para empezar."
+    "sync": "Sincroniza tu cuenta de Sorare para empezar.",
+    "position": "Posición",
+    "rarity": "Rareza",
+    "positions": {
+      "all": "Todas",
+      "gk": "POR",
+      "def": "DEF",
+      "mid": "MED",
+      "fw": "DEL"
+    },
+    "collectionValue": "Valor de colección",
+    "inSeason": "en temporada",
+    "classic": "clásicas",
+    "average": "Media",
+    "performance": "Rendimiento basado en tu colección actual.",
+    "starCard": "Carta estrella",
+    "noData": "Sin datos",
+    "of": "de",
+    "distribution": "Distribución"
   },
   "galleryHeader": {
     "cards": "Cartas",
@@ -323,7 +341,20 @@
     "save": "Guardar",
     "saving": "Guardando...",
     "invalidPrice": "Introduce un precio válido",
-    "saveError": "Error guardando compra"
+    "saveError": "Error guardando compra",
+    "viewCard": "Ver carta",
+    "positions": {
+      "gk": "POR",
+      "def": "DEF",
+      "mid": "MED",
+      "fw": "DEL"
+    },
+    "rarities": {
+      "limited": "Limitada",
+      "rare": "Rara",
+      "superRare": "Super Rara",
+      "unique": "Única"
+    }
   },
   "notFound": {
     "title": "Página no encontrada",
