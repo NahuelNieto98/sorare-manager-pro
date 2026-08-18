@@ -2,144 +2,110 @@
 
 import { useEffect, useState } from "react";
 
-
 export type AnalyticsData = {
+  season: string;
 
-galleryValue:number;
+  trackingStartedAt: string | null;
 
-roi:number;
+  startingGalleryValue: number | null;
 
-profit:number;
+  galleryValue: number;
 
-totalBought:number;
+  roi: number;
 
-totalSold:number;
+  profit: number;
 
-recoveredCapital:number;
+  totalBought: number;
 
+  totalSold: number;
 
-scarcity:{
-limited:number;
-rare:number;
-superRare:number;
-unique:number;
+  recoveredCapital: number;
+
+  scarcity: {
+    limited: number;
+    rare: number;
+    superRare: number;
+    unique: number;
+  };
+
+  buySellData: {
+    name: string;
+    value: number;
+  }[];
+
+  transactionsHistory: {
+    date: string;
+    bought: number;
+    sold: number;
+  }[];
+
+  portfolioHistory: {
+    date: string;
+    roi: number;
+    galleryValue: number;
+    profit: number;
+  }[];
 };
 
-
-buySellData:{
-name:string;
-value:number;
-}[];
-
-
-transactionsHistory:{
-date:string;
-bought:number;
-sold:number;
-}[];
-
-};
-
-
-
-export function useAnalytics(){
-
-
-const [data,setData] =
-useState<AnalyticsData|null>(null);
-
-
-const [loading,setLoading] =
-useState(true);
-
-
-const [error,setError] =
-useState<string|null>(null);
-
-
-
-async function refresh(){
-
-
-try{
-
-
-setLoading(true);
-
-setError(null);
-
-
-
-const res =
-await fetch("/api/analytics");
-
-
-
-if(!res.ok){
-
-throw new Error(
-"Analytics request failed"
-);
-
-}
-
-
-
-const json =
-await res.json();
-
-
-
-setData(json);
-
-
-
-}catch(error){
-
-
-console.error(error);
-
-
-setError(
-"Error loading analytics"
-);
-
-
-
-}finally{
-
-
-setLoading(false);
-
-
-}
-
-
-}
-
-
-
-useEffect(()=>{
-
-
-refresh();
-
-
-},[]);
-
-
-
-return {
-
-data,
-
-loading,
-
-error,
-
-refresh,
-
-};
-
-
+export function useAnalytics(
+  season: string
+) {
+  const [data, setData] =
+    useState<AnalyticsData | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  async function refresh() {
+    try {
+      setLoading(true);
+
+      setError(null);
+
+      const query =
+        season === "all"
+          ? ""
+          : `?season=${encodeURIComponent(season)}`;
+
+      const res =
+        await fetch(
+          `/api/analytics${query}`
+        );
+
+      if (!res.ok) {
+        throw new Error(
+          "Analytics request failed"
+        );
+      }
+
+      const json =
+        await res.json();
+
+      setData(json);
+
+    } catch (error) {
+      console.error(error);
+
+      setError(
+        "Error loading analytics"
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    refresh();
+  }, [season]);
+
+  return {
+    data,
+    loading,
+    error,
+    refresh,
+  };
 }

@@ -228,7 +228,9 @@
     "profitPlayer": "💰 Bénéfice par joueur",
     "cardRanking": "🏆 Classement des cartes",
     "buySell": "📊 Achats vs Ventes",
-    "loading": "Chargement de l'analytique..."
+    "loading": "Chargement de l'analytique...",
+    "season": "Saison",
+    "allTime": "Tout l'historique"
   },
   "assistant": {
     "title": "Scout IA",

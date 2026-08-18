@@ -677,19 +677,14 @@ export async function POST() {
 
 
 
+
+
+
+
   await savePortfolioSnapshot(
-
     user.id,
-
-    galleryValue,
-
-    roi,
-
-    profit
-
+    galleryValue
   );
-
-
 
   return NextResponse.json({
 

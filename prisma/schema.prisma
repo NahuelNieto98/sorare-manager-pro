@@ -136,9 +136,12 @@ model PortfolioSnapshot {
   galleryValue Float
   roi          Float
   profit       Float
+  seasonId     String?
   createdAt    DateTime @default(now())
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, seasonId, createdAt])
 }
 
 model GalleryHistory {

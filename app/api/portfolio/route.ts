@@ -6,6 +6,10 @@ import {
   calculateAverage,
   countScarcity,
 } from "@/lib/gallery";
+import { getUserPurchases } from "@/lib/sorare/getUserPurchases";
+import { mapPurchaseToTransaction } from "@/lib/sorare/mapPurchaseToTransaction";
+import { getUserSales } from "@/lib/sorare/getUserSales";
+import { mapSaleToTransaction } from "@/lib/sorare/mapSaleToTransaction";
 
 export async function GET() {
   const session = await auth();
@@ -38,6 +42,39 @@ export async function GET() {
     );
   }
 
+  let purchases: any[] = [];
+  let sales: any[] = [];
+
+  try {
+    purchases = await getUserPurchases(user.id);
+  } catch (error) {
+    console.error(
+      "Error obteniendo compras de Sorare para portfolio:",
+      error
+    );
+  }
+
+  try {
+    sales = await getUserSales(user.id);
+  } catch (error) {
+    console.error(
+      "Error obteniendo ventas de Sorare para portfolio:",
+      error
+    );
+  }
+
+  const sorarePurchaseTransactions =
+    purchases.map(mapPurchaseToTransaction);
+
+  const sorareSaleTransactions =
+    sales.map(mapSaleToTransaction);
+
+  const combinedTransactions = [
+    ...user.transactions,
+    ...sorarePurchaseTransactions,
+    ...sorareSaleTransactions,
+  ];
+
   const galleryValue =
     calculateGalleryValue(user.cards);
 
@@ -48,14 +85,14 @@ export async function GET() {
     countScarcity(user.cards);
 
   const totalBought =
-    user.transactions
+    combinedTransactions
       .filter((t) => t.type === "BUY")
-      .reduce((sum, t) => sum + t.price, 0);
+      .reduce((sum, t) => sum + (t.price ?? 0), 0);
 
   const totalSold =
-    user.transactions
+    combinedTransactions
       .filter((t) => t.type === "SELL")
-      .reduce((sum, t) => sum + t.price, 0);
+      .reduce((sum, t) => sum + (t.price ?? 0), 0);
 
   const profit =
     galleryValue +
@@ -82,7 +119,7 @@ export async function GET() {
       : "danger";
 
   const investmentStatus =
-    galleryValue >= totalBought
+    galleryValue + totalSold >= totalBought
       ? "growing"
       : "recovering";
 
@@ -103,15 +140,21 @@ export async function GET() {
       pictureUrl: card.pictureUrl,
     }));
 
-  const recentTransactions = user.transactions
-.slice(0, 10)
-.map((transaction) => ({
-  id: transaction.id,
-  type: transaction.type,
-  playerName: transaction.playerName,
-  rarity: transaction.rarity,
-  price: transaction.price,
-}));
+  const recentTransactions =
+    combinedTransactions
+      .sort(
+        (a, b) =>
+          new Date(b.date).getTime() -
+          new Date(a.date).getTime()
+      )
+      .slice(0, 10)
+      .map((transaction) => ({
+        id: transaction.id,
+        type: transaction.type,
+        playerName: transaction.playerName,
+        rarity: transaction.rarity,
+        price: transaction.price,
+      }));
 
 
 return NextResponse.json({

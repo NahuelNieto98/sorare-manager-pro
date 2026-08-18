@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getUserTransactions } from "@/lib/transactions/getUserTransactions";
 
 
 export async function POST(req: NextRequest) {
@@ -118,13 +119,9 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
 
-
   const session = await auth();
 
-
-
   if (!session?.user?.email) {
-
     return NextResponse.json(
       {
         error: "No autorizado",
@@ -133,24 +130,16 @@ export async function GET() {
         status: 401,
       }
     );
-
   }
-
-
 
   const user =
     await prisma.user.findUnique({
-
       where: {
         email: session.user.email,
       },
-
     });
 
-
-
   if (!user) {
-
     return NextResponse.json(
       {
         error: "Usuario no encontrado",
@@ -159,36 +148,12 @@ export async function GET() {
         status: 404,
       }
     );
-
   }
 
-
-
   const transactions =
-    await prisma.transaction.findMany({
+    await getUserTransactions(user.id);
 
-      where: {
-        userId: user.id,
-      },
-
-
-      include: {
-
-        card: true,
-
-      },
-
-
-      orderBy: {
-
-        date: "desc",
-
-      },
-
-    });
-
-
-
-  return NextResponse.json(transactions);
-
+  return NextResponse.json(
+    transactions
+  );
 }

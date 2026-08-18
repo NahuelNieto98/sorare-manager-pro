@@ -228,7 +228,9 @@
     "profitPlayer": "💰 Profit per player",
     "cardRanking": "🏆 Card ranking",
     "buySell": "📊 Buys vs Sales",
-    "loading": "Loading analytics..."
+    "loading": "Loading analytics...",
+    "season": "Season",
+    "allTime": "All time"
   },
   "assistant": {
     "title": "AI Scout",

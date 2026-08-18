@@ -1,51 +1,70 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
 import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 
-type Props = {
-  transactionsHistory: {
-    date: string;
-    bought: number;
-    sold: number;
-  }[];
+import { useTranslations } from "next-intl";
 
+type PortfolioPoint = {
+  date: string;
+  roi: number;
+};
+
+type Props = {
+  transactionsHistory: any[];
   buySellData: {
     name: string;
     value: number;
   }[];
+  portfolioHistory?: PortfolioPoint[];
 };
 
 export default function AnalyticsCharts({
-  transactionsHistory,
-  buySellData,
+  portfolioHistory = [],
 }: Props) {
   const t = useTranslations("analytics");
 
+  const data = portfolioHistory.map((item) => {
+    const date = new Date(item.date);
+
+    return {
+      date: date.toLocaleDateString("es-ES", {
+        day: "2-digit",
+        month: "2-digit",
+      }),
+      time: date.toLocaleTimeString("es-ES", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      fullDate: date.toLocaleString("es-ES", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      roi: Number(item.roi.toFixed(2)),
+    };
+  });
+
   return (
-    <div className="grid gap-8 xl:grid-cols-2">
-
-      <div
-        className="
-        rounded-3xl
-        border
-        border-white/10
-        bg-[#17112F]
-        p-8
-        "
-      >
-
+    <div
+      className="
+      rounded-3xl
+      border
+      border-white/10
+      bg-[#17112F]
+      p-8
+      "
+    >
+      <div>
         <h2 className="text-2xl font-black text-white">
           {t("roiEvolution")}
         </h2>
@@ -53,127 +72,86 @@ export default function AnalyticsCharts({
         <p className="mt-2 text-zinc-400">
           {t("sinceStart")}
         </p>
+      </div>
 
-        <div className="mt-8 h-[320px]">
-
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
-
-            <AreaChart data={transactionsHistory}>
-
+      <div className="mt-8 h-[380px] w-full">
+        {data.length < 2 ? (
+          <div className="flex h-full items-center justify-center text-center text-zinc-500">
+            <p>
+              Todavía no hay suficientes datos para mostrar la evolución.
+            </p>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{
+                top: 20,
+                right: 20,
+                left: 10,
+                bottom: 10,
+              }}
+            >
               <CartesianGrid
-                stroke="#27272a"
-                strokeDasharray="4 4"
+                stroke="rgba(255,255,255,0.08)"
+                vertical={false}
               />
 
               <XAxis
-                dataKey="date"
-                stroke="#71717a"
+                dataKey="time"
+                tick={{
+                  fill: "#a1a1aa",
+                  fontSize: 12,
+                }}
+                axisLine={false}
+                tickLine={false}
               />
 
               <YAxis
-                stroke="#71717a"
+                tick={{
+                  fill: "#a1a1aa",
+                  fontSize: 12,
+                }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(value) => `${value}%`}
               />
 
               <Tooltip
                 contentStyle={{
-                  background: "#18181b",
-                  border: "1px solid #27272a",
-                  borderRadius: 12,
+                  background: "#17112F",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "12px",
                   color: "#fff",
                 }}
+                labelFormatter={(_, payload) => {
+                  const point = payload?.[0]?.payload;
+
+                  return point?.fullDate ?? "";
+                }}
+                formatter={(_, __, item) => [
+                  `${Number(item?.payload?.roi ?? 0).toFixed(2)}%`,
+                  "ROI",
+                ]}
               />
 
-              <Area
+              <Line
                 type="monotone"
-                dataKey="bought"
-                stroke="#ef4444"
-                fill="#ef4444"
-                fillOpacity={0.2}
-              />
-
-              <Area
-                type="monotone"
-                dataKey="sold"
-                stroke="#22c55e"
-                fill="#22c55e"
-                fillOpacity={0.2}
-              />
-
-            </AreaChart>
-
-          </ResponsiveContainer>
-
-        </div>
-
-      </div>
-
-
-      <div
-        className="
-        rounded-3xl
-        border
-        border-white/10
-        bg-[#17112F]
-        p-8
-        "
-      >
-
-        <h2 className="text-2xl font-black text-white">
-          {t("buySell")}
-        </h2>
-
-        <p className="mt-2 text-zinc-400">
-          {t("subtitle")}
-        </p>
-
-        <div className="mt-8 h-[320px]">
-
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
-
-            <BarChart data={buySellData}>
-
-              <CartesianGrid
-                stroke="#27272a"
-                strokeDasharray="4 4"
-              />
-
-              <XAxis
-                dataKey="name"
-                stroke="#71717a"
-              />
-
-              <YAxis
-                stroke="#71717a"
-              />
-
-              <Tooltip
-                contentStyle={{
-                  background: "#18181b",
-                  border: "1px solid #27272a",
-                  borderRadius: 12,
-                  color: "#fff",
+                dataKey="roi"
+                stroke="#a855f7"
+                strokeWidth={3}
+                dot={{
+                  r: 4,
+                  fill: "#a855f7",
+                }}
+                activeDot={{
+                  r: 6,
                 }}
               />
-
-              <Bar
-                dataKey="value"
-                fill="#8b5cf6"
-              />
-
-            </BarChart>
-
+            </LineChart>
           </ResponsiveContainer>
-
-        </div>
-
+        )}
       </div>
-
     </div>
   );
 }

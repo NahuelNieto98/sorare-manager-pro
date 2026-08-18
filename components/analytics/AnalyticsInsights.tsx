@@ -9,36 +9,56 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
+
 type Props = {
-  roi: number;
-  profit: number;
+  roi: number | null;
+  profit: number | null;
   totalBought: number;
   totalSold: number;
   galleryValue: number;
 };
+
 
 export default function AnalyticsInsights({
   roi,
   profit,
   totalBought,
   totalSold,
-  galleryValue,
 }: Props) {
-  const t = useTranslations("analytics");
+
+  const t =
+    useTranslations("analytics");
+
 
   const recovered =
     totalBought === 0
       ? 0
-      : (totalSold / totalBought) * 100;
+      : (
+          totalSold /
+          totalBought
+        ) * 100;
+
+
+  const roiValue =
+    roi ?? 0;
+
+
+  const profitValue =
+    profit ?? 0;
+
 
   const roiColor =
-    roi >= 20
-      ? "text-green-400"
-      : roi >= 0
-        ? "text-yellow-400"
-        : "text-red-400";
+    roi === null
+      ? "text-zinc-400"
+      : roi >= 20
+        ? "text-green-400"
+        : roi >= 0
+          ? "text-yellow-400"
+          : "text-red-400";
+
 
   return (
+
     <div
       className="
       rounded-3xl
@@ -49,39 +69,78 @@ export default function AnalyticsInsights({
       "
     >
 
-      <h2 className="text-2xl font-black text-white">
+      <h2
+        className="
+        text-2xl
+        font-black
+        text-white
+        "
+      >
         {t("roiEvolution")}
       </h2>
 
-      <p className="mt-2 text-zinc-400">
+
+      <p
+        className="
+        mt-2
+        text-zinc-400
+        "
+      >
         {t("sinceStart")}
       </p>
 
-      <div className="mt-8 space-y-5">
+
+      <div
+        className="
+        mt-8
+        space-y-5
+        "
+      >
 
         <Insight
-          icon={<TrendingUp size={22} />}
+          icon={
+            <TrendingUp size={22} />
+          }
           color={roiColor}
           title={t("roi")}
-          description={`${roi.toFixed(2)}%`}
+          description={
+            roi === null
+              ? "—"
+              : `${roiValue.toFixed(2)}%`
+          }
         />
 
+
         <Insight
-          icon={<Wallet size={22} />}
+          icon={
+            <Wallet size={22} />
+          }
           color="text-cyan-400"
           title={t("recovered")}
-          description={`${recovered.toFixed(1)}%`}
+          description={
+            `${recovered.toFixed(1)}%`
+          }
         />
 
+
         <Insight
-          icon={<ShieldCheck size={22} />}
+          icon={
+            <ShieldCheck size={22} />
+          }
           color="text-green-400"
           title={t("profitability")}
-          description={`€${galleryValue.toFixed(2)}`}
+          description={
+            profit === null
+              ? "—"
+              : `€${profitValue.toFixed(2)}`
+          }
         />
 
+
         <Insight
-          icon={<AlertTriangle size={22} />}
+          icon={
+            <AlertTriangle size={22} />
+          }
           color="text-yellow-400"
           title={t("distribution")}
           description={
@@ -92,8 +151,10 @@ export default function AnalyticsInsights({
       </div>
 
     </div>
+
   );
 }
+
 
 function Insight({
   icon,
@@ -106,8 +167,15 @@ function Insight({
   description: string;
   color: string;
 }) {
+
   return (
-    <div className="flex gap-4">
+
+    <div
+      className="
+      flex
+      gap-4
+      "
+    >
 
       <div
         className={`
@@ -124,18 +192,32 @@ function Insight({
         {icon}
       </div>
 
+
       <div>
 
-        <h3 className="font-bold text-white">
+        <h3
+          className="
+          font-bold
+          text-white
+          "
+        >
           {title}
         </h3>
 
-        <p className="mt-2 text-sm text-zinc-400">
+
+        <p
+          className="
+          mt-2
+          text-sm
+          text-zinc-400
+          "
+        >
           {description}
         </p>
 
       </div>
 
     </div>
+
   );
 }
