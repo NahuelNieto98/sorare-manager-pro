@@ -1,6 +1,6 @@
 {
   "market": {
-    "title": "Sorare Market Scanner",
+    "title": "Scanner de Mercado Sorare",
     "subtitle": "Analiza oportunidades del mercado automáticamente",
     "intelligence": "INTELIGENCIA DE MERCADO",
     "top": "TOP OPORTUNIDADES HOY",
@@ -22,7 +22,16 @@
     "loading": "Cargando mercado...",
     "emptyTitle": "Mercado sin datos",
     "emptyDescription": "Conecta y sincroniza tu cuenta de Sorare para analizar las oportunidades del mercado y encontrar compras interesantes.",
-    "connect": "🔗 Conectar Sorare"
+    "connect": "🔗 Conectar Sorare",
+    "rarities": {
+      "limited": "Limitada",
+      "rare": "Rara",
+      "superRare": "Super Rara",
+      "unique": "Única"
+    },
+    "potentialProfit": "Beneficio potencial",
+    "recommendation": "Decisión",
+    "noResults": "No hay resultados con los filtros seleccionados."
   },
   "marketFilters": {
     "search": "Buscar jugador...",
@@ -392,7 +401,7 @@
         "text": "Controla el valor, ROI y evolución de tus inversiones."
       },
       "market": {
-        "title": "Market",
+        "title": "Mercado",
         "text": "Descubre oportunidades interesantes en el mercado."
       },
       "scout": {
@@ -483,7 +492,7 @@
         "status": "En desarrollo"
       },
       "market": {
-        "title": "Market Scanner",
+        "title": "Scanner de Mercado",
         "description": "Identifica automáticamente oportunidades interesantes de compra en el mercado de Sorare.",
         "status": "En desarrollo"
       },

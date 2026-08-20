@@ -22,7 +22,16 @@
     "loading": "Loading market...",
     "emptyTitle": "Market without data",
     "emptyDescription": "Connect and sync your Sorare account to analyze market opportunities and find interesting purchases.",
-    "connect": "🔗 Connect Sorare"
+    "connect": "🔗 Connect Sorare",
+    "rarities": {
+      "limited": "Limited",
+      "rare": "Rare",
+      "superRare": "Super Rare",
+      "unique": "Unique"
+    },
+    "potentialProfit": "Potential profit",
+    "recommendation": "Decision",
+    "noResults": "No results match the selected filters."
   },
   "marketFilters": {
     "search": "Search player...",

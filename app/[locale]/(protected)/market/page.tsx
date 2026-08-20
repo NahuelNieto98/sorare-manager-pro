@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useMarket } from "@/hooks/useMarket";
 
@@ -7,6 +8,7 @@ import MarketStats from "@/components/market/MarketStats";
 import MarketList from "@/components/market/MarketList";
 import MarketTable from "@/components/market/MarketTable";
 import MarketEmpty from "@/components/market/MarketEmpty";
+import MarketFilters from "./MarketFilters";
 
 export default function MarketPage() {
   const t = useTranslations("market");
@@ -18,6 +20,20 @@ export default function MarketPage() {
     getOpportunity,
     getScore,
   } = useMarket();
+
+  const [filteredCards, setFilteredCards] =
+    useState<typeof cards>([]);
+
+  const [filtersReady, setFiltersReady] =
+    useState(false);
+
+  const handleFilteredChange = useCallback(
+    (items: typeof cards) => {
+      setFilteredCards(items);
+      setFiltersReady(true);
+    },
+    []
+  );
 
   if (loading) {
     return (
@@ -39,18 +55,34 @@ export default function MarketPage() {
     return <MarketEmpty />;
   }
 
-  const opportunities = cards.filter(
-    (item) => getOpportunity(item) > 0
-  );
+  const activeCards = filtersReady
+    ? filteredCards
+    : cards;
 
-  const bestScore = cards.length
-    ? getScore(cards[0])
+  const opportunities = activeCards
+    .filter(
+      (item) => getOpportunity(item) > 0
+    )
+    .sort(
+      (a, b) =>
+        getOpportunity(b) -
+        getOpportunity(a)
+    );
+
+  const bestScore = opportunities.length
+    ? Math.max(
+        ...opportunities.map((item) =>
+          getScore(item)
+        )
+      )
     : 0;
 
-  const tableCards = cards.map((item) => ({
-    ...item,
-    score: getScore(item),
-  }));
+  const tableCards = activeCards.map(
+    (item) => ({
+      ...item,
+      score: getScore(item),
+    })
+  );
 
   return (
     <div className="space-y-8">
@@ -104,12 +136,19 @@ export default function MarketPage() {
       </section>
 
       <MarketStats
-        analyzed={cards.length}
+        analyzed={activeCards.length}
         opportunities={opportunities.length}
         bestScore={bestScore}
       />
 
-      <MarketList cards={cards} />
+      <MarketFilters
+        cards={cards}
+        onFilteredChange={
+          handleFilteredChange
+        }
+      />
+
+      <MarketList cards={opportunities} />
 
       <MarketTable cards={tableCards} />
     </div>

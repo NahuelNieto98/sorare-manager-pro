@@ -1,77 +1,16 @@
-import { sorareRequest } from "../sorare";
+import { getAssetPrice } from "./getAssetPrice";
 
 
-const GET_ASSET_MARKET = `
-query GetAssetMarket($assetIds: [String!]) {
+export async function test() {
 
-  anyCards(
-    assetIds: $assetIds
-  ) {
-
-    assetId
-    slug
-
-    sellOffers(
-      first: 5
-    ) {
-
-      nodes {
-
-        price
-
-        createdAt
-
-      }
-
-    }
-
-  }
-
-}
-`;
+  const price = await getAssetPrice(
+    "0x04002bc3a4cfe3a2ac0ebf982fb27d04d43508cbe205cd9edda3c34fdff2d8c9"
+  );
 
 
-export async function getAssetPrice(
-  assetId:string
-) {
-
-
-  try {
-
-
-    const data =
-      await sorareRequest(
-        GET_ASSET_MARKET,
-        {
-          assetIds:[
-            assetId
-          ],
-        }
-      );
-
-
-    console.log(
-      "💰 MARKET:",
-      JSON.stringify(
-        data,
-        null,
-        2
-      )
-    );
-
-
-    return data;
-
-
-  } catch(error) {
-
-    console.error(
-      "❌ ERROR MARKET:",
-      error
-    );
-
-    return null;
-
-  }
+  console.log(
+    "PRECIO FINAL:",
+    price
+  );
 
 }
