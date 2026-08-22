@@ -59,30 +59,101 @@ export default function MarketPage() {
     ? filteredCards
     : cards;
 
+  /*
+   * =====================================================
+   * PRIORIDAD DE RAREZA
+   * =====================================================
+   *
+   * Cuando mostramos "Todas las rarezas":
+   *
+   * Limited
+   * Rare
+   * Super Rare
+   * Unique
+   *
+   * Y dentro de cada rareza:
+   * mayor oportunidad primero.
+   */
+
+  const rarityPriority = (
+    rarity: string
+  ) => {
+    switch (rarity) {
+      case "limited":
+        return 4;
+
+      case "rare":
+        return 3;
+
+      case "super_rare":
+        return 2;
+
+      case "unique":
+        return 1;
+
+      default:
+        return 0;
+    }
+  };
+
   const opportunities = activeCards
     .filter(
-      (item) => getOpportunity(item) > 0
+      (item) =>
+        getOpportunity(item) > 0
     )
     .sort(
-      (a, b) =>
-        getOpportunity(b) -
-        getOpportunity(a)
+      (a, b) => {
+        const rarityA =
+          rarityPriority(
+            a.Card.scarcity
+          );
+
+        const rarityB =
+          rarityPriority(
+            b.Card.scarcity
+          );
+
+        /*
+         * Primero rareza.
+         */
+
+        if (
+          rarityA !== rarityB
+        ) {
+          return (
+            rarityB -
+            rarityA
+          );
+        }
+
+        /*
+         * Después oportunidad.
+         */
+
+        return (
+          getOpportunity(b) -
+          getOpportunity(a)
+        );
+      }
     );
 
   const bestScore = opportunities.length
     ? Math.max(
-        ...opportunities.map((item) =>
-          getScore(item)
+        ...opportunities.map(
+          (item) =>
+            getScore(item)
         )
       )
     : 0;
 
-  const tableCards = activeCards.map(
-    (item) => ({
-      ...item,
-      score: getScore(item),
-    })
-  );
+  const tableCards =
+    activeCards.map(
+      (item) => ({
+        ...item,
+        score:
+          getScore(item),
+      })
+    );
 
   return (
     <div className="space-y-8">
@@ -136,9 +207,15 @@ export default function MarketPage() {
       </section>
 
       <MarketStats
-        analyzed={activeCards.length}
-        opportunities={opportunities.length}
-        bestScore={bestScore}
+        analyzed={
+          activeCards.length
+        }
+        opportunities={
+          opportunities.length
+        }
+        bestScore={
+          bestScore
+        }
       />
 
       <MarketFilters
@@ -148,9 +225,13 @@ export default function MarketPage() {
         }
       />
 
-      <MarketList cards={opportunities} />
+      <MarketList
+        cards={opportunities}
+      />
 
-      <MarketTable cards={tableCards} />
+      <MarketTable
+        cards={tableCards}
+      />
     </div>
   );
 }

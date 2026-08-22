@@ -6,20 +6,79 @@ const SORARE_API =
 const SORARE_TOKEN_API =
   "https://api.sorare.com/oauth/token";
 
-
 async function refreshSorareToken(
   accessToken: string
 ) {
-  const account =
+  /*
+   * =====================================================
+   * BUSCAR CUENTA SORARE
+   * =====================================================
+   *
+   * El Market históricamente utiliza SorareAccount,
+   * mientras que Auth.js guarda las credenciales OAuth
+   * en Account.
+   *
+   * Primero localizamos SorareAccount por el token que
+   * estamos intentando utilizar.
+   */
+
+  const sorareAccount =
     await prisma.sorareAccount.findFirst({
       where: {
         accessToken,
       },
     });
 
-  if (
-    !account?.refreshToken
-  ) {
+  /*
+   * =====================================================
+   * BUSCAR CREDENCIALES AUTH.JS
+   * =====================================================
+   */
+
+  const authAccount =
+    sorareAccount
+      ? await prisma.account.findFirst({
+          where: {
+            userId:
+              sorareAccount.userId,
+
+            provider:
+              "sorare",
+          },
+        })
+      : await prisma.account.findFirst({
+          where: {
+            provider:
+              "sorare",
+
+            access_token:
+              accessToken,
+          },
+        });
+
+  /*
+   * =====================================================
+   * REFRESH TOKEN
+   * =====================================================
+   *
+   * Preferimos el refresh token de Auth.js porque es el
+   * sistema que realmente está gestionando el OAuth.
+   *
+   * Si no existe, utilizamos el de SorareAccount como
+   * fallback para mantener compatibilidad con cuentas
+   * antiguas.
+   */
+
+  const refreshToken =
+    authAccount?.refresh_token ??
+    sorareAccount?.refreshToken ??
+    null;
+
+  if (!refreshToken) {
+    console.error(
+      "❌ No existe refresh token de Sorare"
+    );
+
     return null;
   }
 
@@ -37,6 +96,12 @@ async function refreshSorareToken(
       "Faltan SORARE_CLIENT_ID o SORARE_CLIENT_SECRET"
     );
   }
+
+  /*
+   * =====================================================
+   * SOLICITAR NUEVO TOKEN
+   * =====================================================
+   */
 
   const response =
     await fetch(
@@ -61,7 +126,7 @@ async function refreshSorareToken(
               clientSecret,
 
             refresh_token:
-              account.refreshToken,
+              refreshToken,
           }),
       }
     );
@@ -71,7 +136,7 @@ async function refreshSorareToken(
 
   if (!response.ok) {
     console.error(
-      "SORARE REFRESH ERROR:",
+      "❌ SORARE REFRESH ERROR:",
       data
     );
 
@@ -85,7 +150,7 @@ async function refreshSorareToken(
 
   const newRefreshToken =
     data.refresh_token ??
-    account.refreshToken;
+    refreshToken;
 
   if (!newAccessToken) {
     throw new Error(
@@ -93,23 +158,94 @@ async function refreshSorareToken(
     );
   }
 
-  await prisma.sorareAccount.update({
-    where: {
-      id: account.id,
-    },
+  /*
+   * =====================================================
+   * CADUCIDAD
+   * =====================================================
+   */
 
-    data: {
-      accessToken:
-        newAccessToken,
+  const expiresAt =
+    data.expires_in
+      ? Math.floor(
+          Date.now() / 1000
+        ) +
+        Number(
+          data.expires_in
+        )
+      : null;
 
-      refreshToken:
-        newRefreshToken,
-    },
-  });
+  /*
+   * =====================================================
+   * ACTUALIZAR AUTH.JS
+   * =====================================================
+   */
+
+  if (authAccount) {
+    await prisma.account.update({
+      where: {
+        provider_providerAccountId: {
+          provider:
+            authAccount.provider,
+
+          providerAccountId:
+            authAccount.providerAccountId,
+        },
+      },
+
+      data: {
+        access_token:
+          newAccessToken,
+
+        refresh_token:
+          newRefreshToken,
+
+        expires_at:
+          expiresAt,
+
+        token_type:
+          data.token_type ??
+          authAccount.token_type,
+
+        scope:
+          data.scope ??
+          authAccount.scope,
+      },
+    });
+  }
+
+  /*
+   * =====================================================
+   * ACTUALIZAR SORARE ACCOUNT
+   * =====================================================
+   *
+   * Mantenemos ambos registros sincronizados porque
+   * partes antiguas de la aplicación todavía utilizan
+   * SorareAccount.
+   */
+
+  if (sorareAccount) {
+    await prisma.sorareAccount.update({
+      where: {
+        id:
+          sorareAccount.id,
+      },
+
+      data: {
+        accessToken:
+          newAccessToken,
+
+        refreshToken:
+          newRefreshToken,
+      },
+    });
+  }
+
+  console.log(
+    "✅ Sorare access token renovado correctamente"
+  );
 
   return newAccessToken;
 }
-
 
 async function executeRequest(
   query: string,
@@ -156,7 +292,8 @@ async function executeRequest(
   let json: any = {};
 
   try {
-    json = JSON.parse(text);
+    json =
+      JSON.parse(text);
   } catch {
     json = {
       raw: text,
@@ -175,7 +312,6 @@ async function executeRequest(
   };
 }
 
-
 export async function sorareRequest(
   query: string,
   variables = {},
@@ -184,6 +320,12 @@ export async function sorareRequest(
   let currentAccessToken =
     accessToken;
 
+  /*
+   * =====================================================
+   * PRIMERA PETICIÓN
+   * =====================================================
+   */
+
   let result =
     await executeRequest(
       query,
@@ -191,24 +333,44 @@ export async function sorareRequest(
       currentAccessToken
     );
 
-
   /*
-   * Si Sorare rechaza el token,
-   * intentamos renovarlo automáticamente.
+   * =====================================================
+   * DETECTAR TOKEN INVÁLIDO
+   * =====================================================
    */
 
   const unauthorized =
     result.json?.errors?.some(
-      (error: any) =>
-        error?.extensions?.code ===
-          "UNAUTHORIZED" ||
-        String(
-          error?.message ?? ""
-        ).toLowerCase().includes(
-          "invalid token"
-        )
+      (error: any) => {
+        const code =
+          error?.extensions?.code;
+
+        const message =
+          String(
+            error?.message ?? ""
+          ).toLowerCase();
+
+        return (
+          code ===
+            "UNAUTHORIZED" ||
+          message.includes(
+            "invalid token"
+          ) ||
+          message.includes(
+            "not enough or too many segments"
+          ) ||
+          message.includes(
+            "unauthorized"
+          )
+        );
+      }
     );
 
+  /*
+   * =====================================================
+   * REFRESH AUTOMÁTICO
+   * =====================================================
+   */
 
   if (
     unauthorized &&
@@ -227,6 +389,11 @@ export async function sorareRequest(
       currentAccessToken =
         refreshedToken;
 
+      /*
+       * Repetimos exactamente la misma consulta
+       * utilizando el nuevo token.
+       */
+
       result =
         await executeRequest(
           query,
@@ -236,6 +403,11 @@ export async function sorareRequest(
     }
   }
 
+  /*
+   * =====================================================
+   * ERROR HTTP
+   * =====================================================
+   */
 
   if (
     !result.response.ok
@@ -251,6 +423,11 @@ export async function sorareRequest(
     throw error;
   }
 
+  /*
+   * =====================================================
+   * ERROR GRAPHQL
+   * =====================================================
+   */
 
   if (
     result.json?.errors?.length
@@ -264,7 +441,6 @@ export async function sorareRequest(
       )
     );
   }
-
 
   return result.json;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import {
   calculateMarketScore,
 } from "@/lib/market-score";
@@ -40,6 +41,39 @@ export type MarketItem = {
   Card: MarketCard;
 };
 
+function normalizeRarity(
+  rarity: string | null | undefined
+) {
+  return String(rarity ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+function rarityPriority(
+  rarity: string | null | undefined
+) {
+  switch (
+    normalizeRarity(rarity)
+  ) {
+    case "limited":
+      return 4;
+
+    case "rare":
+      return 3;
+
+    case "super rare":
+      return 2;
+
+    case "unique":
+      return 1;
+
+    default:
+      return 0;
+  }
+}
+
 export function useMarket() {
   const [cards, setCards] =
     useState<MarketItem[]>([]);
@@ -55,46 +89,197 @@ export function useMarket() {
       setLoading(true);
       setError(null);
 
-      const res =
-        await fetch("/api/market");
+      console.log(
+        "🔄 Cargando mercado..."
+      );
 
-      if (!res.ok) {
+      const res =
+        await fetch(
+          "/api/market",
+          {
+            cache: "no-store",
+          }
+        );
+
+      const text =
+        await res.text();
+
+      let data: any = null;
+
+      try {
+        data =
+          text
+            ? JSON.parse(text)
+            : null;
+      } catch {
+        console.error(
+          "❌ La API devolvió una respuesta que no es JSON:",
+          text
+        );
+
         throw new Error(
-          "Market request failed"
+          `Market API devolvió una respuesta inválida (${res.status})`
         );
       }
 
-      const data =
-        await res.json();
+      if (!res.ok) {
+        console.error(
+          "❌ Market API error:",
+          {
+            status: res.status,
+            data,
+          }
+        );
+
+        const apiError =
+          data?.error ??
+          data?.message ??
+          `Error HTTP ${res.status}`;
+
+        throw new Error(
+          `Market API: ${apiError}`
+        );
+      }
+
+      if (!Array.isArray(data)) {
+        console.error(
+          "❌ Market API no devolvió un array:",
+          data
+        );
+
+        throw new Error(
+          "La API del mercado no devolvió una lista de cartas"
+        );
+      }
+
+      console.log(
+        "✅ Mercado recibido:",
+        data.length,
+        "elementos"
+      );
+
+      const validCards =
+        data.filter(
+          (item: MarketItem) =>
+            item &&
+            item.Card
+        );
+
+      console.log(
+        "📊 Cartas válidas:",
+        validCards.length
+      );
+
+      const rarityCounts: Record<
+        string,
+        number
+      > = {};
+
+      for (
+        const item of validCards
+      ) {
+        const rarity =
+          normalizeRarity(
+            item.Card?.scarcity
+          ) || "unknown";
+
+        rarityCounts[
+          rarity
+        ] =
+          (
+            rarityCounts[
+              rarity
+            ] ?? 0
+          ) + 1;
+      }
+
+      console.log(
+        "📊 Rarezas recibidas:",
+        rarityCounts
+      );
 
       const sorted =
-        data
-          .filter(
-            (item: MarketItem) =>
-              item.Card
-          )
-          .sort(
-            (
-              a: MarketItem,
-              b: MarketItem
-            ) => {
-              const scoreA =
-                getMarketScore(a);
+        validCards.sort(
+          (
+            a: MarketItem,
+            b: MarketItem
+          ) => {
+            /*
+             * ==========================================
+             * PRIORIDAD DE RAREZA
+             * ==========================================
+             *
+             * Limited
+             * Rare
+             * Super Rare
+             * Unique
+             */
 
-              const scoreB =
-                getMarketScore(b);
+            const rarityA =
+              rarityPriority(
+                a.Card.scarcity
+              );
 
-              return scoreB - scoreA;
+            const rarityB =
+              rarityPriority(
+                b.Card.scarcity
+              );
+
+            /*
+             * Primero rareza.
+             */
+
+            if (
+              rarityA !== rarityB
+            ) {
+              return (
+                rarityB -
+                rarityA
+              );
             }
-          );
 
-      setCards(sorted);
+            /*
+             * ==========================================
+             * DENTRO DE LA MISMA RAREZA
+             * ==========================================
+             *
+             * Market Score.
+             */
+
+            const scoreA =
+              getMarketScore(a);
+
+            const scoreB =
+              getMarketScore(b);
+
+            return (
+              scoreB -
+              scoreA
+            );
+          }
+        );
+
+      setCards(
+        sorted
+      );
+
     } catch (error) {
-      console.error(error);
+      console.error(
+        "❌ ERROR CARGANDO MARKET:",
+        error
+      );
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error desconocido cargando el mercado";
 
       setError(
-        "Error loading market"
+        message
       );
+
+      setCards([]);
+
     } finally {
       setLoading(false);
     }
@@ -110,6 +295,7 @@ export function useMarket() {
         ? {
             lotValue:
               item.lotValue,
+
             lotCards:
               item.lotCards,
           }
@@ -126,21 +312,28 @@ export function useMarket() {
         ? item.lotValue
         : item.Card.marketValue;
 
-    if (!value || !item.price) {
+    if (
+      !value ||
+      !item.price
+    ) {
       return 0;
     }
 
     return (
-      ((value - item.price) /
-        item.price) *
-      100
+      (
+        (value -
+          item.price) /
+        item.price
+      ) * 100
     );
   }
 
   function getScore(
     item: MarketItem
   ) {
-    return getMarketScore(item);
+    return getMarketScore(
+      item
+    );
   }
 
   useEffect(() => {

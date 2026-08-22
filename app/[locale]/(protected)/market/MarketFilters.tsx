@@ -1,82 +1,261 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { useTranslations } from "next-intl";
 import { calculateMarketScore } from "@/lib/market-score";
 import type { MarketItem } from "@/hooks/useMarket";
 
 type Props = {
   cards: MarketItem[];
-  onFilteredChange: (cards: MarketItem[]) => void;
+  onFilteredChange: (
+    cards: MarketItem[]
+  ) => void;
 };
+
+function normalizeRarity(
+  value: string | null | undefined
+) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ");
+}
 
 export default function MarketFilters({
   cards,
   onFilteredChange,
 }: Props) {
-  const t = useTranslations("marketFilters");
+  const t =
+    useTranslations(
+      "marketFilters"
+    );
 
-  const [search, setSearch] = useState("");
-  const [rarity, setRarity] = useState("all");
-  const [price, setPrice] = useState("all");
-  const [sort, setSort] = useState("opportunity");
+  const [search, setSearch] =
+    useState("");
+
+  const [rarity, setRarity] =
+    useState("all");
+
+  const [price, setPrice] =
+    useState("all");
+
+  const [sort, setSort] =
+    useState("opportunity");
 
   const filtered = useMemo(() => {
     let result = [...cards];
 
-    if (search.trim()) {
-      const query = search.toLowerCase().trim();
+    /*
+     * =====================================================
+     * BUSCADOR
+     * =====================================================
+     */
 
-      result = result.filter((item) =>
-        [
-          item.Card.playerName,
-          item.Card.club ?? "",
-        ]
-          .join(" ")
+    if (search.trim()) {
+      const query =
+        search
           .toLowerCase()
-          .includes(query)
-      );
+          .trim();
+
+      result =
+        result.filter(
+          (item) =>
+            [
+              item.Card.playerName,
+              item.Card.club ?? "",
+            ]
+              .join(" ")
+              .toLowerCase()
+              .includes(query)
+        );
     }
+
+    /*
+     * =====================================================
+     * RAREZA
+     * =====================================================
+     *
+     * Normalizamos tanto el valor de la carta como
+     * el valor seleccionado en el filtro.
+     *
+     * Ejemplos:
+     *
+     * rare       -> rare
+     * RARE       -> rare
+     * Rare       -> rare
+     * rare_      -> rare
+     * super_rare -> super rare
+     * super-rare -> super rare
+     */
 
     if (rarity !== "all") {
-      result = result.filter(
-        (item) => item.Card.scarcity === rarity
-      );
+      const normalizedFilter =
+        normalizeRarity(
+          rarity
+        );
+
+      result =
+        result.filter(
+          (item) => {
+            const cardRarity =
+              normalizeRarity(
+                item.Card?.scarcity
+              );
+
+            return (
+              cardRarity ===
+              normalizedFilter
+            );
+          }
+        );
     }
 
+    /*
+     * =====================================================
+     * PRECIO
+     * =====================================================
+     */
+
     if (price === "cheap") {
-      result = result.filter(
-        (item) => item.price < 10
-      );
+      result =
+        result.filter(
+          (item) =>
+            item.price < 10
+        );
     }
 
     if (price === "medium") {
-      result = result.filter(
-        (item) =>
-          item.price >= 10 &&
-          item.price <= 50
-      );
+      result =
+        result.filter(
+          (item) =>
+            item.price >= 10 &&
+            item.price <= 50
+        );
     }
 
     if (price === "expensive") {
-      result = result.filter(
-        (item) => item.price > 50
-      );
+      result =
+        result.filter(
+          (item) =>
+            item.price > 50
+        );
     }
 
-    const opportunity = (item: MarketItem) =>
-      item.Card.marketValue
-        ? ((item.Card.marketValue - item.price) /
-            item.price) *
-          100
-        : 0;
+    /*
+     * =====================================================
+     * HELPERS
+     * =====================================================
+     */
 
-    if (sort === "opportunity") {
+    const opportunity = (
+      item: MarketItem
+    ) => {
+      const value =
+        item.type === "AUCTION" &&
+        item.lotValue !== undefined
+          ? item.lotValue
+          : item.Card.marketValue;
+
+      if (
+        !value ||
+        !item.price
+      ) {
+        return 0;
+      }
+
+      return (
+        (
+          (value -
+            item.price) /
+          item.price
+        ) * 100
+      );
+    };
+
+    const rarityPriority = (
+      rarityValue: string
+    ) => {
+      switch (
+        normalizeRarity(
+          rarityValue
+        )
+      ) {
+        case "limited":
+          return 4;
+
+        case "rare":
+          return 3;
+
+        case "super rare":
+          return 2;
+
+        case "unique":
+          return 1;
+
+        default:
+          return 0;
+      }
+    };
+
+    /*
+     * =====================================================
+     * ORDEN: MAYOR OPORTUNIDAD
+     * =====================================================
+     *
+     * Todas las rarezas:
+     *
+     * Limited
+     * Rare
+     * Super Rare
+     * Unique
+     *
+     * Dentro de cada rareza:
+     * mayor oportunidad primero.
+     */
+
+    if (
+      sort === "opportunity"
+    ) {
       result.sort(
-        (a, b) =>
-          opportunity(b) - opportunity(a)
+        (a, b) => {
+          const rarityA =
+            rarityPriority(
+              a.Card.scarcity
+            );
+
+          const rarityB =
+            rarityPriority(
+              b.Card.scarcity
+            );
+
+          if (
+            rarityA !== rarityB
+          ) {
+            return (
+              rarityB -
+              rarityA
+            );
+          }
+
+          return (
+            opportunity(b) -
+            opportunity(a)
+          );
+        }
       );
     }
+
+    /*
+     * =====================================================
+     * ORDEN: SCORE
+     * =====================================================
+     */
 
     if (sort === "score") {
       result.sort(
@@ -92,17 +271,39 @@ export default function MarketFilters({
       );
     }
 
+    /*
+     * =====================================================
+     * ORDEN: PRECIO ASCENDENTE
+     * =====================================================
+     */
+
     if (sort === "low") {
       result.sort(
-        (a, b) => a.price - b.price
+        (a, b) =>
+          a.price -
+          b.price
       );
     }
 
+    /*
+     * =====================================================
+     * ORDEN: PRECIO DESCENDENTE
+     * =====================================================
+     */
+
     if (sort === "high") {
       result.sort(
-        (a, b) => b.price - a.price
+        (a, b) =>
+          b.price -
+          a.price
       );
     }
+
+    /*
+     * =====================================================
+     * ORDEN: MÁS RECIENTE
+     * =====================================================
+     */
 
     if (sort === "recent") {
       result.reverse();
@@ -118,8 +319,13 @@ export default function MarketFilters({
   ]);
 
   useEffect(() => {
-    onFilteredChange(filtered);
-  }, [filtered, onFilteredChange]);
+    onFilteredChange(
+      filtered
+    );
+  }, [
+    filtered,
+    onFilteredChange,
+  ]);
 
   return (
     <section
@@ -161,7 +367,9 @@ export default function MarketFilters({
           placeholder={t("search")}
           value={search}
           onChange={(e) =>
-            setSearch(e.target.value)
+            setSearch(
+              e.target.value
+            )
           }
         />
 
@@ -179,7 +387,9 @@ export default function MarketFilters({
           "
           value={rarity}
           onChange={(e) =>
-            setRarity(e.target.value)
+            setRarity(
+              e.target.value
+            )
           }
         >
           <option value="all">
@@ -217,7 +427,9 @@ export default function MarketFilters({
           "
           value={price}
           onChange={(e) =>
-            setPrice(e.target.value)
+            setPrice(
+              e.target.value
+            )
           }
         >
           <option value="all">
@@ -251,7 +463,9 @@ export default function MarketFilters({
           "
           value={sort}
           onChange={(e) =>
-            setSort(e.target.value)
+            setSort(
+              e.target.value
+            )
           }
         >
           <option value="opportunity">
@@ -284,14 +498,17 @@ export default function MarketFilters({
         {(search ||
           rarity !== "all" ||
           price !== "all" ||
-          sort !== "opportunity") && (
+          sort !==
+            "opportunity") && (
           <button
             type="button"
             onClick={() => {
               setSearch("");
               setRarity("all");
               setPrice("all");
-              setSort("opportunity");
+              setSort(
+                "opportunity"
+              );
             }}
             className="
               rounded-lg
