@@ -43,6 +43,19 @@ query GetAssetPrice(
   ) {
 
     slug
+    displayName
+
+    lowestPriceAnyCard(
+      rarity:$rarity
+    ) {
+      assetId
+      slug
+
+      priceRange {
+        min
+        max
+      }
+    }
 
     tokenPrices(
       last:20
@@ -65,6 +78,16 @@ query GetAssetPrice(
         }
 
       }
+
+    }
+
+  }
+
+  config {
+
+    exchangeRate {
+
+      rates
 
     }
 

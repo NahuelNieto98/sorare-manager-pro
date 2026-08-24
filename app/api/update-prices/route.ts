@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-import { getCardPrice } from "@/lib/sorare/getCardPrice";
+import { getCardPrice, getAssetCardPrice } from "@/lib/sorare/getCardPrice";
 
 import { calculateGalleryValue } from "@/lib/gallery";
 import { savePortfolioSnapshot } from "@/lib/portfolio";
@@ -114,7 +114,9 @@ export async function POST() {
 
 
 
-  if(!user.sorareAccount?.accessToken){
+  const sorareAccount = user.sorareAccount;
+
+  if(!sorareAccount?.accessToken){
 
     return NextResponse.json(
       {
@@ -126,6 +128,9 @@ export async function POST() {
     );
 
   }
+
+  const accessToken: string =
+    sorareAccount.accessToken;
 
 
 
@@ -195,6 +200,12 @@ export async function POST() {
   let updated = 0;
 
   let failed = 0;
+
+  const failedCards: {
+    player: string;
+    slug: string;
+    reason: string;
+  }[] = [];
 
 
 
@@ -346,9 +357,11 @@ export async function POST() {
     try{
 
       price =
-        await getPriceSafe(
-          firstCard.slug,
-          user.sorareAccount.accessToken,
+        await getAssetCardPrice(
+          firstCard.assetId!,
+          accessToken,
+          firstCard.playerSlug!,
+          firstCard.season,
           firstCard.scarcity
         );
 
@@ -392,8 +405,10 @@ export async function POST() {
 
 
 
-      failed +=
-        group.length;
+      console.log(
+        "⚠️ SIN VENTAS CLASSIC — CONSERVANDO PRECIO ANTERIOR:",
+        key
+      );
 
 
 
@@ -458,127 +473,156 @@ export async function POST() {
    * ============================================================
    */
 
-  let inSeasonNumber = 0;
+  /*
+   * ============================================================
+   * ACTUALIZAR IN-SEASON
+   * ============================================================
+   *
+   * Las cartas 2026 se consultan individualmente.
+   *
+   * Ejecutamos varias consultas en paralelo con una concurrencia
+   * controlada para acelerar la sincronización sin saturar Sorare.
+   * ============================================================
+   */
 
+  const CONCURRENCY = 3;
 
+  console.log(
+    "⚡ CONCURRENCIA IN-SEASON:",
+    CONCURRENCY
+  );
 
-  for(
-    const card
-    of inSeasonCards
-  ){
+  for (
+    let i = 0;
+    i < inSeasonCards.length;
+    i += CONCURRENCY
+  ) {
 
-    inSeasonNumber++;
-
-
+    const batch =
+      inSeasonCards.slice(
+        i,
+        i + CONCURRENCY
+      );
 
     console.log(
-      `🔥 IN-SEASON ${inSeasonNumber}/${inSeasonCards.length}:`,
-      card.playerName,
-      "|",
-      card.scarcity,
-      "|",
-      card.slug
+      `🔥 IN-SEASON ${i + 1}-${Math.min(
+        i + CONCURRENCY,
+        inSeasonCards.length
+      )}/${inSeasonCards.length}`
     );
 
+    const results =
+      await Promise.all(
+        batch.map(
+          async (card) => {
 
+            try {
 
-    let price:number | null =
-      null;
+              const price =
+                await getAssetCardPrice(
+                  card.assetId!,
+                  accessToken,
+                  card.playerSlug!,
+                  card.season,
+                  card.scarcity
+                );
 
+              return {
+                card,
+                price,
+              };
 
+            } catch (error: any) {
 
-    try{
+              const reason =
+                error?.message === "SORARE_RATE_LIMIT"
+                  ? "429 RATE LIMIT"
+                  : error?.message === "SORARE_PRICE_BLOCKED"
+                    ? "403 PRICE BLOCKED"
+                    : "ERROR";
 
-      price =
-        await getPriceSafe(
-          card.slug,
-          user.sorareAccount.accessToken,
-          card.scarcity
-        );
+              console.error(
+                "❌ ERROR IN-SEASON:",
+                card.slug,
+                reason
+              );
 
+              failedCards.push({
+                player: card.playerName,
+                slug: card.slug,
+                reason,
+              });
 
+              return {
+                card,
+                price: null,
+              };
 
-    }catch(error:any){
+            }
 
-      if(
-        error.message ===
-          "SORARE_PRICE_BLOCKED"
-        ||
-        error.message ===
-          "SORARE_RATE_LIMIT"
-      ){
-
-        throw error;
-
-      }
-
-
-
-      console.error(
-        "❌ ERROR IN-SEASON:",
-        card.slug,
-        error
+          }
+        )
       );
 
-    }
-
-
-
-    if(
-      price === null ||
-      price === undefined
-    ){
-
-      console.log(
-        "❌ SIN PRECIO IN-SEASON:",
-        card.slug
-      );
-
-
-
-      failed++;
-
-
-
-      continue;
-
-    }
-
-
-
-    await prisma.card.update({
-
-      where:{
-        id:
-          card.id
-      },
-
-      data:{
-        marketValue:
+    await Promise.all(
+      results.map(
+        async ({
+          card,
           price,
+        }) => {
 
-        priceUpdatedAt:
-          new Date(),
-      },
+          if (
+            price === null ||
+            price === undefined
+          ) {
 
-    });
+            console.log(
+              "❌ SIN PRECIO IN-SEASON:",
+              card.slug
+            );
 
+            failed++;
 
+            failedCards.push({
+              player: card.playerName,
+              slug: card.slug,
+              reason: "SIN PRECIO IN-SEASON",
+            });
 
-    updated++;
+            return;
 
+          }
 
+          await prisma.card.update({
 
-    console.log(
-      "✅ IN-SEASON ACTUALIZADA:",
-      card.slug,
-      "| PRECIO:",
-      price
+            where: {
+              id: card.id,
+            },
+
+            data: {
+              marketValue:
+                price,
+
+              priceUpdatedAt:
+                new Date(),
+            },
+
+          });
+
+          updated++;
+
+          console.log(
+            "✅ IN-SEASON ACTUALIZADA:",
+            card.slug,
+            "| PRECIO:",
+            price
+          );
+
+        }
+      )
     );
 
   }
-
-
 
   console.log(
     "✅ Precios actualizados:",
@@ -590,6 +634,15 @@ export async function POST() {
   console.log(
     "❌ Fallos:",
     failed
+  );
+
+  console.log(
+    "🔎 FALLOS DETALLADOS:",
+    failedCards
+  );
+
+  console.log(
+    "🔎 FIN UPDATE PRICES — revisa las líneas ❌ anteriores para identificar los fallos"
   );
 
 

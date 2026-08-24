@@ -47,7 +47,7 @@ export async function importGallery(
   // Reducimos carga sobre Prisma para evitar
   // timeout del connection pool en producción
 
-  const limit = 5;
+  const limit = 10;
 
 
 
@@ -90,6 +90,9 @@ export async function importGallery(
 
           slug:
             card.slug,
+
+          assetId:
+            card.assetId,
 
 
           season:
@@ -183,6 +186,11 @@ export async function importGallery(
 
 
           sorareId:
+            card.assetId,
+
+
+
+          assetId:
             card.assetId,
 
 

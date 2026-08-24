@@ -183,3 +183,47 @@ export async function getCardPrice(
   return null;
 
 }
+
+
+/*
+ * Obtiene directamente el precio de una carta cuando ya conocemos
+ * su assetId, evitando la consulta GET_CARD_INFO.
+ */
+export async function getAssetCardPrice(
+  assetId:string,
+  accessToken:string,
+  playerSlug:string,
+  seasonYear:number,
+  scarcity:string
+) {
+
+  const rarityMap:any = {
+    "limited": "limited",
+    "rare": "rare",
+    "super rare": "super_rare",
+    "super_rare": "super_rare",
+    "unique": "unique",
+  };
+
+  const rarity =
+    rarityMap[scarcity];
+
+  if(!rarity) {
+
+    console.log(
+      "❌ RAREZA NO SOPORTADA:",
+      scarcity
+    );
+
+    return null;
+
+  }
+
+  return await getAssetPrice(
+    assetId,
+    accessToken,
+    playerSlug,
+    seasonYear,
+    rarity
+  );
+}
