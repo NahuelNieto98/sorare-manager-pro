@@ -319,10 +319,37 @@ export function useMarket() {
       return 0;
     }
 
+    /*
+     * En subastas mostramos el DESCUENTO respecto
+     * al valor estimado del lote.
+     *
+     * Ejemplo:
+     * Precio: €2.58
+     * Valor:  €67.26
+     *
+     * Resultado:
+     * (67.26 - 2.58) / 67.26 = 96.2%
+     *
+     * Evitamos así cifras absurdas como +2507%.
+     */
+
+    if (item.type === "AUCTION") {
+      return (
+        (
+          (value - item.price) /
+          value
+        ) * 100
+      );
+    }
+
+    /*
+     * Para cartas individuales mantenemos
+     * el cálculo anterior.
+     */
+
     return (
       (
-        (value -
-          item.price) /
+        (value - item.price) /
         item.price
       ) * 100
     );

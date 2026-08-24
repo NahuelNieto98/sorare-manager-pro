@@ -36,7 +36,13 @@ export default function MarketOpportunityCard({
 
   const score = calculateMarketScore(
     card,
-    item.price
+    item.price,
+    isAuction
+      ? {
+          lotValue: item.lotValue,
+          lotCards: item.lotCards,
+        }
+      : undefined
   );
 
   const value = isAuction
@@ -45,7 +51,9 @@ export default function MarketOpportunityCard({
 
   const opportunity =
     item.price > 0
-      ? ((value - item.price) / item.price) * 100
+      ? isAuction
+        ? ((value - item.price) / value) * 100
+        : ((value - item.price) / item.price) * 100
       : 0;
 
   const potentialProfit =

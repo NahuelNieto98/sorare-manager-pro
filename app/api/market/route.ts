@@ -848,13 +848,13 @@ export async function GET() {
         );
 
       const opportunity =
-        auctionPrice > 0
+        lotValue > 0
           ? (
               (
                 lotValue -
                 auctionPrice
               ) /
-              auctionPrice
+              lotValue
             ) *
             100
           : 0;

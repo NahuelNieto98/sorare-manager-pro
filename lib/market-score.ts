@@ -6,6 +6,16 @@ export type MarketScoreOptions = {
   }[];
 };
 
+function normalizeRarity(
+  rarity: string | null | undefined
+) {
+  return String(rarity ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ");
+}
+
 export function calculateMarketScore(
   card: any,
   price: number,
@@ -15,15 +25,6 @@ export function calculateMarketScore(
     return 0;
   }
 
-  /*
-   * =====================================================
-   * SUBASTAS
-   * =====================================================
-   *
-   * Cuando recibimos un lote utilizamos el valor total
-   * del lote en lugar del marketValue de una sola carta.
-   */
-
   const isAuction =
     options?.lotValue !== undefined &&
     options?.lotValue !== null;
@@ -32,51 +33,76 @@ export function calculateMarketScore(
     ? Number(options?.lotValue ?? 0)
     : Number(card.marketValue ?? 0);
 
-  if (!estimatedValue || estimatedValue <= 0) {
+  if (
+    !estimatedValue ||
+    estimatedValue <= 0
+  ) {
     return 0;
   }
 
-  const opportunity =
-    ((estimatedValue - price) / price) * 100;
-
   /*
-   * =====================================================
-   * 1. OPORTUNIDAD
-   * =====================================================
+   * Para cartas individuales:
    *
-   * Cuanto mayor sea la diferencia entre precio y valor,
-   * mayor será la puntuación.
+   * oportunidad =
+   * (valor - precio) / precio
    *
-   * En subastas usamos una escala más amplia porque
-   * los lotes pueden presentar oportunidades enormes.
+   * Para subastas:
+   *
+   * descuento =
+   * (valor - precio) / valor
+   *
+   * Esto evita que una puja inicial de €5
+   * frente a una carta valorada en €200
+   * genere oportunidades absurdas como +3900%.
    */
+
+  const opportunity = isAuction
+    ? (
+        (estimatedValue - price) /
+        estimatedValue
+      ) * 100
+    : (
+        (estimatedValue - price) /
+        price
+      ) * 100;
 
   let score = 50;
 
+  /*
+   * =====================================================
+   * 1. OPORTUNIDAD / DESCUENTO
+   * =====================================================
+   */
+
   if (isAuction) {
-    if (opportunity >= 1000) {
+    /*
+     * En subastas utilizamos descuento sobre
+     * el valor estimado.
+     */
+
+    if (opportunity >= 90) {
       score += 40;
-    } else if (opportunity >= 750) {
+    } else if (opportunity >= 80) {
       score += 38;
-    } else if (opportunity >= 500) {
+    } else if (opportunity >= 70) {
       score += 35;
-    } else if (opportunity >= 300) {
+    } else if (opportunity >= 60) {
       score += 31;
-    } else if (opportunity >= 200) {
-      score += 27;
-    } else if (opportunity >= 150) {
-      score += 23;
-    } else if (opportunity >= 100) {
-      score += 20;
-    } else if (opportunity >= 75) {
-      score += 17;
     } else if (opportunity >= 50) {
-      score += 14;
+      score += 27;
+    } else if (opportunity >= 40) {
+      score += 23;
     } else if (opportunity >= 30) {
-      score += 11;
+      score += 20;
+    } else if (opportunity >= 25) {
+      score += 17;
     } else if (opportunity >= 20) {
-      score += 8;
+      score += 14;
+    } else if (opportunity >= 15) {
+      score += 11;
     } else if (opportunity >= 10) {
+      score += 8;
+    } else if (opportunity >= 5) {
       score += 5;
     } else if (opportunity >= 0) {
       score += 2;
@@ -94,9 +120,6 @@ export function calculateMarketScore(
      * ===================================================
      * CARTAS INDIVIDUALES
      * ===================================================
-     *
-     * Mantenemos prácticamente el comportamiento anterior
-     * para no alterar el funcionamiento que ya tenemos.
      */
 
     if (opportunity >= 40) {
@@ -124,12 +147,6 @@ export function calculateMarketScore(
    * =====================================================
    * 2. CALIDAD DEL LOTE
    * =====================================================
-   *
-   * Para subastas tenemos información de todas las cartas.
-   *
-   * Un lote con varias cartas valiosas recibe una pequeña
-   * bonificación, pero la oportunidad económica sigue siendo
-   * el factor principal.
    */
 
   if (isAuction) {
@@ -146,37 +163,47 @@ export function calculateMarketScore(
 
     if (validCards.length >= 3) {
       score += 5;
-    } else if (validCards.length === 2) {
+    } else if (
+      validCards.length === 2
+    ) {
       score += 3;
-    } else if (validCards.length === 1) {
+    } else if (
+      validCards.length === 1
+    ) {
       score += 1;
     }
-
-    /*
-     * Bonificación por rareza predominante del lote.
-     */
 
     const superRareCards =
       validCards.filter(
         (lotCard) =>
-          lotCard.scarcity === "super_rare"
+          normalizeRarity(
+            lotCard.scarcity
+          ) === "super rare"
       ).length;
 
     const rareCards =
       validCards.filter(
         (lotCard) =>
-          lotCard.scarcity === "rare"
+          normalizeRarity(
+            lotCard.scarcity
+          ) === "rare"
       ).length;
 
     if (superRareCards >= 3) {
       score += 5;
-    } else if (superRareCards === 2) {
+    } else if (
+      superRareCards === 2
+    ) {
       score += 4;
-    } else if (superRareCards === 1) {
+    } else if (
+      superRareCards === 1
+    ) {
       score += 3;
     } else if (rareCards >= 2) {
       score += 2;
-    } else if (rareCards === 1) {
+    } else if (
+      rareCards === 1
+    ) {
       score += 1;
     }
   } else {
@@ -201,18 +228,27 @@ export function calculateMarketScore(
     if (scores.length > 0) {
       const average =
         scores.reduce(
-          (total: number, value: number) =>
+          (
+            total: number,
+            value: number
+          ) =>
             total + value,
           0
         ) / scores.length;
 
       if (average >= 60) {
         score += 10;
-      } else if (average >= 50) {
+      } else if (
+        average >= 50
+      ) {
         score += 7;
-      } else if (average >= 40) {
+      } else if (
+        average >= 40
+      ) {
         score += 4;
-      } else if (average < 30) {
+      } else if (
+        average < 30
+      ) {
         score -= 5;
       }
     }
@@ -222,16 +258,14 @@ export function calculateMarketScore(
    * =====================================================
    * 3. RAREZA
    * =====================================================
-   *
-   * Para cartas normales mantenemos la bonificación.
-   *
-   * En subastas la rareza ya se valora dentro del lote,
-   * por lo que no añadimos nuevamente la rareza de la
-   * carta principal.
    */
 
   if (!isAuction) {
-    switch (card.scarcity) {
+    switch (
+      normalizeRarity(
+        card.scarcity
+      )
+    ) {
       case "limited":
         score += 3;
         break;
@@ -240,7 +274,7 @@ export function calculateMarketScore(
         score += 4;
         break;
 
-      case "super_rare":
+      case "super rare":
         score += 5;
         break;
 
